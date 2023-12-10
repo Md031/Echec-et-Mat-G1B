@@ -3,10 +3,26 @@ import views.Tile as Tl
 import views.PieceDisplayer as PieceD
 import models.Board as Brd
 import Data as Dt
+import views.Widget as Wdgt
 
-class BoardDisplayer() :
+class BoardDisplayer(Wdgt.Widget) :
+    """
+    Représente l'affichage du plateau de jeu sur la fenêtre de l'application
+
+    Attributes
+    ----------
+    board : Board
+        le plateau de jeu à afficher
+    grid : list[list[Tile]]
+        l'affichae du plateau de jeu
+    """
+
     def __init__(self, board : Brd.Board = None, position : Dt.Point = Dt.Point(0, 0)) -> None :
-        self.__position : Dt.Point = position
+        """
+        Initialise une instance de BoardDisplayer
+        (voir constructeur de "Widget")
+        """
+        super().__init__(position, "board_displayer")
         self.__board : Brd.Board = board
         self.__grid : list[list[Tl.Tile]] = []
         if self.__board :
@@ -14,16 +30,28 @@ class BoardDisplayer() :
 
     @property
     def grid(self) -> list[list[Tl.Tile]] :
+        """Renvoie les cases affichées sur la fenêtres"""
         return self.__grid
 
     @property
-    def position(self) -> Dt.Point : return self.__position
+    def position(self) -> Dt.Point :
+        """Renvoie la position du plateau de jeu sur la fenêtre"""
+        return self.__position
 
     def set_board(self, board : Brd.Board = None) -> None :
+        """
+        Change le plateau à afficher
+
+        Parameters
+        ----------
+        board : Board
+            le nouveau plateau à afficher
+        """
         self.__board = board
         self._init_grid()
 
     def _init_grid(self) -> None :
+        """Initialise l'affichage du plateu de jeu"""
         cmpt_tile : int = 0
         tile : Tl.Tile = None
         for i in range(Dt.Utils.DEFAULT_GRID_DIMENSIONS) :
@@ -49,9 +77,22 @@ class BoardDisplayer() :
         return self.grid[pos.x][pos.y]
 
     def display(self, window) -> None :
-        for row in self.grid :
-            for tile in row :
-                tile.display(window)
+        for tile in self :
+            tile.display(window)
+
+    def __contains__(self, point : Dt.Point | tuple[int]) -> bool : 
+        if isinstance(point, Dt.Point) :
+            return  super().position.x <= point.x <= super().position.x + Dt.Utils.DEFAULT_TILE_DIMENSIONS and \
+                super().position.y <= point.x <= super().position.y + Dt.Utils.DEFAULT_TILE_DIMENSIONS
+        else :
+            return  super().position.x <= point[0] <= super().position.x + Dt.Utils.DEFAULT_TILE_DIMENSIONS and \
+                super().position.y <= point[1] <= super().position.y + Dt.Utils.DEFAULT_TILE_DIMENSIONS
+
+    def __str__(self) -> str :
+        return str(self.__board)
+
+    def __repr__(self) -> str :
+        return str(self.__board)
 
     def __iter__(self) :
         self.__i : int = 0

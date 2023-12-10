@@ -3,10 +3,24 @@ import models.Pieces as Pcs
 
 class Board :
     """
+    Représente le plateau du jeu d'échecs
+
+    Attributes
+    ----------
+    pieces : list[list[Pcs.Pieces]]
+        les pièces possédées par les joueurs présents sur le plateau de jeu
+    grid : list[list[Pcs.Pieces | None]]
+        matrice représentant le plateu de jeu
     """
 
     def __init__(self, board_fen : str = Dt.Utils.DEFAULT_BOARD_FEN) -> None :
         """
+        Initialise une instance de Board
+
+        Parameters
+        ----------
+        board_fen : str
+            le plateau de jeu en notation fen (Forsyth-Edwards Notation)
         """
         self.__pieces : list[list[Pcs.Piece]] = [[], []]
         self.__grid : list[list[Pcs.Piece | None]] = []
@@ -17,7 +31,7 @@ class Board :
     ###########
     @property
     def fen(self) -> str :
-        """"""
+        """Renvoie le plateu de jeu en notation fen"""
         fen : str = ""
         for row in self.grid :
             space : int = 0
@@ -32,12 +46,25 @@ class Board :
         return fen.strip("/")
 
     @property
-    def grid(self) -> list[list[Pcs.Piece | None]] : return self.__grid
+    def grid(self) -> list[list[Pcs.Piece | None]] :
+        """Renvoie la matrice représentant le plateau de jeu"""
+        return self.__grid
 
     @property
-    def size(self) -> tuple[int] : return len(self.grid), len(self.grid[0]) 
+    def size(self) -> tuple[int] : 
+        """Renvoie les dimensions du plateau de jeu"""
+        return len(self.grid), len(self.grid[0]) 
 
-    def get_player_pieces(self, player) -> list[Pcs.Piece] : return self.__pieces[player]
+    def get_player_pieces(self, player : int) -> list[Pcs.Piece] : 
+        """
+        Renvoie une liste des pièces appartenant à un joueur
+
+        Parameters
+        ----------
+        player : int
+            le numéro du joueur
+        """
+        return self.__pieces[player]
 
     def __getitem__(self, pos : tuple[int] | Dt.Point | str) -> Pcs.Piece | None :
         if isinstance(pos, tuple) :
@@ -49,10 +76,19 @@ class Board :
     ###########
     # SETTERS #
     ###########
-    def set_board(self, board_fen : str) -> None : self._init(board_fen)
+    def set_board(self, board_fen : str) -> None :
+        """
+        Modifie le plateau le plateau de jeu
+
+        Parameters
+        ----------
+        board_fen : str
+            le nouveau plateau de jeu en notation fen
+        """
+        self._init(board_fen)
 
     def _init(self, board_fen : str = Dt.Utils.DEFAULT_BOARD_FEN) -> None :
-        """"""
+        """Initialise le plateau de jeu"""
         self.__pieces.clear()
         self.__grid.clear()
         self.__pieces = [[], []]

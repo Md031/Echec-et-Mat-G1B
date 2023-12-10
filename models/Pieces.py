@@ -1,13 +1,46 @@
 import Data as Dt
 import copy
+from abc import ABC
 
-class Piece :
+class Piece(ABC) :
     """
+    Représente une pièce dans le jeu d'échecs
+
+    Attributes
+    ----------
+    name : str
+        nom de la pièce
+    symbole : str
+        symbole représentant la pièce dans la notation san (Standard Algebric Notation)
+    position : Dt.Point
+        position de la pièce sur le plateau de jeu
+    owner : int
+        numéro du joueur a qui appartient la pièce
+    image_filename : str
+        chemin vers le fichier .png représentant la pièce
+    icon : str
+        icône de la pièce 
     """
 
     def __init__(self, position : Dt.Point, owner : int, image_type : str, name : str, \
-        symbol : str, icon : str) -> None :
+    symbol : str, icon : str) -> None :
         """
+        Initialise une instance de Piece
+
+        Parameters
+        ----------
+        position : Dt.Point
+            la position de la pièce sur le plateau
+        owner : int
+            le numéro du joueur a qui appartient la pièce
+        image_type : str
+            le style de l'image représentant la pièce
+        name : str
+            le nom de la pièce
+        symbol : str
+            le symbole représentant la pièce dans la notation san
+        icon : str
+            l'icône de la pièce
         """
         self._name  : str = name
         self._symbol : str = symbol
@@ -21,31 +54,53 @@ class Piece :
     # GETTERS #
     ###########
     @property
-    def name(self) -> str : return self._name
+    def name(self) -> str :
+        """Renvoie le nom de la pièce"""
+        return self._name
 
     @property
-    def symbol(self) -> str : return self._symbol
+    def symbol(self) -> str :
+        """Renvoie le symbole de la pièce"""
+        return self._symbol
 
     @property
-    def position(self) -> Dt.Point : return self._position
+    def position(self) -> Dt.Point :
+        """Renvoie la position de la pièce sur le plateau de jeu"""
+        return self._position
 
     @property
     def chess_positon(self) -> Dt.Point :
+        """Renvoie la position de la pièce sur le plateau en notation d'échecs (ex : f5)"""
         return Dt.convert_coordinates(self.position)
 
     @property
-    def owner(self) -> int : return self._owner
+    def owner(self) -> int :
+        """Renvoie le joueur à qui appartient la pièce"""
+        return self._owner
 
     @property
-    def image_filename(self) -> str : return self._image_filename
+    def image_filename(self) -> str :
+        """Renvoie le chemin vers le fichier .png représentant la pièce"""
+        return self._image_filename
 
     @property
-    def icon(self) -> str : return self._icon
+    def icon(self) -> str :
+        """Renvoie l'icône de la pièce"""
+        return self._icon
 
     ###########
     # SETTERS #
     ###########
-    def set_position(self, position : Dt.Point) -> None : self._position = position
+    def set_position(self, position : Dt.Point) -> None :
+        """
+        Modifie la position de la pièce sur le plateau de jeu
+
+        Parameters
+        ----------
+        position : Dt.Point
+            la nouvelle positon de la pièce
+        """
+        self._position = position
 
     ###################
     # OTHER FUNCTIONS #
@@ -59,21 +114,21 @@ class Piece :
             for direction in directions[self.owner] :
                 dest = copy.copy(self.position)
                 dest += direction
-                if dest in game.board :
+                if dest in game.game :
                     if (direction == (-2, 0) or direction == (2, 0)) and self.can_double_start \
-                    and game.board[dest] is None :
+                    and game.game[dest] is None :
                         actions.append(self.chess_positon + Dt.convert_coordinates(dest))
                     elif direction != (1, 0) and direction != (-1, 0) and \
                     (direction[0] == -1 and self.owner == 0 or direction[0] == 1 and self.owner == 1) :
-                        if game.board[dest] and game.board[dest].owner != self.owner :
+                        if game.game[dest] and game.game[dest].owner != self.owner :
                             actions.append(self.chess_positon + Dt.convert_coordinates(dest))
-                    elif game.board[dest] is None :
+                    elif game.game[dest] is None :
                         actions.append(self.chess_positon + Dt.convert_coordinates(dest))
         elif self.name == "knight" or self.name == "king" :
             for direction in directions :
                 dest : Dt.Point = copy.copy(self.position)
                 dest += direction
-                if dest in game.board and (game.board[dest] is None or game.board[dest].owner != self.owner) :
+                if dest in game.game and (game.game[dest] is None or game.game[dest].owner != self.owner) :
                     actions.append(self.chess_positon + Dt.convert_coordinates(dest))
         else :
             available_directions = [True] * len(directions)
@@ -83,7 +138,8 @@ class Piece :
                     available, direction = available_directions[i], directions[i]
                     if available :
                         dest[i] += direction
-                        if dest[i] in game.board and (game.board[dest[i]] is None or game.board[dest[i]].owner != self.owner) :
+                        if dest[i] in game.game and (game.game[dest[i]] is None or \
+                        game.game[dest[i]].owner != self.owner) :
                             actions.append(self.chess_positon + Dt.convert_coordinates(dest[i]))
                         else :
                             available_directions[i] = False
@@ -102,88 +158,110 @@ class Piece :
             return False
 
 class Pawn(Piece) :
-    """
-    """
+    """Représente un pion dans le jeu d'échecs"""
 
-    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic") -> None :
+    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic", name : str = "pawn", \
+    symbol : str = "", icon : str = "♙") -> None :
         """
+        Initialise une instance de Pawn 
+        (voir contstructeur de la classe "Piece")
         """
-        super().__init__(position, owner, image_type, "pawn", "", "♙")
+        super().__init__(position, owner, image_type, name, symbol, icon)
         self.__double_start : bool = True
 
     ###########
     # GETTERS #
     ###########
     @property
-    def can_double_start(self) -> bool : return self.__double_start
+    def can_double_start(self) -> bool :
+        """Permet de savoir si le pion a encore le droit d'avancer de deux cases"""
+        return self.__double_start
 
     ###########
     # SETTERS #
     ###########
-    def give_up_double_start(self) -> None : self.__double_start = False
+    def give_up_double_start(self) -> None :
+        """Retire au pion le droit d'avancer de deux cases"""
+        self.__double_start = False
 
     ###################
     # OTHER FUNCTIONS #
     ###################
-    def available_actions(self, board) -> list[str] :
-        return super().available_actions(board)
+    def available_actions(self, game) -> list[str] :
+        """Renvoie les positions atteignables par le pion sur le plateau de jeu"""
+        return super().available_actions(game)
 
 class Knight(Piece) :
-    """
-    """
+    """Représente un cavalier dans le jeu d'échecs"""
 
-    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic") -> None :
+    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic", name : str = "knight", \
+    symbol : str = "N", icon : str = "♘") -> None :
         """
+        Initialise une instance de Knight 
+        (voir contstructeur de la classe "Piece")
         """
-        super().__init__(position, owner, image_type, "knight", "N", "♘")
+        super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, board) -> list[str] :
-        return super().available_actions(board)
+    def available_actions(self, game) -> list[str] :
+        """Renvoie les positions atteignables par le cavalier sur le plateau de jeu"""
+        return super().available_actions(game)
 
 class Bishop(Piece) :
-    """
-    """
+    """Représente un fou dans le jeu d'échecs"""
 
-    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic") -> None :
+    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic", name : str = "bishop", \
+    symbol : str = "B", icon : str = "♗") -> None :
         """
+        Initialise une instance de Bishop 
+        (voir contstructeur de la classe "Piece")
         """
-        super().__init__(position, owner, image_type, "bishop", "B", "♗")
+        super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, board) -> list[str] :
-        return super().available_actions(board)
+    def available_actions(self, game) -> list[str] :
+        """Renvoie les positions atteignables par le fou sur le plateau de jeu"""
+        return super().available_actions(game)
 
 class Rook(Piece) :
-    """
-    """
+    """Représente une tour dans le jeu d'échecs"""
 
-    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic") -> None :
+    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic", name : str = "rook", \
+    symbol : str = "R", icon : str = "♖") -> None :
         """
+        Initialise une instance de Rook 
+        (voir contstructeur de la classe "Piece")
         """
-        super().__init__(position, owner, image_type, "rook", "R", "♖")
+        super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, board) -> list[str]:
-        return super().available_actions(board)
+    def available_actions(self, game) -> list[str] :
+        """Renvoie les positions atteignables par la tour sur le plateau de jeu"""
+        return super().available_actions(game)
 
 class Queen(Piece) :
-    """
-    """
+    """Représente une reine dans le jeu d'échecs"""
 
-    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic") -> None :
+    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic", name : str = "queen", \
+    symbol : str = "Q", icon : str = "♕") -> None :
         """
+        Initialise une instance de Queen 
+        (voir contstructeur de la classe "Piece")
         """
-        super().__init__(position, owner, image_type, "queen", "Q", "♕")
+        super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, board) -> list[str]:
-        return super().available_actions(board)
+    def available_actions(self, game) -> list[str] :
+        """Renvoie les positions atteignables par la reine sur le plateau de jeu"""
+        return super().available_actions(game)
 
 class King(Piece) :
-    """
-    """
+    """Représente une reine dans le jeu d'échecs"""
 
-    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic") -> None :
+    def __init__(self, position : Dt.Point, owner : int, image_type : str = "classic", name : str = "king", \
+    symbol : str = "K", icon : str = "♔") -> None :
         """
+        Initialise une instance de King
+        (voir contstructeur de la classe "Piece")
         """
-        super().__init__(position, owner, image_type, "king", "K", "♔")
+        super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, board) -> list[str] :
-        return super().available_actions(board)
+    def available_actions(self, game) -> list[str] :
+        """Renvoie les positions atteignables par le roi sur le plateau de jeu"""
+        return super().available_actions(game)
