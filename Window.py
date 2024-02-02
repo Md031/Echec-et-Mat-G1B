@@ -132,6 +132,7 @@ class Window() :
 
     def main_loop(self) -> None :
         """lance la fenêtre"""
+        Pg.init()
         running = True
         while running :
             Pg.display.update()

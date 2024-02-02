@@ -4,6 +4,8 @@ import views.GameDisplayer as GameD
 import views.Tile as Tl
 import models.Game as Gm
 import controllers.Controller as Ctrl
+import models.Move as Mv
+import views.PieceDisplayer as PieceD
 
 class GameController(Ctrl.Controller) :
     """
@@ -45,24 +47,73 @@ class GameController(Ctrl.Controller) :
         mouse_pos : tuple[int] = event.pos
         for tile in self.gamePage.baordDisplayer :
             if mouse_pos in tile :
-                if tile.piece :
-                    if tile.piece.owner == self.game.active_player :
-                        tile.set_clicked()
+                if tile.piece and (tile.piece.owner == self.game.active_player) :
+                    tile.set_clicked()
                     if tile.is_clicked :
-                        self.selected_tiles[0] = tile
+                        if self.selected_tiles[0] is None or \
+                        tile.grid_position != self.selected_tiles[0].grid_position :
+                            print(tile.piece)
+                            if self.selected_tiles[0] is not None :
+                                self._update_choice_tiles(self.selected_tiles[0].piece, False)
+                            self.selected_tiles[0] = tile
+                            self._update_choice_tiles(tile.piece, True)
+
+                elif self.selected_tiles[0] is not None :
+                    if tile.is_choice :
+                        self._update_choice_tiles(self.selected_tiles[0].piece, False)
+                        self.selected_tiles[1] = tile
+                        move : Mv.Move = Mv.Move(self.selected_tiles[0].grid_position, \
+                            self.selected_tiles[1].grid_position, self.game.board)
+                        self._play_move(move)
+                        print(self.game.state)
+                    self.__selected_tiles = [None, None]
             else :
                 tile.set_clicked(False) if tile.is_clicked else None
 
+    def _play_move(self, move : Mv.Move) -> None :
+        print(move.uci)
+        self.game.push_move(move)
+        print(len(self.game.board.get_player_pieces(0)))
+        print(len(self.game.board.get_player_pieces(1)))
+        start_tile : Tl.Tile = self.gamePage.baordDisplayer[move.start_pos]
+        dest_tile : Tl.Tile = self.gamePage.baordDisplayer[move.dest_pos]
+        dest_tile.set_piece(start_tile.pieceDisplayer)
+        start_tile.set_piece(None)
+        self.game.update_state()
+
+    def _revert_move(self) -> None :
+        move : Mv.Move = self.game.pop_move()
+        start_tile : Tl.Tile = self.gamePage.baordDisplayer[move.start_pos]
+        dest_tile : Tl.Tile = self.gamePage.baordDisplayer[move.dest_pos]
+        start_tile.set_piece(dest_tile.pieceDisplayer)
+        dest_tile.set_piece(
+            PieceD.PieceDisplayer(Dt.Point(0, 0), move.piece_captured) 
+            if move.piece_captured else None)
+        self.game.update_state()
+
+    def _update_choice_tiles(self, piece, is_choice : bool) -> None :
+        """
+        Met à jour l'affichage des des positions possible pour une pièce
+        quand un joueur clique sur le plateau de jeu
+        """
+        for move in self.game.active_player_actions :
+            if move[:2] == piece.chess_positon :
+                tile : Tl.Tile = self.gamePage.baordDisplayer[Dt.convert_coordinates(move[2:])]
+                tile.set_choice(False) if not is_choice else tile.set_choice(True)
+
     def handle_key_pressed(self, event) -> None :
-        return super().handle_key_pressed(event)
+        key = event.key
+        if key == Pg.K_b or key == Pg.K_r :
+            if self.__selected_tiles[0] :
+                self.__selected_tiles[0].set_clicked(False)
+                if self.__selected_tiles[0].piece :
+                    self._update_choice_tiles(self.__selected_tiles[0].piece, False)
 
-    def update(self) -> None :
-        super().update()
-        verif = 0
-        for widget, dest, direction in self._to_animate :
-            if widget.position == dest :
-                verif += 1
-        self._animate = verif != len(self._to_animate)
-        if not self._animate :
-            self.clear_animations()
-
+        if key == Pg.K_b :
+            if len(self.game.moves) > 0 :
+                self._revert_move()
+        if key == Pg.K_r :
+            # print(self.game)
+            self.game.reset()
+            # print(self.game)
+            self.gamePage.set_game(self.game)

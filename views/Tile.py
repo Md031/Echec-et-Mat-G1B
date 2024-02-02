@@ -113,6 +113,8 @@ class Tile(Wdgt.Widget) :
             la nouvelle pi§ce à afficher
         """
         self.__pieceDisplayer = piece
+        if self.pieceDisplayer :
+            self.pieceDisplayer.set_position(self.position)
 
     def set_visited(self, value : bool) -> None :
         """Change la valeur du booléen gérant la présence du curseur de la souris sur la case"""
@@ -145,10 +147,10 @@ class Tile(Wdgt.Widget) :
         elif self.is_visited :
             Pg.draw.rect(window.screen, Dt.Colors.GREEN, [super().position.x, super().position.y, \
                 Dt.Utils.DEFAULT_TILE_DIMENSIONS, Dt.Utils.DEFAULT_TILE_DIMENSIONS], 1)
-        if self.__pieceDisplayer :
-            self.__pieceDisplayer.display(window)
+        if self.pieceDisplayer :
+            self.pieceDisplayer.display(window)
         if self.is_choice :
-            Pg.draw.circle(window.screen, Dt.Colors.YELLOW, (self.center.x, self.center.y), 10)
+            Pg.draw.circle(window.screen, Dt.Colors.YELLOW, (self.position.x, self.position.y), 10)
 
     def __str__(self) -> str :
         if self.__pieceDisplayer :

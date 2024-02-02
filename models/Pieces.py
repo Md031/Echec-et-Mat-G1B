@@ -1,6 +1,6 @@
 import Data as Dt
 import copy
-from abc import ABC
+from abc import abstractmethod, ABC
 
 class Piece(ABC) :
     """
@@ -105,45 +105,9 @@ class Piece(ABC) :
     ###################
     # OTHER FUNCTIONS #
     ###################
+    @abstractmethod
     def available_actions(self, game) -> list[str] :
-        """"""
-        actions : list[str] = []
-        directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
-        dest : Dt.Point | list[Dt.Point] = None
-        if self.name == "pawn" :
-            for direction in directions[self.owner] :
-                dest = copy.copy(self.position)
-                dest += direction
-                if dest in game.game :
-                    if (direction == (-2, 0) or direction == (2, 0)) and self.can_double_start \
-                    and game.game[dest] is None :
-                        actions.append(self.chess_positon + Dt.convert_coordinates(dest))
-                    elif direction != (1, 0) and direction != (-1, 0) and \
-                    (direction[0] == -1 and self.owner == 0 or direction[0] == 1 and self.owner == 1) :
-                        if game.game[dest] and game.game[dest].owner != self.owner :
-                            actions.append(self.chess_positon + Dt.convert_coordinates(dest))
-                    elif game.game[dest] is None :
-                        actions.append(self.chess_positon + Dt.convert_coordinates(dest))
-        elif self.name == "knight" or self.name == "king" :
-            for direction in directions :
-                dest : Dt.Point = copy.copy(self.position)
-                dest += direction
-                if dest in game.game and (game.game[dest] is None or game.game[dest].owner != self.owner) :
-                    actions.append(self.chess_positon + Dt.convert_coordinates(dest))
-        else :
-            available_directions = [True] * len(directions)
-            dest = [copy.copy(self.position) for i in range(len(directions))]
-            while available_directions.count(False) != len(directions) :
-                for i in range(len(dest)) :
-                    available, direction = available_directions[i], directions[i]
-                    if available :
-                        dest[i] += direction
-                        if dest[i] in game.game and (game.game[dest[i]] is None or \
-                        game.game[dest[i]].owner != self.owner) :
-                            actions.append(self.chess_positon + Dt.convert_coordinates(dest[i]))
-                        else :
-                            available_directions[i] = False
-        return actions
+        """Renvoie une liste de toutes les actions possibles d'une pièce sur le plateau de jeu"""
 
     def __str__(self) -> str : 
         return f"{self.icon} ({self.name}) | pos : {self.chess_positon} {self.position} | owner : {self.owner}"
@@ -169,27 +133,41 @@ class Pawn(Piece) :
         super().__init__(position, owner, image_type, name, symbol, icon)
         self.__double_start : bool = True
 
-    ###########
-    # GETTERS #
-    ###########
     @property
     def can_double_start(self) -> bool :
         """Permet de savoir si le pion a encore le droit d'avancer de deux cases"""
         return self.__double_start
 
-    ###########
-    # SETTERS #
-    ###########
-    def give_up_double_start(self) -> None :
-        """Retire au pion le droit d'avancer de deux cases"""
-        self.__double_start = False
+    def set_double_start(self, value : bool) -> None :
+        """
+        Donne ou retire au pion le droit d'avancer de deux cases
 
-    ###################
-    # OTHER FUNCTIONS #
-    ###################
+        Parameters
+        ----------
+        value : bool 
+            la valeur booléenne à attribuer
+        """
+        self.__double_start = value 
+
     def available_actions(self, game) -> list[str] :
         """Renvoie les positions atteignables par le pion sur le plateau de jeu"""
-        return super().available_actions(game)
+        actions : list[str] = []
+        dest : Dt.Point = None
+        directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name][self.owner]
+        for direction in directions :
+            dest = copy.copy(self.position) + direction
+            if dest in game.board :
+                dest_owner : int | None = game.board[dest].owner if game.board[dest] else None
+                if direction in [(-2, 0), (2, 0)] :
+                    tmp = [game.board[copy.copy(self.position) + (-1, 0)], 
+                        game.board[copy.copy(self.position) + (1, 0)]]
+                if ((direction in [(-2, 0), (2, 0)] and self.can_double_start and dest_owner is None and 
+                ((tmp[0] is None and self.owner == 0) or (tmp[1] is None and self.owner == 1))) or 
+                (direction in [(1, 0), (-1, 0)] and dest_owner is None) or 
+                (direction in [(-1, 1), (1, 1), (-1, -1), (1, -1)] and 
+                dest_owner is not None and dest_owner != self.owner)) :
+                    actions.append(self.chess_positon + Dt.convert_coordinates(dest))
+        return actions
 
 class Knight(Piece) :
     """Représente un cavalier dans le jeu d'échecs"""
@@ -204,7 +182,14 @@ class Knight(Piece) :
 
     def available_actions(self, game) -> list[str] :
         """Renvoie les positions atteignables par le cavalier sur le plateau de jeu"""
-        return super().available_actions(game)
+        actions : list[str] = []
+        dest : Dt.Point = None
+        directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
+        for direction in directions :
+            dest = copy.copy(self.position) + direction
+            if dest in game.board and (not game.board[dest] or game.board[dest].owner != self.owner) :
+                actions.append(self.chess_positon + Dt.convert_coordinates(dest))
+        return actions
 
 class Bishop(Piece) :
     """Représente un fou dans le jeu d'échecs"""
@@ -219,7 +204,23 @@ class Bishop(Piece) :
 
     def available_actions(self, game) -> list[str] :
         """Renvoie les positions atteignables par le fou sur le plateau de jeu"""
-        return super().available_actions(game)
+        actions : list[str] = []
+        directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
+        available_directions : list[bool] = [True] * len(directions)
+        dests : list[Dt.Point] = [copy.copy(self.position) for i in range(len(directions))]
+        while available_directions.count(False) != len(directions) :
+            for i in range(len(directions)) :
+                available, direction = available_directions[i], directions[i]
+                if available :
+                    dests[i] += direction
+                    if dests[i] in game.board and \
+                    (not game.board[dests[i]] or game.board[dests[i]].owner != self.owner) :
+                        actions.append(self.chess_positon + Dt.convert_coordinates(dests[i]))
+                        if game.board[dests[i]] :
+                            available_directions[i] = False
+                    else :
+                        available_directions[i] = False
+        return actions
 
 class Rook(Piece) :
     """Représente une tour dans le jeu d'échecs"""
@@ -234,7 +235,7 @@ class Rook(Piece) :
 
     def available_actions(self, game) -> list[str] :
         """Renvoie les positions atteignables par la tour sur le plateau de jeu"""
-        return super().available_actions(game)
+        return Bishop.available_actions(self, game)
 
 class Queen(Piece) :
     """Représente une reine dans le jeu d'échecs"""
@@ -249,7 +250,7 @@ class Queen(Piece) :
 
     def available_actions(self, game) -> list[str] :
         """Renvoie les positions atteignables par la reine sur le plateau de jeu"""
-        return super().available_actions(game)
+        return Bishop.available_actions(self, game)
 
 class King(Piece) :
     """Représente une reine dans le jeu d'échecs"""
@@ -264,4 +265,4 @@ class King(Piece) :
 
     def available_actions(self, game) -> list[str] :
         """Renvoie les positions atteignables par le roi sur le plateau de jeu"""
-        return super().available_actions(game)
+        return Knight.available_actions(self, game)

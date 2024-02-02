@@ -16,7 +16,7 @@ class Point :
         if isinstance(__value, Point) :
             return self.x == __value.x and self.y == __value.y
         elif isinstance(__value, tuple) or isinstance(__value, list) :
-            return self.x == __value[0] and self.x == __value[1]
+            return self.x == __value[0] and self.y == __value[1]
 
     def __copy__(self) :
         return Point(self.x, self.y)
@@ -87,7 +87,7 @@ class Utils :
     DEFAULT_FIRST_PLAYER : int = 0
     DEFAULT_FEN : str = f"{DEFAULT_BOARD_FEN} {str(DEFAULT_FIRST_PLAYER)} {DEFAULT_CASTLING_RIGHTS}"
     DEFAULT_PIECES_DIRECTIONS : dict[str : list[tuple[int]]] = {\
-        "pawn" : [[(-1, 0), (-2, 0), (-1, 1), (-1, -1)], [(1, 0), (2, 0), (1, 1), (1, -1)]], \
+        "pawn" : [[(-2, 0), (-1, 0), (-1, 1), (-1, -1)], [(2, 0), (1, 0), (1, 1), (1, -1)]], \
         "knight" : [(-2, 1), (-1, 2), (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1)], \
         "bishop" : [(-1, 1), (1, 1), (1, -1), (-1, -1)], \
         "rook" : [(-1, 0), (0, 1), (1, 0), (0, -1)], \
@@ -96,13 +96,8 @@ class Utils :
     }
 
 class State :
-    ONGOING : int = 0
-    CHECK : int = 1
-    CHECKMATE : int = 2
+    ONGOING : int = "ongoing"
+    CHECK : int = "check"
+    CHECKMATE : int = "checkmate"
     STALEMATE : int = 3
     RESIGNATION : int = 4
-
-class MoveType :
-    NORMAL : int = 0
-    CAPTURE : int = 1
-    CASTLING : int = 2

@@ -2,6 +2,8 @@ import chess
 import models.Board as Bd
 import models.Pieces as Pcs
 import Data as Dt
+import models.Move as Mv
+import itertools
 
 class Game :
     """
@@ -36,17 +38,26 @@ class Game :
         ai : 
             l'intelligence artificielle qui va jouer la partie
         """
+        self.__start_fen : str = fen if fen else Dt.Utils.DEFAULT_FEN
+        self._init_game()
+        self.update_state()
+
+    def _init_game(self) -> None :
         self.__round : int = 0
         self.__state : int = Dt.State.ONGOING
         self.__moves : list = []
-        self.__activer_player_actions : list[str] = []
+        self.__active_player_actions : list[str] = []
+        fen_tokens = self._parse_fen(self.__start_fen)
+        self.__board : Bd.Board = Bd.Board(fen_tokens[0])
+        self.__active_player : int = int(fen_tokens[1])
+        self.__castling_rights : list[str] = fen_tokens[2]
+        self.__kings_pos : list[Dt.Point] = [None, None]
 
-        fen_tokens = self._parse_fen(fen)
-        self.__board : Bd.Board = Bd.Board(fen_tokens[0] if fen_tokens else \
-            Dt.Utils.DEFAULT_BOARD_FEN)
-        self.__active_player : int = fen_tokens[0] if fen_tokens else Dt.Utils.DEFAULT_FIRST_PLAYER
-        self.__castling_rights : list[str] = fen_tokens[0] if fen_tokens \
-            else Dt.Utils.DEFAULT_CASTLING_RIGHTS.split("|")
+        for piece0, piece1 in itertools.zip_longest(self.board.get_player_pieces(0), 
+        self.board.get_player_pieces(1)) :
+            if piece0.name == "king" : self.__kings_pos[0] = piece0.position
+            if piece1.name == "king" : self.__kings_pos[1] = piece1.position
+            if self.__kings_pos[0] and self.__kings_pos[1] : break
 
     def _parse_fen(self, fen : str) -> list[str] :
         """Renvoie une liste de tout les composants du fen de la partie"""
@@ -82,15 +93,10 @@ class Game :
         return self.__moves
 
     @property
-    def pop_move(self) -> str :
-        """"Annule le dernier mouvement efféctué dans la partie"""
-        return self.__moves.pop()
-
-    @property
-    def activer_player_actions(self) -> list[str] :
+    def active_player_actions(self) -> list[str] :
         """Renvoie la liste des actions valides pour le joueur actif"""
-        return self._available_actions() if len(self.__activer_player_actions) == 0 \
-        else self.__activer_player_actions
+        # if len(self.__active_player_actions) == 0 : self._valid_actions()
+        return self.__active_player_actions
 
     @property
     def activer_player_castling_rights(self) -> str :
@@ -131,10 +137,10 @@ class Game :
         """
         self.__castling_rights = castling_rights
 
-    def _next_round(self) -> None :
-        """Fait passer la partie au tour suivant"""
-        self.__round += 1
-        self.set_active_player(self.round % 2)
+    # def next_round(self) -> None :
+    #     """Fait passer la partie au tour suivant"""
+    #     self.__round += 1
+    #     self.set_active_player(self.round % 2)
 
     def set_state(self, state : int) -> None :
         """
@@ -147,9 +153,9 @@ class Game :
         """
         self.__state = state
 
-    def _add_move(self, move : str) -> None : 
+    def _add_move(self, move : Mv.Move) -> None : 
         """
-        Ajouter un mouvement dans la liste des mouvments de la partie
+        Ajouter un mouvement dans la liste des mouvements de la partie
 
         Parameters
         ----------
@@ -167,11 +173,45 @@ class Game :
         action : Moves
             le mouvement à ajouter
         """
-        self.__activer_player_actions.append(action)
+        self.__active_player_actions.append(action)
 
     ###################
     # OTHER FUNCTIONS #
-    ################### 
+    ###################
+    def push_move(self, move : Mv.Move) -> None :
+        move.piece_moved.set_position(move.dest_pos)
+        if move.piece_moved.name == "king" :
+            self.__kings_pos[move.piece_moved.owner] = move.dest_pos
+        if move.piece_captured :
+            self._capture(move.piece_captured)
+        self._update_board(move)
+        self.__round += 1
+        self.set_active_player(self.round % 2)
+        self._add_move(move)
+        if (move.piece_moved.name == "pawn" and move.piece_moved.can_double_start) :
+            move.piece_moved.set_double_start(False)
+        self.__active_player_actions.clear()
+
+    def pop_move(self) -> Mv.Move :
+        """"Annule le dernier mouvement efféctué dans la partie"""
+        self.__round -= 1
+        self.set_active_player(self.round % 2)
+        move : Mv.Move = self.__moves.pop()
+        move.piece_moved.set_position(move.start_pos)
+        if move.piece_moved.name == "king" :
+            self.__kings_pos[move.piece_moved.owner] = move.start_pos
+        if move.piece_captured :
+            move.piece_captured.set_position(move.dest_pos)
+            self.board.add_piece(move.piece_captured, move.piece_captured.owner)
+        self._update_board(move, undo = True)
+        if (move.piece_moved.name == "pawn" 
+        and not move.piece_moved.can_double_start
+        and ((move.start_pos.x == 6 and move.piece_moved.owner == 0) 
+        or (move.start_pos.x == 1 and move.piece_moved.owner == 1))) :
+            move.piece_moved.set_double_start(True)
+        self.__active_player_actions.clear()
+        return move
+
     def _available_actions(self) -> list[str] :
         """Renvoie une liste de toutes les actions possibles pour le joueur actif"""
         actions : list[str] = []
@@ -179,11 +219,39 @@ class Game :
             actions.extend(piece.available_actions(self))
         return actions
 
-    def _is_check(self) -> bool :
-        """Vérifie si la partie se trouve dans l'état 'échec' (check)"""
-        ...
+    def _valid_actions(self) -> list[str] :
+        """Renvoie une liste de toutes les actions valides pour le joueur actif"""
+        actions = self._available_actions()
+        for i in range(len(actions) - 1, -1, -1) :
+            action : str = actions[i]
+            move : Mv.Move = Mv.Move(Dt.convert_coordinates(action[:2]), 
+                Dt.convert_coordinates(action[2:]), self.board)
+            self.push_move(move)
+            self.set_active_player((self.round - 1) % 2)
+            if self._is_in_check() :
+                actions.remove(action)
+            self.pop_move()
+        return actions
 
-    def capture(self, piece : Pcs.Piece) -> None :
+    def _is_in_check(self) -> bool :
+        """Vérifie si la partie se trouve dans l'état 'échec' (check)"""
+        self.set_active_player(self.round % 2)
+        other_player_actions : list[str] = self._available_actions()
+        self.set_active_player((self.round - 1) % 2)
+        for other_action in other_player_actions :
+            if Dt.convert_coordinates(other_action[2:]) == self.__kings_pos[self.active_player] :
+                return True
+        return False
+
+    def _is_in_checkmate(self) -> bool :
+        """Vérifie si la partie se trouve dans l'état 'échec et mat' (checkmate)"""
+        return len(self.active_player_actions) == 0 and self._is_in_check()
+
+    def _is_in_stalemate(self) -> bool :
+        """Vérifie si la partie se trouve dans l'état 'match nul' (stalemate)"""
+        return len(self.active_player_actions) == 0 and not self._is_in_check()
+
+    def _capture(self, piece : Pcs.Piece) -> None :
         """
         Effectue l'action de manger une pièce
 
@@ -194,28 +262,35 @@ class Game :
         """
         self.__board.capture(piece)
 
-    def update_board(self, move : chess.Move) -> tuple[str, int] :
-        # str_move : str = self.chess_board.san(move)
-        # move_type : int = MoveType.NORMAL
-        # if self.chess_board.is_capture(move) :
-        #     move_type = MoveType.CAPTURE
-        # elif self.chess_board.is_castling(move) :
-        #     move_type = MoveType.CASTLING
-        # self.chess_board.push(move)
-        # self._update_state()
-        # return str_move, move_type
-        ...
+    def _update_board(self, move : Mv.Move, undo : bool = False) -> None :
+        """
+        Met à jour le plateau de jeu de la partie
+        
+        Parameters
+        ----------
+        move : Mv.Move
+            le mouvement à effectuer
+        undo : bool
+            permet de savoir s'il le mouvement à effectuer est son inverse 
+        """
+        self.board[move.dest_pos] = move.piece_moved if not undo else move.piece_captured 
+        self.board[move.start_pos] = None if not undo else move.piece_moved
 
-    def _update_state(self) -> None :
-        # if self.chess_board.is_check() :
-        #     self.__state = State.CHECK
-        # elif self.chess_board.is_checkmate() :
-        #     self.__state = State.CHECKMATE
-        # elif self.chess_board.is_stalemate() :
-        #     self.__state = State.STALEMATE
-        # else :
-        #     self.__state = State.ONGOING
-        ...
+    def update_state(self) -> None :
+        """Met à jour l'état de la partie"""
+        self.__active_player_actions = self._valid_actions()
+        self.__round += 1
+        if len(self.active_player_actions) == 0 :
+            if self._is_in_check() : self.set_state(Dt.State.CHECKMATE)
+            else : self.set_state(Dt.State.STALEMATE)
+        else :
+            if self._is_in_check() : self.set_state(Dt.State.CHECK)
+            else : self.set_state(Dt.State.ONGOING)
+        self.__round -= 1
+
+    def reset(self) -> None :
+        """Réinitialise à la partie"""
+        self._init_game()
 
     def __str__(self) -> str :
         str_game : str = f"{self.__repr__()}\n\n{str(self.board)}"

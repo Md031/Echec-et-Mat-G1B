@@ -48,6 +48,7 @@ class BoardDisplayer(Wdgt.Widget) :
             le nouveau plateau à afficher
         """
         self.__board = board
+        self.grid.clear()
         self._init_grid()
 
     def _init_grid(self) -> None :
@@ -55,7 +56,7 @@ class BoardDisplayer(Wdgt.Widget) :
         cmpt_tile : int = 0
         tile : Tl.Tile = None
         for i in range(Dt.Utils.DEFAULT_GRID_DIMENSIONS) :
-            row = []
+            row : list[Tl.Tile] = []
             for j in range(Dt.Utils.DEFAULT_GRID_DIMENSIONS) :
                 grid_position = Dt.Point(i, j)
                 window_position = Dt.Point(j * Dt.Utils.DEFAULT_TILE_DIMENSIONS, i * Dt.Utils.DEFAULT_TILE_DIMENSIONS)
@@ -96,15 +97,15 @@ class BoardDisplayer(Wdgt.Widget) :
 
     def __iter__(self) :
         self.__i : int = 0
-        self.__j : int = 0
+        self.__j : int = -1
         return self
 
     def __next__(self) -> Tl.Tile :
-        tile : Tl.Tile = self[Dt.Point(self.__i, self.__j)]
         self.__j += 1
         if self.__j == len(self.grid[0]) :
             self.__j = 0
             self.__i += 1
         if self.__i == len(self.grid) :
             raise StopIteration
+        tile : Tl.Tile = self[Dt.Point(self.__i, self.__j)]
         return tile

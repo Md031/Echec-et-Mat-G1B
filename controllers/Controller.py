@@ -74,12 +74,21 @@ class Controller(ABC) :
 
     def update(self) -> None :
         """Met à jour les éléments de la liste 'to_animate'"""
+        verif = 0
         for widget, dest, direction in self._to_animate :
             widget.set_position(Dt.Point(widget.position.x + direction[0], widget.position.y + direction[1]))
             widget.display(self.window)
             if (abs(dest.x - widget.position.x) <= 10 and abs(dest.y - widget.position.y) <= 10) :
                 widget.set_position(dest)
+                verif += 1
+        self._animate = verif != len(self._to_animate)
+        if not self._animate :
+            self.clear_animations()
 
+        for widget, dest, direction in self._to_animate :
+            if widget.position == dest :
+                verif += 1
+    
     def handle(self, event) -> None :
         """Gère les événements qui ont lieu dans la fenêtre de l'application"""
         match event.type :

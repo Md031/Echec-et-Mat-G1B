@@ -3,10 +3,9 @@ import models.Board as Brd
 import models.Pieces as Pcs
 
 class Move :
-    def __init__(self, start_pos : Dt.Point, dest_pos : Dt.Point, board : Brd.Board) -> None:
+    def __init__(self, start_pos : Dt.Point, dest_pos : Dt.Point, board : Brd.Board) -> None :
         self.__start_pos : Dt.Point = start_pos
-        self.__dest_pos : Dt.Point = start_pos
-        self.__type : int = Dt.MoveType.NORMAL
+        self.__dest_pos : Dt.Point = dest_pos
         self.__piece_moved : Pcs.Piece = board[self.start_pos]
         self.__piece_captured : Pcs.Piece = board[self.dest_pos]
 
@@ -17,13 +16,10 @@ class Move :
     def dest_pos(self) -> Dt.Point : return self.__dest_pos
 
     @property
-    def type(self) -> Dt.Point : return self.__type
+    def piece_moved(self) -> Pcs.Piece : return self.__piece_moved
 
     @property
-    def piece_moved(self) -> Dt.Point : return self.__piece_moved
-
-    @property
-    def piece_captured(self) -> Dt.Point : return self.__piece_captured
+    def piece_captured(self) -> Pcs.Piece | None : return self.__piece_captured
 
     @property
     def uci(self) -> str : 

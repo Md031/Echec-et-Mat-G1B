@@ -22,8 +22,6 @@ class Board :
         board_fen : str
             le plateau de jeu en notation fen (Forsyth-Edwards Notation)
         """
-        self.__pieces : list[list[Pcs.Piece]] = [[], []]
-        self.__grid : list[list[Pcs.Piece | None]] = []
         self._init(board_fen)
 
     ###########
@@ -34,14 +32,18 @@ class Board :
         """Renvoie le plateu de jeu en notation fen"""
         fen : str = ""
         for row in self.grid :
+            str_row : str = ""
             space : int = 0
             for piece in row :
                 if piece :
+                    str_row += str(space) if space > 0 else ""
                     space = 0
-                    fen += piece.name[0].upper() if piece.owner == 0 else piece.name[0]
+                    str_row += piece.name[0].upper() if piece.owner == 0 else piece.name[0]
                 else : 
                     space += 1
-            fen += str(space) if space > 0 else ""
+            if len(str_row) < 8 :
+                str_row += str(space) if space > 0 else ""
+            fen += str_row
             fen += "/"
         return fen.strip("/")
 
@@ -89,10 +91,8 @@ class Board :
 
     def _init(self, board_fen : str = Dt.Utils.DEFAULT_BOARD_FEN) -> None :
         """Initialise le plateau de jeu"""
-        self.__pieces.clear()
-        self.__grid.clear()
-        self.__pieces = [[], []]
-        self.__grid = []
+        self.__pieces : list[list[Pcs.Piece]] = [[], []]
+        self.__grid : list[list[Pcs.Piece | None]] = []
         board_fen_list : list[str] = board_fen.split("/")
 
         row : int = 0 
@@ -124,6 +124,12 @@ class Board :
             self.__grid.append(board_row)
             row += 1
 
+    def add_piece(self, piece : Pcs.Piece, player : int) -> None :
+        self.__pieces[player].append(piece)
+
+    def __setitem__(self, position : Dt.Point, piece : Pcs.Piece) -> None :
+        self.grid[position.x][position.y] = piece
+
     ###################
     # OTHER FUNCTIONS #
     ###################
@@ -138,7 +144,7 @@ class Board :
 
     def capture(self, piece : Pcs.Piece) -> None :
         """"""
-        player_piece : list[Pcs.Piece] = self.player_pieces(piece.player)
+        player_piece : list[Pcs.Piece] = self.get_player_pieces(piece.owner)
         player_piece.pop(player_piece.index(piece))
 
     def __str__(self) -> str :
