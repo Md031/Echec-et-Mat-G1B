@@ -1,4 +1,3 @@
-import chess
 import models.Board as Bd
 import models.Pieces as Pcs
 import Data as Dt
