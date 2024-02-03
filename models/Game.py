@@ -290,6 +290,7 @@ class Game :
     def reset(self) -> None :
         """Réinitialise à la partie"""
         self._init_game()
+        self.update_state()
 
     def __str__(self) -> str :
         str_game : str = f"{self.__repr__()}\n\n{str(self.board)}"

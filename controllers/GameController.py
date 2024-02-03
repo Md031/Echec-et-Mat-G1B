@@ -47,9 +47,9 @@ class GameController(Ctrl.Controller) :
         mouse_pos : tuple[int] = event.pos
         for tile in self.gamePage.baordDisplayer :
             if mouse_pos in tile :
-                if tile.piece and (tile.piece.owner == self.game.active_player) :
+                if tile.piece and (tile.piece.owner == self.game.active_player) : # when the active_player click on one of his pawn
                     tile.set_clicked()
-                    if tile.is_clicked :
+                    if tile.is_clicked : 
                         if self.selected_tiles[0] is None or \
                         tile.grid_position != self.selected_tiles[0].grid_position :
                             print(tile.piece)
@@ -57,15 +57,17 @@ class GameController(Ctrl.Controller) :
                                 self._update_choice_tiles(self.selected_tiles[0].piece, False)
                             self.selected_tiles[0] = tile
                             self._update_choice_tiles(tile.piece, True)
-
                 elif self.selected_tiles[0] is not None :
-                    if tile.is_choice :
+                    print("bbb", self.selected_tiles)
+                    if tile.is_choice : # if it's not an illegal move
                         self._update_choice_tiles(self.selected_tiles[0].piece, False)
                         self.selected_tiles[1] = tile
                         move : Mv.Move = Mv.Move(self.selected_tiles[0].grid_position, \
                             self.selected_tiles[1].grid_position, self.game.board)
                         self._play_move(move)
                         print(self.game.state)
+                    else:
+                        self._update_choice_tiles(self.selected_tiles[0].piece, False)
                     self.__selected_tiles = [None, None]
             else :
                 tile.set_clicked(False) if tile.is_clicked else None
@@ -93,13 +95,14 @@ class GameController(Ctrl.Controller) :
 
     def _update_choice_tiles(self, piece, is_choice : bool) -> None :
         """
-        Met à jour l'affichage des des positions possible pour une pièce
+        Met à jour l'affichage des positions possible pour une pièce
         quand un joueur clique sur le plateau de jeu
         """
         for move in self.game.active_player_actions :
             if move[:2] == piece.chess_positon :
                 tile : Tl.Tile = self.gamePage.baordDisplayer[Dt.convert_coordinates(move[2:])]
                 tile.set_choice(False) if not is_choice else tile.set_choice(True)
+                print(move)
 
     def handle_key_pressed(self, event) -> None :
         key = event.key

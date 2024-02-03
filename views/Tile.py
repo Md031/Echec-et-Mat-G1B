@@ -149,7 +149,7 @@ class Tile(Wdgt.Widget) :
                 Dt.Utils.DEFAULT_TILE_DIMENSIONS, Dt.Utils.DEFAULT_TILE_DIMENSIONS], 1)
         if self.pieceDisplayer :
             self.pieceDisplayer.display(window)
-        if self.is_choice :
+        if self.is_choice : # the move possible for the selected pawn
             Pg.draw.circle(window.screen, Dt.Colors.YELLOW, (self.position.x, self.position.y), 10)
 
     def __str__(self) -> str :
