@@ -6,6 +6,7 @@ import models.Game as Gm
 import controllers.Controller as Ctrl
 import models.Move as Mv
 import views.PieceDisplayer as PieceD
+import random as rd
 
 class GameController(Ctrl.Controller) :
     """
@@ -58,7 +59,6 @@ class GameController(Ctrl.Controller) :
                             self.selected_tiles[0] = tile
                             self._update_choice_tiles(tile.piece, True)
                 elif self.selected_tiles[0] is not None :
-                    print("bbb", self.selected_tiles)
                     if tile.is_choice : # if it's not an illegal move
                         self._update_choice_tiles(self.selected_tiles[0].piece, False)
                         self.selected_tiles[1] = tile
@@ -66,7 +66,7 @@ class GameController(Ctrl.Controller) :
                             self.selected_tiles[1].grid_position, self.game.board)
                         self._play_move(move)
                         print(self.game.state)
-                    else:
+                    else: # to remove the circle showing the possible move of a pawn
                         self._update_choice_tiles(self.selected_tiles[0].piece, False)
                     self.__selected_tiles = [None, None]
             else :
@@ -120,3 +120,18 @@ class GameController(Ctrl.Controller) :
             self.game.reset()
             # print(self.game)
             self.gamePage.set_game(self.game)
+
+    def random_ia(self):
+        choice_move = rd.choice(self.game._valid_actions())
+        begin = Dt.convert_coordinates(choice_move[0:2])
+        ending = Dt.convert_coordinates(choice_move[2:])
+        return begin, ending
+
+    def handle(self, event) -> None :
+        """Gère les événements qui ont lieu dans la fenêtre de l'application"""
+        if self.game.active_player == 0:
+            super().handle(event)
+        else:
+            begin, ending = self.random_ia()
+            choice = Mv.Move(begin, ending, self.game.board)
+            self._play_move(choice)
