@@ -124,6 +124,10 @@ class Board :
             self.__grid.append(board_row)
             row += 1
 
+    @property
+    def get_grid_size(self):
+        return len(self.__grid[0])
+
     def add_piece(self, piece : Pcs.Piece, player : int) -> None :
         self.__pieces[player].append(piece)
 

@@ -5,7 +5,7 @@ from sys import argv
 
 def main() :
     game_type : bool = False
-    if len(argv) > 1 and argv[1] == "-ia":
+    if len(argv) > 1 and argv[1].lower() == "-ia":
         game_type = True
         print(argv[1])
     window : Window = Window((Utils.DEFAULT_BOARD_DIMENSIONS, Utils.DEFAULT_BOARD_DIMENSIONS), game_type)

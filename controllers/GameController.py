@@ -24,7 +24,7 @@ class GameController(Ctrl.Controller) :
         self.__gamePage : GameD.GameDisplayer = window.canvas(Dt.CanvasType.GAME)
         self.__gamePage.set_game(self.__game)
         self.__selected_tiles : list[Tl.Tile] = [None, None]
-        self.__ia : Ia = Ia(self.__game)
+        self.__ia : Ia = Ia(self.__game, self)
 
     @property
     def game(self) -> Gm.Game :
@@ -55,7 +55,7 @@ class GameController(Ctrl.Controller) :
                     if tile.is_clicked : 
                         if self.selected_tiles[0] is None or \
                         tile.grid_position != self.selected_tiles[0].grid_position :
-                            print(tile.piece)
+                            # print(tile.piece)
                             if self.selected_tiles[0] is not None :
                                 self._update_choice_tiles(self.selected_tiles[0].piece, False)
                             self.selected_tiles[0] = tile
@@ -67,7 +67,7 @@ class GameController(Ctrl.Controller) :
                         move : Mv.Move = Mv.Move(self.selected_tiles[0].grid_position, \
                             self.selected_tiles[1].grid_position, self.game.board)
                         self._play_move(move)
-                        print(self.game.state)
+                        # print(self.game.state)
                     else: # to remove the circle showing the possible move of a pawn
                         self._update_choice_tiles(self.selected_tiles[0].piece, False)
                     self.__selected_tiles = [None, None]
@@ -75,10 +75,10 @@ class GameController(Ctrl.Controller) :
                 tile.set_clicked(False) if tile.is_clicked else None
 
     def _play_move(self, move : Mv.Move) -> None :
-        print(move.uci)
+        # print(move.uci)
         self.game.push_move(move)
-        print(len(self.game.board.get_player_pieces(0)))
-        print(len(self.game.board.get_player_pieces(1)))
+        # print(len(self.game.board.get_player_pieces(0)))
+        # print(len(self.game.board.get_player_pieces(1)))
         start_tile : Tl.Tile = self.gamePage.baordDisplayer[move.start_pos]
         dest_tile : Tl.Tile = self.gamePage.baordDisplayer[move.dest_pos]
         dest_tile.set_piece(start_tile.pieceDisplayer)
@@ -104,7 +104,7 @@ class GameController(Ctrl.Controller) :
             if move[:2] == piece.chess_positon :
                 tile : Tl.Tile = self.gamePage.baordDisplayer[Dt.convert_coordinates(move[2:])]
                 tile.set_choice(False) if not is_choice else tile.set_choice(True)
-                print(move)
+                # print(move)
 
     def handle_key_pressed(self, event) -> None :
         key = event.key
@@ -123,12 +123,19 @@ class GameController(Ctrl.Controller) :
             # print(self.game)
             self.gamePage.set_game(self.game)
 
-
     def handle(self, event) -> None :
         """Gère les événements qui ont lieu dans la fenêtre de l'application"""
         if self.game.active_player == 0 or not self.__game_type:
             super().handle(event)
         else:
-            begin, ending = self.__ia.random_ia()
-            choice = Mv.Move(begin, ending, self.game.board)
-            self._play_move(choice)
+            action = self.__ia.minimax(2)
+            self._play_move(action)            
+            # begin, ending = self.__ia.random_ia()
+            # choice = Mv.Move(begin, ending, self.game.board)
+            # self._play_move(choice)
+            # self.__ia.evaluation(self.game)
+
+    def action_conversion(self, action: str) -> Mv.Move :
+        begin_action = Dt.convert_coordinates(action[0:2])
+        end_action = Dt.convert_coordinates(action[2:])
+        return Mv.Move(begin_action, end_action, self.game.board)

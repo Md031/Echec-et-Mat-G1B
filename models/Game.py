@@ -38,6 +38,7 @@ class Game :
             l'intelligence artificielle qui va jouer la partie
         """
         self.__start_fen : str = fen if fen else Dt.Utils.DEFAULT_FEN
+        self.__score : int = 0
         self._init_game()
         self.update_state()
 
@@ -101,6 +102,10 @@ class Game :
     def activer_player_castling_rights(self) -> str :
         """Renvoie les droits de 'castling' du joueur actif"""
         self.__castling_rights[self.active_player]
+
+    @property
+    def score(self) -> int:
+        return self.__score
 
     ###########
     # SETTERS #
@@ -173,6 +178,9 @@ class Game :
             le mouvement à ajouter
         """
         self.__active_player_actions.append(action)
+
+    def _set_score(self, new_score : int) -> None :
+        self.__score = new_score
 
     ###################
     # OTHER FUNCTIONS #
