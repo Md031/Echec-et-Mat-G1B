@@ -194,7 +194,7 @@ class Game :
     def pop_move(self) -> Mv.Move :
         """"Annule le dernier mouvement efféctué dans la partie"""
         self.__round -= 1
-        self.set_active_player(self.round % 2)
+        self.set_active_player(self.__round % 2)
         move : Mv.Move = self.__moves.pop()
         move.piece_moved.set_position(move.start_pos)
         if move.piece_moved.name == "king" :

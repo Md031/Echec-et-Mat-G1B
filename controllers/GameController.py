@@ -6,7 +6,7 @@ import models.Game as Gm
 import controllers.Controller as Ctrl
 import models.Move as Mv
 import views.PieceDisplayer as PieceD
-import random as rd
+from models.Ia import Ia
 
 class GameController(Ctrl.Controller) :
     """
@@ -23,6 +23,7 @@ class GameController(Ctrl.Controller) :
         self.__gamePage : GameD.GameDisplayer = window.canvas(Dt.CanvasType.GAME)
         self.__gamePage.set_game(self.__game)
         self.__selected_tiles : list[Tl.Tile] = [None, None]
+        self.__ia : Ia = Ia(self.__game)
 
     @property
     def game(self) -> Gm.Game :
@@ -121,17 +122,12 @@ class GameController(Ctrl.Controller) :
             # print(self.game)
             self.gamePage.set_game(self.game)
 
-    def random_ia(self):
-        choice_move = rd.choice(self.game._valid_actions())
-        begin = Dt.convert_coordinates(choice_move[0:2])
-        ending = Dt.convert_coordinates(choice_move[2:])
-        return begin, ending
 
     def handle(self, event) -> None :
         """Gère les événements qui ont lieu dans la fenêtre de l'application"""
         if self.game.active_player == 0:
             super().handle(event)
         else:
-            begin, ending = self.random_ia()
+            begin, ending = self.__ia.random_ia()
             choice = Mv.Move(begin, ending, self.game.board)
             self._play_move(choice)
