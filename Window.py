@@ -25,7 +25,7 @@ class Window() :
         contrôle le framerate de la fenêtre
     """
 
-    def __init__(self, size : tuple[int]) -> None :
+    def __init__(self, size : tuple[int], game_type : bool) -> None :
         """
         Initialise une instance de Window
 
@@ -37,7 +37,7 @@ class Window() :
         self.__screen : Pg.Surface = Pg.display.set_mode(size)
         self.__screen.fill((60,25,60))
         self.__canvas : list[Cnvs.Canvas] = [None, Gd.GameDisplayer()]
-        self.__controllers : list[Ctrl.Controller] = [None, GCtrl.GameController(self)]
+        self.__controllers : list[Ctrl.Controller] = [None, GCtrl.GameController(self, game_type = game_type), game_type]
         self.__active_canvas : Cnvs.Canvas = self.canvas(Dt.CanvasType.GAME)
         self.__active_controller : Ctrl.Controller = self.controllers(Dt.CanvasType.GAME)
         self.__clock : Pg.time.Clock = Pg.time.Clock() 

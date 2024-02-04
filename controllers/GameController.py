@@ -13,12 +13,13 @@ class GameController(Ctrl.Controller) :
     Classe qui va gérer les intéractions entre le joueur et le jeu
     """
 
-    def __init__(self, window, type: int = Dt.CanvasType.GAME) -> None :
+    def __init__(self, window, ctrl_type: int = Dt.CanvasType.GAME, game_type: bool = False) -> None :
         """
         Initialise une instance de GameController
         (voir contstructeur de la classe "Controller")
         """
-        super().__init__(window, type)
+        super().__init__(window, ctrl_type, game_type)
+        self.__game_type : bool = game_type
         self.__game : Gm.Game = Gm.Game()
         self.__gamePage : GameD.GameDisplayer = window.canvas(Dt.CanvasType.GAME)
         self.__gamePage.set_game(self.__game)
@@ -125,7 +126,7 @@ class GameController(Ctrl.Controller) :
 
     def handle(self, event) -> None :
         """Gère les événements qui ont lieu dans la fenêtre de l'application"""
-        if self.game.active_player == 0:
+        if self.game.active_player == 0 or not self.__game_type:
             super().handle(event)
         else:
             begin, ending = self.__ia.random_ia()

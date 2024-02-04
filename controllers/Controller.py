@@ -19,7 +19,7 @@ class Controller(ABC) :
         liste contenant les éléments à mettre à jour
     """
 
-    def __init__(self, window, type : int) -> None :
+    def __init__(self, window, ctrl_type : int, game_type : bool) -> None :
         """
         Initialise une instance de Controller
 
@@ -30,7 +30,8 @@ class Controller(ABC) :
         type : int 
             le type du controlleur
         """
-        self._type : int = type
+        self._type : int = ctrl_type
+        self._game_type : bool = game_type
         self._window = window
         self._animate : bool = False
         self._to_animate : list[tuple[Wdgt.Widget, Dt.Point, tuple[int]]] = []
