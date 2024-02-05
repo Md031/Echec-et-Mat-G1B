@@ -57,7 +57,7 @@ class Widget(ABC) :
         ...
 
     @abstractmethod
-    def __contains__(self, coords : Dt.Point | str | tuple) -> bool :
+    def __contains__(self, coords : Dt.Point | tuple) -> bool :
         ...
 
     def __repr__(self) -> str : return str(self)

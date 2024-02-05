@@ -42,37 +42,42 @@ class GameController(Ctrl.Controller) :
         return self.__selected_tiles
 
     def handle_mouse_motion(self, event) -> None :
-        mouse_pos : tuple[int] = event.pos
-        for tile in self.gamePage.baordDisplayer :
-                tile.set_visited(True) if mouse_pos in tile else tile.set_visited(False)
+        if not self.gamePage.pawn_promotion_popup.is_active :
+            mouse_pos : tuple[int] = event.pos
+            for tile in self.gamePage.baordDisplayer :
+                    tile.set_visited(True) if mouse_pos in tile else tile.set_visited(False)
 
     def handle_mouse_click(self, event) -> None :
-        mouse_pos : tuple[int] = event.pos
-        for tile in self.gamePage.baordDisplayer :
-            if mouse_pos in tile :
-                if tile.piece and (tile.piece.owner == self.game.active_player) : # when the active_player click on one of his pawn
-                    tile.set_clicked()
-                    if tile.is_clicked : 
-                        if self.selected_tiles[0] is None or \
-                        tile.grid_position != self.selected_tiles[0].grid_position :
-                            # print(tile.piece)
-                            if self.selected_tiles[0] is not None :
-                                self._update_choice_tiles(self.selected_tiles[0].piece, False)
-                            self.selected_tiles[0] = tile
-                            self._update_choice_tiles(tile.piece, True)
-                elif self.selected_tiles[0] is not None :
-                    if tile.is_choice : # if it's not an illegal move
-                        self._update_choice_tiles(self.selected_tiles[0].piece, False)
-                        self.selected_tiles[1] = tile
-                        move : Mv.Move = Mv.Move(self.selected_tiles[0].grid_position, \
-                            self.selected_tiles[1].grid_position, self.game.board)
-                        self._play_move(move)
-                        # print(self.game.state)
-                    else: # to remove the circle showing the possible move of a pawn
-                        self._update_choice_tiles(self.selected_tiles[0].piece, False)
-                    self.__selected_tiles = [None, None]
-            else :
-                tile.set_clicked(False) if tile.is_clicked else None
+        if not self.gamePage.pawn_promotion_popup.is_active :
+            mouse_pos : tuple[int] = event.pos
+            for tile in self.gamePage.baordDisplayer :
+                if mouse_pos in tile :
+                    if tile.piece and (tile.piece.owner == self.game.active_player) : # when the active_player click on one of his pawn
+                        tile.set_clicked()
+                        if tile.is_clicked : 
+                            if self.selected_tiles[0] is None or \
+                            tile.grid_position != self.selected_tiles[0].grid_position :
+                                # print(tile.piece)
+                                if self.selected_tiles[0] is not None :
+                                    self._update_choice_tiles(self.selected_tiles[0].piece, False)
+                                self.selected_tiles[0] = tile
+                                self._update_choice_tiles(tile.piece, True)
+                    elif self.selected_tiles[0] is not None :
+                        if tile.is_choice : # if it's not an illegal move
+                            self._update_choice_tiles(self.selected_tiles[0].piece, False)
+                            self.selected_tiles[1] = tile
+                            move : Mv.Move = Mv.Move(self.selected_tiles[0].grid_position, \
+                                self.selected_tiles[1].grid_position, self.game.board)
+                            self._play_move(move)
+                            self.check_pawn_promotion(move.piece_moved)
+                            # print(self.game.state)
+                        else: # to remove the circle showing the possible move of a pawn
+                            self._update_choice_tiles(self.selected_tiles[0].piece, False)
+                        self.__selected_tiles = [None, None]
+                else :
+                    tile.set_clicked(False) if tile.is_clicked else None
+        else :
+            ...
 
     def _play_move(self, move : Mv.Move) -> None :
         # print(move.uci)
@@ -94,6 +99,15 @@ class GameController(Ctrl.Controller) :
             PieceD.PieceDisplayer(Dt.Point(0, 0), move.piece_captured) 
             if move.piece_captured else None)
         self.game.update_state()
+        self.check_pawn_promotion(move.piece_moved)
+
+
+    def check_pawn_promotion(self, piece) -> None :
+        if piece.name == "pawn" :
+            if ((piece.owner == 0 and piece.position.x == 0) or 
+            (piece.owner == 1 and piece.position.x == self.game.board.size[0])) :
+                self.gamePage.pawn_promotion_popup.set_active(True)
+            else : self.gamePage.pawn_promotion_popup.set_active(False)
 
     def _update_choice_tiles(self, piece, is_choice : bool) -> None :
         """
@@ -117,15 +131,17 @@ class GameController(Ctrl.Controller) :
         if key == Pg.K_b :
             if len(self.game.moves) > 0 :
                 self._revert_move()
+
         if key == Pg.K_r :
             # print(self.game)
             self.game.reset()
             # print(self.game)
             self.gamePage.set_game(self.game)
+            self.gamePage.pawn_promotion_popup.set_active(False)
 
     def handle(self, event) -> None :
         """Gère les événements qui ont lieu dans la fenêtre de l'application"""
-        if self.game.active_player == 0 or not self.__game_type:
+        if self.game.active_player == 0 or not self.__game_type :
             super().handle(event)
         else:
             action = self.__ia.minimax(2)

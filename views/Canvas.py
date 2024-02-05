@@ -10,7 +10,7 @@ class Canvas(ABC) :
         le type de la page
     """
 
-    def __init__(self, type : int) -> None :
+    def __init__(self, font, type : int) -> None :
         """
         Initialise une instance de Canvas
 

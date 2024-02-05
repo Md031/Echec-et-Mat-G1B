@@ -76,7 +76,7 @@ class Colors :
 
 class Utils :
     DEFAULT_WINDOW_WIDTH : int = 800
-    DEFAULT_WINDOW_HEIGHT : int = 700
+    DEFAULT_WINDOW_HEIGHT : int = 640
     DEFAULT_BOARD_DIMENSIONS : int = 640
     DEFAULT_GRID_DIMENSIONS : int = 8
     DEFAULT_PIECE_DIMENSIONS : int = 60

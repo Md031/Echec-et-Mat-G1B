@@ -35,8 +35,9 @@ class Window() :
             la taille de la fenêtre
         """
         self.__screen : Pg.Surface = Pg.display.set_mode(size)
+        self.__font : Pg.font.Font = Pg.font.Font("fonts/sh-pinscher/SHPinscher-Regular.otf", 18)
         self.__screen.fill((60,25,60))
-        self.__canvas : list[Cnvs.Canvas] = [None, Gd.GameDisplayer()]
+        self.__canvas : list[Cnvs.Canvas] = [None, Gd.GameDisplayer(self.font)]
         self.__controllers : list[Ctrl.Controller] = [None, GCtrl.GameController(self, game_type = game_type), game_type]
         self.__active_canvas : Cnvs.Canvas = self.canvas(Dt.CanvasType.GAME)
         self.__active_controller : Ctrl.Controller = self.controllers(Dt.CanvasType.GAME)
@@ -81,6 +82,10 @@ class Window() :
     def active_canvas_type(self) -> int :
         """Renvoie le type de la page active"""
         return self.__active_canvas.canvas_type
+
+    @property
+    def font(self) -> Pg.font.Font :
+        return self.__font
 
     def controllers(self, position : int | None = None) -> list[Ctrl.Controller] | Ctrl.Controller :
         """
@@ -132,7 +137,6 @@ class Window() :
 
     def main_loop(self) -> None :
         """lance la fenêtre"""
-        Pg.init()
         running = True
         while running :
             Pg.display.update()

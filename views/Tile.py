@@ -131,13 +131,11 @@ class Tile(Wdgt.Widget) :
         """
         self.__choice = value
 
-    def __contains__(self, point : Dt.Point | tuple[int]) -> bool : 
-        if isinstance(point, Dt.Point) :
-            return  super().position.x <= point.x <= super().position.x + Dt.Utils.DEFAULT_TILE_DIMENSIONS and \
-                super().position.y <= point.x <= super().position.y + Dt.Utils.DEFAULT_TILE_DIMENSIONS
-        else :
-            return  super().position.x <= point[0] <= super().position.x + Dt.Utils.DEFAULT_TILE_DIMENSIONS and \
-                super().position.y <= point[1] <= super().position.y + Dt.Utils.DEFAULT_TILE_DIMENSIONS
+    def __contains__(self, coords : Dt.Point | tuple[int]) -> bool : 
+        if not isinstance(coords, Dt.Point) :
+            coords = Dt.Point(coords[0], coords[1])
+        return  super().position.x <= coords.x <= super().position.x + Dt.Utils.DEFAULT_TILE_DIMENSIONS and \
+            super().position.y <= coords.y <= super().position.y + Dt.Utils.DEFAULT_TILE_DIMENSIONS
 
     def display(self, window) -> None :
         window.screen.blit(self.__bg_color, (super().position.x, super().position.y))
