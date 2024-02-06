@@ -20,12 +20,11 @@ class Ia:
 		self.__game = game
 		self.__Type_Pieces : Enum = Type_Pieces
 		self.__num_column : int = game.board.get_grid_size
-		self.dic__Type_PiecestAlgo =  {0: "default", 1: "minimax", 2: "alpha_beta", 3: "expectimax"}
 
 	@property
 	def get_game(self) -> Game:
 		return self.__game
-	
+
 	def random_ia(self) -> (Dt.Point, Dt.Point):
 		choice_move = rd.choice(self.__game._valid_actions())
 		begin = Dt.convert_coordinates(choice_move[0:2])
@@ -51,7 +50,7 @@ class Ia:
 		return choice
 
 	def maximize(self, depth : int) -> float:
-		if depth == 0 or self.__game._is_in_checkmate():
+		if depth == 0 or self.__game._is_in_checkmate() or self.__game._is_in_stalemate():
 			return self.__game.score + depth
 		else:
 			best_score = float('-inf')
@@ -65,7 +64,7 @@ class Ia:
 			return best_score
 
 	def minimize(self, depth: int) -> float:
-		if depth == 0 or self.__game._is_in_checkmate():
+		if depth == 0 or self.__game._is_in_checkmate() or self.__game._is_in_stalemate():
 			return self.__game.score - depth
 		else:
 			best_score = float('inf')
@@ -78,7 +77,7 @@ class Ia:
 				self.__Gctrl._revert_move()
 			return best_score
 
-	def evaluation(self, state: Game):
+	def evaluation(self, state: Game) -> float:
 		score_total = 0
 		pieces = state.board.get_player_pieces(state.active_player)
 		for elem in pieces:
