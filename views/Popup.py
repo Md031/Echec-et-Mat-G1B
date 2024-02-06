@@ -11,7 +11,7 @@ class Popup(Wdgt.Widget) :
             (Dt.Utils.DEFAULT_BOARD_DIMENSIONS - size.y) // 2)
         super().__init__(position, "pop-up")
         self.__content : list[Wdgt.Widget] = content
-        self.__active : bool = False
+        self.__active : bool = True
         self.__bg_color : Pg.Surface = Pg.Surface((size.x, size.y))
         self.__bg_color.fill(Dt.Colors.WHITE)
 

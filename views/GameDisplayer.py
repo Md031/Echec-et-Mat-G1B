@@ -4,6 +4,8 @@ import models.Game as Gm
 import Data as Dt 
 import views.Popup as Pup
 import views.Text as Txt
+import views.Button as Btn
+import copy
 
 class GameDisplayer(Cnvs.Canvas) :
     """
@@ -25,10 +27,25 @@ class GameDisplayer(Cnvs.Canvas) :
         super().__init__(font, type)
         self.__boardDisplayer : BoardD.BoardDisplayer = BoardD.BoardDisplayer()
         self.__popup_pawn_promotion : Pup.Popup = Pup.Popup(Dt.Point(300, 100))
+        self._init_pawn_promotion_popup(font)
+        self.__game : Gm.Game = None
+
+    def _init_pawn_promotion_popup(self, font) -> None :
         self.pawn_promotion_popup.add_widget(Txt.Text(
             Dt.Point(self.pawn_promotion_popup.position.x + 50, self.pawn_promotion_popup.position.y), 
             "Choisissez la promotion du pion", font))
-        self.__game : Gm.Game = None
+        button_pos : Dt.Point = Dt.Point(self.pawn_promotion_popup.position.x + 20, 
+            self.pawn_promotion_popup.position.y + 50)
+        text_pos : Dt.Point = Dt.Point(button_pos.x + 20, button_pos.y + 50)
+
+        for name in ["knight", "bishop", "rook", "queen"] :
+            text : Txt.Text = Txt.Text(copy.copy(text_pos), name, font, Dt.Colors.WHITE)
+            button : Btn.Button = Btn.Button(copy.copy(button_pos), Dt.Point(50, 40), text, 
+                Dt.ButtonType.UP_ANIMATION)
+            self.pawn_promotion_popup.add_widget(button)
+            button_pos += (70, 0)
+            text_pos += (70, 0)
+
 
     @property
     def game(self) -> Gm.Game :

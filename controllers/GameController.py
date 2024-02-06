@@ -42,13 +42,13 @@ class GameController(Ctrl.Controller) :
         return self.__selected_tiles
 
     def handle_mouse_motion(self, event) -> None :
-        if not self.gamePage.pawn_promotion_popup.is_active :
+        # if not self.gamePage.pawn_promotion_popup.is_active :
             mouse_pos : tuple[int] = event.pos
             for tile in self.gamePage.baordDisplayer :
                     tile.set_visited(True) if mouse_pos in tile else tile.set_visited(False)
 
     def handle_mouse_click(self, event) -> None :
-        if not self.gamePage.pawn_promotion_popup.is_active :
+        # if not self.gamePage.pawn_promotion_popup.is_active :
             mouse_pos : tuple[int] = event.pos
             for tile in self.gamePage.baordDisplayer :
                 if mouse_pos in tile :
@@ -76,8 +76,41 @@ class GameController(Ctrl.Controller) :
                         self.__selected_tiles = [None, None]
                 else :
                     tile.set_clicked(False) if tile.is_clicked else None
-        else :
-            ...
+        # else :
+        #     ...
+
+    def _handle_pawn_promotion(self, event) -> None :
+        pawn_promotion_popup = self.gamePage.pawn_promotion_popup
+        promote_to : str = None
+        match event.type :
+            case Pg.MOUSEMOTION :
+                mouse_pos : tuple[int] = event.pos
+                for widget in pawn_promotion_popup.content :
+                    if widget.name != "text" :
+                        if mouse_pos in widget : 
+                            widget.set_visited(True)
+                        else : 
+                            widget.set_visited(False)
+            case Pg.MOUSEBUTTONDOWN :
+                mouse_pos : tuple[int] = event.pos
+                for widget in pawn_promotion_popup.content :
+                    if widget.name != "text" :
+                        if mouse_pos in widget : 
+                            widget.set_clicked(not widget.is_clicked)
+                            if widget.is_clicked :
+                                promote_to = widget.content.text
+
+        if promote_to is not None :
+            match promote_to :
+                case "knight" :
+                    print("changer le pion en cavalier")
+                case "bishop" :
+                    print("changer le pion en fou")
+                case "rook" :
+                    print("changer le pion en tour")
+                case "queen" :
+                    print("changer le pion en reine")
+
 
     def _play_move(self, move : Mv.Move) -> None :
         # print(move.uci)
@@ -142,7 +175,10 @@ class GameController(Ctrl.Controller) :
     def handle(self, event) -> None :
         """Gère les événements qui ont lieu dans la fenêtre de l'application"""
         if self.game.active_player == 0 or not self.__game_type :
-            super().handle(event)
+            if not self.gamePage.pawn_promotion_popup.is_active :
+                super().handle(event)
+            else : 
+                self._handle_pawn_promotion(event)
         else:
             action = self.__ia.minimax(2)
             self._play_move(action)            
