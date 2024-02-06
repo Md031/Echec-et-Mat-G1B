@@ -120,8 +120,47 @@ PIECE_VALUES = [None, 100, 300, 300, 500, 900, 0]   #maps out the values of the 
                                                     #this is why the index 0 is None
                                                     #We can get then simply get the value of a piece with PIECE_VALUES[piece.piece_type] 
 
+PIECE_TABLES_WHITE = [[  0,  0,  0,  0,  0,         #PAWN      
+                        50, 50, 50, 50, 50,         #a pawn is basically a lot stronger in the middle since chess is about controlling the center and the board
+                        10, 15, 20, 15, 10,         #and the closer it gets to promotion the higher the value
+                         5, 10,-10, 10,  5,
+                         0,  0,  0,  0,  0],
 
+                      [-50, -40, -30, -40, -50,     #KNIGHT
+                       -15,   0,   5,   0, -15,
+                         0,  15,  20,  15,   0,
+                       -15,   0,   5,   0, -15,
+                       -50, -40, -30, -40, -50],
 
+                       [-20, -10, -10, -10, -20,     #BISHOP
+                        -10,   0,   5,   0, -10,
+                          0,   5,  15,   5,   0,
+                        -10,   0,   5,   0, -10,
+                        -20, -10, -10, -10, -20],
+
+                        [ 0,   0,   0,   0,   0,     #ROOK
+                         -5,  10,  10,  10,  -5,
+                         -5,   0,   0,   0,  -5,
+                         -5,   0,   0,   0,  -5,
+                          0,   0,   5,   0,   0],
+
+                       [-20, -10,  -5, -10, -20,     #QUEEN
+                         -5,   5,   5,   5,  -5,
+                          0,  10,  10,  10,   0,
+                         -5,   5,   5,   5,  -5,
+                        -20, -10,  -5, -10, -20],        
+
+                       [-30, -40,  -50, -40, -30,   #KING MIDDLE GAME
+                        -15, -10,   -5, -10, -15,   # A king is safer when in castled in the middle game but we want to activate it in the end game since there is no more piece that can threaten it so we create
+                          5,   0,    0,   0,   5,   # two different tables. In the end game the kin is stronger when controlling the center.
+                         15,  10,    5,  10,  15,
+                         20,  30,   10,  30,  20],
+
+                       [-30, -40,  -50, -40, -30,   #KING END GAME
+                        -15, -10,    5, -10, -15,
+                          5,  10,   20,  10,   5,
+                        -15, -10,    5, -10, -15,
+                        -30, -40,  -50, -40, -30]]
 PIECE_TABLES_WHITE = [[0,  0,  0,  0,  0,  0,  0,  0,    #PAWN                                          
                 50, 50, 50, 50, 50, 50, 50, 50,    #a pawn is basically a lot stronger in the middle since chess is about controlling the center and the board
                 10, 10, 20, 30, 30, 20, 10, 10,    #and the closer it gets to promotion the higher the value
