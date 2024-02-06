@@ -96,11 +96,16 @@ class Utils :
     }
 
 class State :
-    ONGOING : int = "ongoing"
-    CHECK : int = "check"
-    CHECKMATE : int = "checkmate"
+    ONGOING : int = 0
+    CHECK : int = 1
+    CHECKMATE : int = 2
     STALEMATE : int = 3
     RESIGNATION : int = 4
+
+class ButtonType :
+    UP_ANIMATION : int = 0
+    DOWN_ANIMATION : int = 1
+    NO_ANIMATION : int  = 2
 
 ##################################### Ia Data ########################################################
 

@@ -35,7 +35,7 @@ class Popup(Wdgt.Widget) :
 
     def __contains__(self, coords : Dt.Point | tuple[int]) -> bool : 
         if not isinstance(coords, Dt.Point) :
-            coords = Dt.Point(coords[0], coords[1])
+            coords : Dt.Point = Dt.Point(coords[0], coords[1])
         return  self.position.x <= coords.x <= self.position.x + self.size.x and \
             self.position.y <= coords.y <= self.position.y + self.size.y
 
@@ -45,7 +45,7 @@ class Popup(Wdgt.Widget) :
             widget.display(window)
 
     def __str__(self) -> str :
-        popup_str : str = "popup : \n"
+        popup_str : str = "popup :\n"
         for widget in self.content :
             popup_str += str(widget) + "\n\n"
         return popup_str
