@@ -103,10 +103,6 @@ class Game :
         """Renvoie les droits de 'castling' du joueur actif"""
         return self.__castling_rights[self.active_player]
 
-    @property
-    def score(self) -> int:
-        return self.__score
-
     ###########
     # SETTERS #
     ###########

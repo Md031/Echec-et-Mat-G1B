@@ -220,3 +220,4 @@ class GameController(Ctrl.Controller) :
         begin_action = Dt.convert_coordinates(action[0:2])
         end_action = Dt.convert_coordinates(action[2:])
         return Mv.Move(begin_action, end_action, self.game.board)
+        

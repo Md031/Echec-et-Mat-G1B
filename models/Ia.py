@@ -53,6 +53,8 @@ class Ia:
 				finalAction = choice
 				# print("action : ", finalAction, " score : ", finalScore)
 			self.__game.pop_move() # we cancel the action we did
+		for elem in self.__dic_score:
+			print(elem)
 		self.__dic_score = {}  # reset the dictionnary
 		return choice
 
@@ -102,6 +104,5 @@ class Ia:
 				score_total += Dt.PIECE_TABLES_WHITE[pieces_type][idx]
 			else: # black pieces
 				score_total -= Dt.PIECE_TABLES_BLACK[pieces_type][idx]
-		state._set_score(score_total)
 		return score_total
 		# TODO : add the change of score when we are in the end game
