@@ -6,6 +6,7 @@ import models.Game as Gm
 import controllers.Controller as Ctrl
 import models.Move as Mv
 import views.PieceDisplayer as PieceD
+import models.Pieces as Pcs
 from models.Ia import Ia
 
 class GameController(Ctrl.Controller) :
@@ -81,7 +82,6 @@ class GameController(Ctrl.Controller) :
 
     def _handle_pawn_promotion(self, event) -> None :
         pawn_promotion_popup = self.gamePage.pawn_promotion_popup
-        promote_to : str = None
         match event.type :
             case Pg.MOUSEMOTION :
                 mouse_pos : tuple[int] = event.pos
@@ -98,18 +98,27 @@ class GameController(Ctrl.Controller) :
                         if mouse_pos in widget : 
                             widget.set_clicked(not widget.is_clicked)
                             if widget.is_clicked :
-                                promote_to = widget.content.text
+                                self._promote_pawn(self.game.moves[-1], widget.content.text)
+                                pawn_promotion_popup.set_active(False)
 
-        if promote_to is not None :
-            match promote_to :
+    def _promote_pawn(self, move : Mv.Move, promotion_piece_name : str) -> None :
+            piece : Pcs.Piece = move.piece_moved
+            promotion_piece : Pcs.Piece = None
+            match promotion_piece_name :
                 case "knight" :
-                    print("changer le pion en cavalier")
+                    promotion_piece = Pcs.Knight(piece.position, piece.owner)
                 case "bishop" :
-                    print("changer le pion en fou")
+                    promotion_piece = Pcs.Bishop(piece.position, piece.owner)
                 case "rook" :
-                    print("changer le pion en tour")
+                    promotion_piece = Pcs.Rook(piece.position, piece.owner)
                 case "queen" :
-                    print("changer le pion en reine")
+                    promotion_piece = Pcs.Queen(piece.position, piece.owner)
+            self.game.board[piece.position] = promotion_piece
+            self.game.board.get_player_pieces(piece.owner).remove(piece)
+            self.game.board.add_piece(promotion_piece, piece.owner)
+            self._update_board_display(promotion_piece)
+            move.set_type(Dt.MoveType.PROMOTION)
+            move.set_promotion(promotion_piece.name)
 
 
     def _play_move(self, move : Mv.Move) -> None :
@@ -124,6 +133,8 @@ class GameController(Ctrl.Controller) :
         self.game.update_state()
 
     def _revert_move(self) -> None :
+        if self.game.moves[-1].move_type == Dt.MoveType.PROMOTION :
+            promotion_piece : Pcs.Piece = self.game.board[self.game.moves[-1].dest_pos]
         move : Mv.Move = self.game.pop_move()
         start_tile : Tl.Tile = self.gamePage.baordDisplayer[move.start_pos]
         dest_tile : Tl.Tile = self.gamePage.baordDisplayer[move.dest_pos]
@@ -131,14 +142,22 @@ class GameController(Ctrl.Controller) :
         dest_tile.set_piece(
             PieceD.PieceDisplayer(Dt.Point(0, 0), move.piece_captured) 
             if move.piece_captured else None)
-        self.game.update_state()
+        if move.move_type == Dt.MoveType.PROMOTION :
+            self._revert_promotion(move, promotion_piece)
         self.check_pawn_promotion(move.piece_moved)
+        self.game.update_state()
 
+    def _revert_promotion(self, move : Mv.Move, promotion_piece : Pcs.Piece) -> None :
+        pawn : Pcs.Pawn = move.piece_moved
+        self.game.board.get_player_pieces(pawn.owner).remove(promotion_piece)
+        self.game.board[move.start_pos] = pawn
+        self.game.board.add_piece(pawn, pawn.owner)
+        self._update_board_display(pawn)
 
     def check_pawn_promotion(self, piece) -> None :
         if piece.name == "pawn" :
             if ((piece.owner == 0 and piece.position.x == 0) or 
-            (piece.owner == 1 and piece.position.x == self.game.board.size[0])) :
+            (piece.owner == 1 and piece.position.x == self.game.board.size[0] - 1)) :
                 self.gamePage.pawn_promotion_popup.set_active(True)
             else : self.gamePage.pawn_promotion_popup.set_active(False)
 
@@ -152,6 +171,11 @@ class GameController(Ctrl.Controller) :
                 tile : Tl.Tile = self.gamePage.baordDisplayer[Dt.convert_coordinates(move[2:])]
                 tile.set_choice(False) if not is_choice else tile.set_choice(True)
                 # print(move)
+
+    def _update_board_display(self, piece : Pcs.Piece) -> None :
+        position : Dt.Point = self.gamePage.baordDisplayer[piece.position].position
+        piece_displayer : PieceD.PieceDisplayer = PieceD.PieceDisplayer(position, piece)
+        self.gamePage.baordDisplayer[piece.position].set_piece(piece_displayer)
 
     def handle_key_pressed(self, event) -> None :
         key = event.key

@@ -78,12 +78,13 @@ class Utils :
     DEFAULT_WINDOW_WIDTH : int = 800
     DEFAULT_WINDOW_HEIGHT : int = 640
     DEFAULT_BOARD_DIMENSIONS : int = 640
-    DEFAULT_GRID_DIMENSIONS : int = 5
+    # DEFAULT_GRID_DIMENSIONS : int = 5
+    DEFAULT_GRID_DIMENSIONS : int = 8
     DEFAULT_PIECE_DIMENSIONS : int = 60
     DEFAULT_TILE_DIMENSIONS : int = DEFAULT_BOARD_DIMENSIONS // DEFAULT_GRID_DIMENSIONS
     DEFAULT_TILE_OFFSET : int = (DEFAULT_TILE_DIMENSIONS - DEFAULT_PIECE_DIMENSIONS) / 2
-    DEFAULT_BOARD_FEN : str = "rnbqk/ppppp/5/PPPPP/RNBQK"
-    # DEFAULT_BOARD_FEN : str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+    # DEFAULT_BOARD_FEN : str = "rnbqk/ppppp/5/PPPPP/RNBQK"
+    DEFAULT_BOARD_FEN : str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
     DEFAULT_CASTLING_RIGHTS : str = "KQ|kq"
     DEFAULT_FIRST_PLAYER : int = 0
     DEFAULT_FEN : str = f"{DEFAULT_BOARD_FEN} {str(DEFAULT_FIRST_PLAYER)} {DEFAULT_CASTLING_RIGHTS}"
@@ -107,6 +108,12 @@ class ButtonType :
     UP_ANIMATION : int = 0
     DOWN_ANIMATION : int = 1
     NO_ANIMATION : int  = 2
+
+class MoveType :
+    DEFAULT : int = 0
+    PROMOTION : int = 1
+    CASTLING : int = 2
+    EN_PASSANT : int = 3
 
 ##################################### Ia Data ########################################################
 

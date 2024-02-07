@@ -113,7 +113,7 @@ class Board :
                         case "Q" : piece = Pcs.Queen(position, owner)
                         case "K" : piece = Pcs.King(position, owner)
 
-                    self.__pieces[owner].append(piece)
+                    self.add_piece(piece, owner)
                     board_row.append(piece)
                     col += 1
                 elif data.isdigit() :

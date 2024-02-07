@@ -39,7 +39,7 @@ class GameDisplayer(Cnvs.Canvas) :
         text_pos : Dt.Point = Dt.Point(button_pos.x + 20, button_pos.y + 50)
 
         for name in ["knight", "bishop", "rook", "queen"] :
-            text : Txt.Text = Txt.Text(copy.copy(text_pos), name, font, Dt.Colors.WHITE)
+            text : Txt.Text = Txt.Text(copy.copy(text_pos), name, font, Dt.Colors.GREEN)
             button : Btn.Button = Btn.Button(copy.copy(button_pos), Dt.Point(50, 40), text, 
                 Dt.ButtonType.UP_ANIMATION)
             self.pawn_promotion_popup.add_widget(button)

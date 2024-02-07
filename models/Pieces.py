@@ -116,8 +116,8 @@ class Piece(ABC) :
 
     def __eq__(self, __value: object) -> bool :
         if isinstance(__value, Piece) :
-            return (__value.name == self.name and __value.chess_positon == self.chess_positon \
-                and __value.player == self.player)
+            return (__value.name == self.name and __value.position == self.position \
+                and __value.owner == self.owner)
         else :
             return False
 

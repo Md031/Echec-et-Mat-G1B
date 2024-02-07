@@ -191,7 +191,7 @@ class Game :
             self.__kings_pos[move.piece_moved.owner] = move.dest_pos
         if move.piece_captured :
             self._capture(move.piece_captured)
-        self._update_board(move)
+        self.update_board(move)
         self.__round += 1
         self.set_active_player(self.round % 2)
         self._add_move(move)
@@ -210,7 +210,7 @@ class Game :
         if move.piece_captured :
             move.piece_captured.set_position(move.dest_pos)
             self.board.add_piece(move.piece_captured, move.piece_captured.owner)
-        self._update_board(move, undo = True)
+        self.update_board(move, undo = True)
         if (move.piece_moved.name == "pawn" 
         and not move.piece_moved.can_double_start
         and ((move.start_pos.x == 6 and move.piece_moved.owner == 0) 
@@ -269,7 +269,7 @@ class Game :
         """
         self.__board.capture(piece)
 
-    def _update_board(self, move : Mv.Move, undo : bool = False) -> None :
+    def update_board(self, move : Mv.Move, undo : bool = False) -> None :
         """
         Met à jour le plateau de jeu de la partie
         

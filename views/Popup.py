@@ -44,6 +44,11 @@ class Popup(Wdgt.Widget) :
         for widget in self.content :
             widget.display(window)
 
+    def reset(self) -> None :
+        for widget in self.content :
+            if widget.name != "text" :
+                ...
+
     def __str__(self) -> str :
         popup_str : str = "popup :\n"
         for widget in self.content :
