@@ -219,6 +219,22 @@ class Game :
         self.__active_player_actions.clear()
         return move
 
+    def is_promotion(self, move : Mv.Move) -> bool :
+        if move.piece_moved.name == "pawn" :
+            if ((move.piece_moved.owner == 0 and move.piece_moved.position.x == 0) or 
+            (move.piece_moved.owner == 1 and move.piece_moved.position.x == self.board.size[0] - 1)) :
+                return True
+            else : return False
+
+    def is_castling(self, move : Mv.Move) -> bool :
+        if move.dest_pos - move.start_pos in [(0, 2), (0, -2)] :
+            return True
+        else :
+            return False
+
+    def is_en_passant(self, move : Mv.Move) -> bool :
+        ...
+
     def _available_actions(self) -> list[str] :
         """Renvoie une liste de toutes les actions possibles pour le joueur actif"""
         actions : list[str] = []

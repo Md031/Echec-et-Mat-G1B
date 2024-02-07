@@ -78,13 +78,13 @@ class Utils :
     DEFAULT_WINDOW_WIDTH : int = 800
     DEFAULT_WINDOW_HEIGHT : int = 640
     DEFAULT_BOARD_DIMENSIONS : int = 640
-    DEFAULT_GRID_DIMENSIONS : int = 5
-    # DEFAULT_GRID_DIMENSIONS : int = 8
+    # DEFAULT_GRID_DIMENSIONS : int = 5
+    DEFAULT_GRID_DIMENSIONS : int = 8
     DEFAULT_PIECE_DIMENSIONS : int = 60
     DEFAULT_TILE_DIMENSIONS : int = DEFAULT_BOARD_DIMENSIONS // DEFAULT_GRID_DIMENSIONS
     DEFAULT_TILE_OFFSET : int = (DEFAULT_TILE_DIMENSIONS - DEFAULT_PIECE_DIMENSIONS) / 2
-    DEFAULT_BOARD_FEN : str = "rnbqk/ppppp/5/PPPPP/RNBQK"
-    # DEFAULT_BOARD_FEN : str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3K2R"
+    # DEFAULT_BOARD_FEN : str = "rnbqk/ppppp/5/PPPPP/RNBQK"
+    DEFAULT_BOARD_FEN : str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3K2R"
     DEFAULT_CASTLING_RIGHTS : str = "KQ|kq"
     DEFAULT_FIRST_PLAYER : int = 0
     DEFAULT_FEN : str = f"{DEFAULT_BOARD_FEN} {str(DEFAULT_FIRST_PLAYER)} {DEFAULT_CASTLING_RIGHTS}"
@@ -117,17 +117,17 @@ class MoveType :
 
 ##################################### Ia Data ########################################################
 
-# This section is inspired by the work of famous polish chess player Tomasz Michniewski 
+# This section is inspired by the work of famous polish chess player Tomasz Michniewski
 # The idea is to create tables that represent the value of a type of piece in the board given its position
 
 
 
-PIECE_VALUES = [None, 100, 300, 300, 500, 900, 0]   #maps out the values of the pieces. 
+PIECE_VALUES = [None, 100, 300, 300, 500, 900, 0]   #maps out the values of the pieces.
                                                     # by default in the chess library these are the values chess.PAWN = 1, chess.KNIGHT= 2, chess.BISHOP= 3, chess.ROOK= 4, chess.QUEEN= 5, chess.KING= 6
                                                     #this is why the index 0 is None
-                                                    #We can get then simply get the value of a piece with PIECE_VALUES[piece.piece_type] 
+                                                    #We can get then simply get the value of a piece with PIECE_VALUES[piece.piece_type]
 
-PIECE_TABLES_WHITE = [[  0,  0,  0,  0,  0,         #PAWN      
+PIECE_TABLES_WHITE = [[  0,  0,  0,  0,  0,         #PAWN
                         50, 50, 50, 50, 50,         #a pawn is basically a lot stronger in the middle since chess is about controlling the center and the board
                         10, 15, 20, 15, 10,         #and the closer it gets to promotion the higher the value
                          5, 10,-10, 10,  5,
@@ -155,7 +155,7 @@ PIECE_TABLES_WHITE = [[  0,  0,  0,  0,  0,         #PAWN
                          -5,   5,   5,   5,  -5,
                           0,  10,  10,  10,   0,
                          -5,   5,   5,   5,  -5,
-                        -20, -10,  -5, -10, -20],        
+                        -20, -10,  -5, -10, -20],
 
                        [-30, -40,  -50, -40, -30,   #KING MIDDLE GAME
                         -15, -10,   -5, -10, -15,   # A king is safer when in castled in the middle game but we want to activate it in the end game since there is no more piece that can threaten it so we create
@@ -168,7 +168,7 @@ PIECE_TABLES_WHITE = [[  0,  0,  0,  0,  0,         #PAWN
                           5,  10,   20,  10,   5,
                         -15, -10,    5, -10, -15,
                         -30, -40,  -50, -40, -30]]
-PIECE_TABLES_WHITE = [[0,  0,  0,  0,  0,  0,  0,  0,    #PAWN                                          
+PIECE_TABLES_WHITE = [[0,  0,  0,  0,  0,  0,  0,  0,    #PAWN
                 50, 50, 50, 50, 50, 50, 50, 50,    #a pawn is basically a lot stronger in the middle since chess is about controlling the center and the board
                 10, 10, 20, 30, 30, 20, 10, 10,    #and the closer it gets to promotion the higher the value
                 5,  5, 10, 25, 25, 10,  5,  5,
@@ -234,11 +234,11 @@ PIECE_TABLES_WHITE = [[0,  0,  0,  0,  0,  0,  0,  0,    #PAWN
                 -30,-30,  0,  0,  0,  0,-30,-30,
                 -50,-30,-30,-30,-30,-30,-30,-50]]
 
-KING_MIDDLE_GAME = 5    #index of the table 
+KING_MIDDLE_GAME = 5    #index of the table
 KING_END_GAME = 6       #index of the table
 
 
-# These values are for white, we can get the same values for black by simply mirroring these 
+# These values are for white, we can get the same values for black by simply mirroring these
 def mirror_table(lst, row_size=8):
     """rotates two times the bord by 90 degrees"""
     lst_copy = lst.copy()
