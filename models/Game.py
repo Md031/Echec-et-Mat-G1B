@@ -274,6 +274,9 @@ class Game :
         """Vérifie si la partie se trouve dans l'état 'match nul' (stalemate)"""
         return len(self.active_player_actions) == 0 and not self._is_in_check()
 
+    def _is_over(self) -> bool :
+        return self.__state == Dt.State.CHECKMATE or self.__state == Dt.State.STALEMATE
+
     def _capture(self, piece : Pcs.Piece) -> None :
         """
         Effectue l'action de manger une pièce

@@ -41,7 +41,7 @@ class Board :
                     str_row += piece.name[0].upper() if piece.owner == 0 else piece.name[0]
                 else : 
                     space += 1
-            if len(str_row) < 8 :
+            if len(str_row) < 5 :
                 str_row += str(space) if space > 0 else ""
             fen += str_row
             fen += "/"

@@ -16,7 +16,7 @@ class BoardDisplayer(Wdgt.Widget) :
     grid : list[list[Tile]]
         l'affichae du plateau de jeu
     """
-
+    
     def __init__(self, board : Brd.Board = None, position : Dt.Point = Dt.Point(0, 0)) -> None :
         """
         Initialise une instance de BoardDisplayer

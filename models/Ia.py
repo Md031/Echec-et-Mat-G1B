@@ -20,6 +20,8 @@ class Ia:
 		self.__game = game
 		self.__Type_Pieces : Enum = Type_Pieces
 		self.__num_column : int = game.board.get_grid_size
+		self.__dic_score : dict = dict()
+		self.__last_action : Mv = None
 
 	@property
 	def get_game(self) -> Game:
@@ -31,7 +33,7 @@ class Ia:
 		ending = Dt.convert_coordinates(choice_move[2:])
 		return begin, ending
 
-	def minimax(self, max_depth: int = 3):
+	def minimax(self, max_depth: int = 3) -> Mv.Move :
 		if self.__game.active_player != 1:
 			print("The Ia can only be the second player.")
 		finalScore = float('-inf')
@@ -40,41 +42,52 @@ class Ia:
 		for action in self.__game._valid_actions():
 			# print("in minimax action : ", action)
 			choice = self.__Gctrl.action_conversion(action)
-			self.__Gctrl._play_move(choice)
+			self.__game.push_move(choice)
+			self.__game.update_state()
+			self.__last_action = action
 			testScore = self.maximize(max_depth - 1)
+
+			self.__dic_score[(self.__game.board.fen, action)] = testScore
 			if finalScore < testScore:
 				finalScore = testScore
 				finalAction = choice
 				# print("action : ", finalAction, " score : ", finalScore)
-			self.__Gctrl._revert_move() # we cancel the action we did
+			self.__game.pop_move() # we cancel the action we did
+		self.__dic_score = {}  # reset the dictionnary
 		return choice
 
 	def maximize(self, depth : int) -> float:
-		if depth == 0 or self.__game._is_in_checkmate() or self.__game._is_in_stalemate():
-			return self.__game.score + depth
+		if depth == 0 or self.__game._is_over():
+			return self.__dic_score[(self.__game.board.fen, self.__last_action)] + depth
 		else:
 			best_score = float('-inf')
 			for action in self.__game._valid_actions():
 				choice = self.__Gctrl.action_conversion(action)
-				self.__Gctrl._play_move(choice)
+				self.__game.push_move(choice)
+				self.__game.update_state()
+				self.__last_action = action
 				state_score = self.evaluation(self.__game)
+
+				self.__dic_score[(self.__game.board.fen, action)] = state_score
 				best_score = max(state_score, self.minimize(depth-1))
-				self.__game._set_score(best_score)
-				self.__Gctrl._revert_move()
+				self.__game.pop_move()
 			return best_score
 
 	def minimize(self, depth: int) -> float:
-		if depth == 0 or self.__game._is_in_checkmate() or self.__game._is_in_stalemate():
-			return self.__game.score - depth
+		if depth == 0 or self.__game._is_over():
+			return self.__dic_score[(self.__game.board.fen, self.__last_action)] - depth
 		else:
 			best_score = float('inf')
 			for action in self.__game._valid_actions():
 				choice = self.__Gctrl.action_conversion(action)
-				self.__Gctrl._play_move(choice)
+				self.__game.push_move(choice)
+				self.__game.update_state()
+				self.__last_action = action
 				state_score = self.evaluation(self.__game)
+
+				self.__dic_score[(self.__game.board.fen, action)] = state_score
 				best_score = min(state_score, self.maximize(depth-1))
-				self.__game._set_score(best_score)
-				self.__Gctrl._revert_move()
+				self.__game.pop_move()
 			return best_score
 
 	def evaluation(self, state: Game) -> float:

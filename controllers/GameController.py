@@ -209,7 +209,7 @@ class GameController(Ctrl.Controller) :
             else : 
                 self._handle_pawn_promotion(event)
         else:
-            action = self.__ia.minimax(2)
+            action = self.__ia.minimax(3)
             self._play_move(action)            
             # begin, ending = self.__ia.random_ia()
             # choice = Mv.Move(begin, ending, self.game.board)
