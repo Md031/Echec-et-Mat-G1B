@@ -50,7 +50,7 @@ class Game :
         fen_tokens = self._parse_fen(self.__start_fen)
         self.__board : Bd.Board = Bd.Board(fen_tokens[0])
         self.__active_player : int = int(fen_tokens[1])
-        self.__castling_rights : list[str] = fen_tokens[2]
+        self.__castling_rights : list[str] = fen_tokens[2].split("|")
         self.__kings_pos : list[Dt.Point] = [None, None]
 
         for piece0, piece1 in itertools.zip_longest(self.board.get_player_pieces(0), 
@@ -101,7 +101,7 @@ class Game :
     @property
     def activer_player_castling_rights(self) -> str :
         """Renvoie les droits de 'castling' du joueur actif"""
-        self.__castling_rights[self.active_player]
+        return self.__castling_rights[self.active_player]
 
     @property
     def score(self) -> int:
