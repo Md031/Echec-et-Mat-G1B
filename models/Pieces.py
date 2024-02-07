@@ -277,6 +277,9 @@ class King(Piece) :
                     if game.board[dest] is not None :
                         queen_side[1] = False
                         break
+                else :
+                    queen_side[1] = False
+                    break
             if queen_side[1] and queen_side[0] in activer_player_castling_rights :
                 move : str = self.chess_positon + Dt.convert_coordinates(Dt.Point(self.position.x, self.position.y - 2))
                 available_moves.append(move)
@@ -285,12 +288,14 @@ class King(Piece) :
                 dest : Dt.Point = copy.copy(self.position) + (0, i)
                 if dest in game.board :
                     if game.board[dest] is not None :
-                        queen_side[1] = False
+                        king_side[1] = False
                         break
+                else :
+                    king_side[1] = False
+                    break
             if king_side[1] and king_side[0] in activer_player_castling_rights :
                 move : str = self.chess_positon + Dt.convert_coordinates(Dt.Point(self.position.x, self.position.y + 2))
                 available_moves.append(move)
             return available_moves
-
 
         return Knight.available_actions(self, game)
