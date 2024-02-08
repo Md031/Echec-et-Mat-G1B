@@ -56,34 +56,36 @@ class GameController(Ctrl.Controller) :
                         if tile.is_clicked : 
                             if self.selected_tiles[0] is None or \
                             tile.grid_position != self.selected_tiles[0].grid_position :
-                                # print(tile.piece)
+                                print(self.game.active_player_actions)
                                 if self.selected_tiles[0] is not None :
                                     self._update_choice_tiles(self.selected_tiles[0].piece, False)
                                 self.selected_tiles[0] = tile
                                 self._update_choice_tiles(tile.piece, True)
+                        else :
+                            self._update_choice_tiles(self.selected_tiles[0].piece, False)
                     elif self.selected_tiles[0] is not None :
                         if tile.is_choice : # if it's not an illegal move
                             self._update_choice_tiles(self.selected_tiles[0].piece, False)
                             self.selected_tiles[1] = tile
                             move : Mv.Move = Mv.Move(self.selected_tiles[0].grid_position, \
                                 self.selected_tiles[1].grid_position, self.game.board)
+                            self.game._set_move_type(move)
                             self._play_move(move)
-                            self._set_move_type(move.piece_moved)
-                            # print(self.game.state)
                         else: # to remove the circle showing the possible move of a pawn
                             self._update_choice_tiles(self.selected_tiles[0].piece, False)
                         self.__selected_tiles = [None, None]
                 else :
                     tile.set_clicked(False) if tile.is_clicked else None
 
-    def _set_move_type(self, move : Mv.Move) -> None :
-        if self.game.is_promotion(move) :
-            self.gamePage.pawn_promotion_popup.set_active(True)
-            move.set_type(Dt.MoveType.PROMOTION)
-        elif self.game.is_castling(move) :
-            ...
-        elif self.game.is_en_passant(move) :
-            ...
+    def _get_castling_rook(self, move : Mv.Move) -> None :
+        king_side : bool = move.dest_pos - move.start_pos == (0, 2) 
+        rook_pos : str = ""
+        if king_side : rook_pos += "h"
+        else : rook_pos += "a"
+        if self.game.active_player == 0 : rook_pos += "1"
+        else : rook_pos += "8"
+        move.set_castling_rook(self.game.board[rook_pos])
+        self.game.set_casling_rights(None)
 
     def _handle_pawn_promotion(self, event) -> None :
         pawn_promotion_popup = self.gamePage.pawn_promotion_popup
@@ -107,64 +109,81 @@ class GameController(Ctrl.Controller) :
                                 pawn_promotion_popup.set_active(False)
 
     def _promote_pawn(self, move : Mv.Move, promotion_piece_name : str) -> None :
-            piece : Pcs.Piece = move.piece_moved
-            promotion_piece : Pcs.Piece = None
-            match promotion_piece_name :
-                case "knight" :
-                    promotion_piece = Pcs.Knight(piece.position, piece.owner)
-                case "bishop" :
-                    promotion_piece = Pcs.Bishop(piece.position, piece.owner)
-                case "rook" :
-                    promotion_piece = Pcs.Rook(piece.position, piece.owner)
-                case "queen" :
-                    promotion_piece = Pcs.Queen(piece.position, piece.owner)
-            self.game.board[piece.position] = promotion_piece
-            self.game.board.get_player_pieces(piece.owner).remove(piece)
-            self.game.board.add_piece(promotion_piece, piece.owner)
-            self._update_board_display(promotion_piece)
-            move.set_type(Dt.MoveType.PROMOTION)
-            move.set_promotion(promotion_piece.name)
-
+        piece : Pcs.Piece = move.piece_moved
+        promotion_piece : Pcs.Piece = None
+        match promotion_piece_name :
+            case "knight" :
+                promotion_piece = Pcs.Knight(piece.position, piece.owner)
+            case "bishop" :
+                promotion_piece = Pcs.Bishop(piece.position, piece.owner)
+            case "rook" :
+                promotion_piece = Pcs.Rook(piece.position, piece.owner)
+            case "queen" :
+                promotion_piece = Pcs.Queen(piece.position, piece.owner)
+        self.game.board[piece.position] = promotion_piece
+        self._update_board_display(promotion_piece)
+        move.set_type(Dt.MoveType.PROMOTION)
+        move.set_promotion(promotion_piece.name)
 
     def _play_move(self, move : Mv.Move) -> None :
-        # print(move.uci)
         self.game.push_move(move)
-        # print(len(self.game.board.get_player_pieces(0)))
-        # print(len(self.game.board.get_player_pieces(1)))
         start_tile : Tl.Tile = self.gamePage.baordDisplayer[move.start_pos]
         dest_tile : Tl.Tile = self.gamePage.baordDisplayer[move.dest_pos]
         dest_tile.set_piece(start_tile.pieceDisplayer)
         start_tile.set_piece(None)
+        if move.move_type == Dt.MoveType.CASTLING :
+            self._play_castling(move)
+        elif move.move_type == Dt.MoveType.EN_PASSANT :
+            ...
+        elif move.move_type == Dt.MoveType.PROMOTION :
+            self.gamePage.pawn_promotion_popup.set_active(True)
         self.game.update_state()
 
+    def _play_castling(self, move : Mv.Move) -> None :
+        king_side : bool = move.dest_pos - move.start_pos == (0, 2) 
+        rook_pos : str = ""
+        if king_side : rook_pos += "h"
+        else : rook_pos += "a"
+        if move.piece_moved.owner == 0 : rook_pos += "1"
+        else : rook_pos += "8"
+        start_tile : Tl.Tile = self.gamePage.baordDisplayer[Dt.convert_coordinates(rook_pos)]
+        dest_tile : Tl.Tile = self.gamePage.baordDisplayer[move.castling_rook.position]
+        dest_tile.set_piece(start_tile.pieceDisplayer)
+        start_tile.set_piece(None)
+
     def _revert_move(self) -> None :
-        if self.game.moves[-1].move_type == Dt.MoveType.PROMOTION :
-            promotion_piece : Pcs.Piece = self.game.board[self.game.moves[-1].dest_pos]
         move : Mv.Move = self.game.pop_move()
         start_tile : Tl.Tile = self.gamePage.baordDisplayer[move.start_pos]
         dest_tile : Tl.Tile = self.gamePage.baordDisplayer[move.dest_pos]
         start_tile.set_piece(dest_tile.pieceDisplayer)
         dest_tile.set_piece(
-            PieceD.PieceDisplayer(Dt.Point(0, 0), move.piece_captured) 
+            PieceD.PieceDisplayer(dest_tile.position, move.piece_captured) 
             if move.piece_captured else None)
         if move.move_type == Dt.MoveType.PROMOTION :
-            self._revert_promotion(move, promotion_piece)
-        self.check_pawn_promotion(move.piece_moved)
+            self._revert_promotion(move)
+        elif move.move_type == Dt.MoveType.CASTLING :
+            self._revert_castling(move)
+        elif move.move_type == Dt.MoveType.EN_PASSANT :
+            ...
+        if self.game.board[move.start_pos] == "pawn" :
+            self.check_pawn_promotion(move.piece_moved)
         self.game.update_state()
 
-    def _revert_promotion(self, move : Mv.Move, promotion_piece : Pcs.Piece) -> None :
-        pawn : Pcs.Pawn = move.piece_moved
-        self.game.board.get_player_pieces(pawn.owner).remove(promotion_piece)
-        self.game.board[move.start_pos] = pawn
-        self.game.board.add_piece(pawn, pawn.owner)
-        self._update_board_display(pawn)
+    def _revert_promotion(self, move : Mv.Move) -> None :
+        pawn_screen_pos : Dt.Point = self.gamePage.baordDisplayer[move.start_pos].position
+        pawn_displayer : PieceD.PieceDisplayer = PieceD.PieceDisplayer(pawn_screen_pos, 
+            self.game.board[move.start_pos])
+        self.gamePage.baordDisplayer[move.start_pos].set_piece(pawn_displayer)
 
-    def is_promotion(self, move : Mv.Move) -> None :
-        if move.piece_moved.name == "pawn" :
-            if ((move.piece_moved.owner == 0 and move.piece_moved.position.x == 0) or 
-            (move.piece_moved.owner == 1 and move.piece_moved.position.x == self.game.board.size[0] - 1)) :
-                return True
-            else : self.gamePage.pawn_promotion_popup.set_active(False)
+    def _revert_castling(self, move : Mv.Move) -> None :
+        if move.castling_rook.position.y == 0 :
+            rook_dest_pos : Dt.Point = move.castling_rook.position + (0, 3)
+        else :
+            rook_dest_pos : Dt.Point = move.castling_rook.position + (0, -2)
+        start_tile : Tl.Tile = self.gamePage.baordDisplayer[move.castling_rook.position]
+        dest_tile : Tl.Tile = self.gamePage.baordDisplayer[rook_dest_pos]
+        start_tile.set_piece(dest_tile.pieceDisplayer)
+        dest_tile.set_piece(None)
 
     def _update_choice_tiles(self, piece, is_choice : bool) -> None :
         """
@@ -195,9 +214,7 @@ class GameController(Ctrl.Controller) :
                 self._revert_move()
 
         if key == Pg.K_r :
-            # print(self.game)
             self.game.reset()
-            # print(self.game)
             self.gamePage.set_game(self.game)
             self.gamePage.pawn_promotion_popup.set_active(False)
 
@@ -220,4 +237,3 @@ class GameController(Ctrl.Controller) :
         begin_action = Dt.convert_coordinates(action[0:2])
         end_action = Dt.convert_coordinates(action[2:])
         return Mv.Move(begin_action, end_action, self.game.board)
-        

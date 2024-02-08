@@ -52,5 +52,5 @@ class Move :
             self.__promote_to = value
 
     def set_castling_rook(self, piece : Pcs.Rook) -> None :
-        if self.move_type == Dt.MoveType.EN_PASSANT :
-            self.__castling_rook == piece
+        if self.move_type == Dt.MoveType.CASTLING :
+            self.__castling_rook = piece

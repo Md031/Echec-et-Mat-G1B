@@ -56,7 +56,6 @@ def convert_coordinates(pos : Point | tuple[int] | str ) -> Point :
     elif isinstance(pos, Point) :
         return chr(ord("a") + pos.y) + str(Utils.DEFAULT_GRID_DIMENSIONS - pos.x)
     else :
-        # print(pos, Point(Utils.DEFAULT_GRID_DIMENSIONS - int(pos[1]), ord(pos[0]) - ord("a")))
         return Point(Utils.DEFAULT_GRID_DIMENSIONS - int(pos[1]), ord(pos[0]) - ord("a"))
 
 class CanvasType :
@@ -84,7 +83,7 @@ class Utils :
     DEFAULT_TILE_DIMENSIONS : int = DEFAULT_BOARD_DIMENSIONS // DEFAULT_GRID_DIMENSIONS
     DEFAULT_TILE_OFFSET : int = (DEFAULT_TILE_DIMENSIONS - DEFAULT_PIECE_DIMENSIONS) / 2
     DEFAULT_BOARD_FEN : str = "rnbqk/ppppp/5/PPPPP/RNBQK"
-    # DEFAULT_BOARD_FEN : str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/R3K2R"
+    # DEFAULT_BOARD_FEN : str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
     DEFAULT_CASTLING_RIGHTS : str = "KQ|kq"
     DEFAULT_FIRST_PLAYER : int = 0
     DEFAULT_FEN : str = f"{DEFAULT_BOARD_FEN} {str(DEFAULT_FIRST_PLAYER)} {DEFAULT_CASTLING_RIGHTS}"

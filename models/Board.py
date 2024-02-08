@@ -66,7 +66,13 @@ class Board :
         player : int
             le numéro du joueur
         """
-        return self.__pieces[player]
+        pieces : list[Pcs.Piece] = []
+        for piece in self :
+            if piece is not None :
+                print(piece, player, piece.owner == player)
+            if piece is not None and piece.owner == player :
+                pieces.append(piece)
+        return pieces
 
     def __getitem__(self, pos : tuple[int] | Dt.Point | str) -> Pcs.Piece | None :
         if isinstance(pos, tuple) :
@@ -91,7 +97,7 @@ class Board :
 
     def _init(self, board_fen : str = Dt.Utils.DEFAULT_BOARD_FEN) -> None :
         """Initialise le plateau de jeu"""
-        self.__pieces : list[list[Pcs.Piece]] = [[], []]
+        # self.__pieces : list[list[Pcs.Piece]] = [[], []]
         self.__grid : list[list[Pcs.Piece | None]] = []
         board_fen_list : list[str] = board_fen.split("/")
 
@@ -113,7 +119,7 @@ class Board :
                         case "Q" : piece = Pcs.Queen(position, owner)
                         case "K" : piece = Pcs.King(position, owner)
 
-                    self.add_piece(piece, owner)
+                    # self.add_piece(piece, owner)
                     board_row.append(piece)
                     col += 1
                 elif data.isdigit() :
@@ -127,9 +133,6 @@ class Board :
     @property
     def get_grid_size(self):
         return len(self.__grid[0])
-
-    def add_piece(self, piece : Pcs.Piece, player : int) -> None :
-        self.__pieces[player].append(piece)
 
     def __setitem__(self, position : Dt.Point, piece : Pcs.Piece) -> None :
         self.grid[position.x][position.y] = piece
@@ -146,11 +149,6 @@ class Board :
             coords = Dt.convert_coordinates(coords)
             return 0 <= coords[0] < self.size[0] and 0 <= coords[0] < self.size[1]
 
-    def capture(self, piece : Pcs.Piece) -> None :
-        """"""
-        player_piece : list[Pcs.Piece] = self.get_player_pieces(piece.owner)
-        player_piece.pop(player_piece.index(piece))
-
     def __str__(self) -> str :
         str_board : str = ""
         for row in range(len(self.grid)) :
@@ -165,15 +163,15 @@ class Board :
 
     def __iter__(self) :
         self.__i : int = 0
-        self.__j : int = 0
+        self.__j : int = -1
         return self
 
-    def __next__(self) -> Pcs.Piece | None :
-        piece : Pcs.Piece | None = self[self.__i, self.__j]
+    def __next__(self) -> Pcs.Piece :
         self.__j += 1
         if self.__j == len(self.grid[0]) :
             self.__j = 0
             self.__i += 1
         if self.__i == len(self.grid) :
             raise StopIteration
+        piece : Pcs.Piece = self[Dt.Point(self.__i, self.__j)]
         return piece
