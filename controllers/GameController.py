@@ -62,6 +62,7 @@ class GameController(Ctrl.Controller) :
                                 self._update_choice_tiles(tile.piece, True)
                         else :
                             self._update_choice_tiles(self.selected_tiles[0].piece, False)
+                            self.selected_tiles[0] = None
                     elif self.selected_tiles[0] is not None :
                         if tile.is_choice : # if it's not an illegal move
                             self._update_choice_tiles(self.selected_tiles[0].piece, False)

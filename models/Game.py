@@ -329,7 +329,6 @@ class Game :
         other_player_actions : list[str] = self._available_actions()
         self.set_active_player((self.round - 1) % 2)
         for other_action in other_player_actions :
-            print(other_action[2:], Dt.convert_coordinates(self.__kings_pos[self.active_player]))
             if Dt.convert_coordinates(other_action[2:]) == self.__kings_pos[self.active_player] :
                 return True
         return False
