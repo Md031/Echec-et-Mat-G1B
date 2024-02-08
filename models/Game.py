@@ -189,7 +189,6 @@ class Game :
         elif self.is_castling(move) :
             move.set_type(Dt.MoveType.CASTLING)
             self._get_castling_rook(move)
-            print(move.castling_rook)
             self.set_casling_rights()
         elif self.is_en_passant(move) :
             ...
@@ -323,21 +322,16 @@ class Game :
                 actions.remove(action)
             self.set_active_player(self.round % 2)
             self.pop_move()
-            print(self.round, self.active_player)
         return actions
 
     def _is_in_check(self) -> bool :
         """Vérifie si la partie se trouve dans l'état 'échec' (check)"""
-        print("check")
-        print(self.round, self.active_player)
         other_player_actions : list[str] = self._available_actions()
         self.set_active_player((self.round - 1) % 2)
-        print(self.round, self.active_player)
         for other_action in other_player_actions :
+            print(other_action[2:], Dt.convert_coordinates(self.__kings_pos[self.active_player]))
             if Dt.convert_coordinates(other_action[2:]) == self.__kings_pos[self.active_player] :
-                print("fin check")
                 return True
-        print("fin check")
         return False
 
     def _is_in_checkmate(self) -> bool :

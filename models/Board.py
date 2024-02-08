@@ -68,8 +68,6 @@ class Board :
         """
         pieces : list[Pcs.Piece] = []
         for piece in self :
-            if piece is not None :
-                print(piece, player, piece.owner == player)
             if piece is not None and piece.owner == player :
                 pieces.append(piece)
         return pieces

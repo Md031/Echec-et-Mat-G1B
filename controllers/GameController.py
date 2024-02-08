@@ -56,7 +56,6 @@ class GameController(Ctrl.Controller) :
                         if tile.is_clicked : 
                             if self.selected_tiles[0] is None or \
                             tile.grid_position != self.selected_tiles[0].grid_position :
-                                print(self.game.active_player_actions)
                                 if self.selected_tiles[0] is not None :
                                     self._update_choice_tiles(self.selected_tiles[0].piece, False)
                                 self.selected_tiles[0] = tile
@@ -124,6 +123,7 @@ class GameController(Ctrl.Controller) :
         self._update_board_display(promotion_piece)
         move.set_type(Dt.MoveType.PROMOTION)
         move.set_promotion(promotion_piece.name)
+        self.game.update_state()
 
     def _play_move(self, move : Mv.Move) -> None :
         self.game.push_move(move)
@@ -194,7 +194,6 @@ class GameController(Ctrl.Controller) :
             if move[:2] == piece.chess_positon :
                 tile : Tl.Tile = self.gamePage.baordDisplayer[Dt.convert_coordinates(move[2:])]
                 tile.set_choice(False) if not is_choice else tile.set_choice(True)
-                # print(move)
 
     def _update_board_display(self, piece : Pcs.Piece) -> None :
         position : Dt.Point = self.gamePage.baordDisplayer[piece.position].position
