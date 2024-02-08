@@ -267,7 +267,6 @@ class King(Piece) :
         """Renvoie les positions atteignables par le roi sur le plateau de jeu"""
         available_moves : list[str] = Knight.available_actions(self, game)
         activer_player_castling_rights : str = game.activer_player_castling_rights
-
         if activer_player_castling_rights is not None :
             king_side : list[str, bool] = ["K", True] if self.owner == 0 else ["k", True]
             queen_side : list[str, bool] = ["Q", True] if self.owner == 0 else ["q", True]
@@ -297,5 +296,4 @@ class King(Piece) :
                 move : str = self.chess_positon + Dt.convert_coordinates(Dt.Point(self.position.x, self.position.y + 2))
                 available_moves.append(move)
             return available_moves
-
-        return Knight.available_actions(self, game)
+        return available_moves

@@ -95,12 +95,18 @@ class Game :
     @property
     def active_player_actions(self) -> list[str] :
         """Renvoie la liste des actions valides pour le joueur actif"""
+        if len(self.__active_player_actions) == 0 : 
+            self.__active_player_actions = self._valid_actions()
         return self.__active_player_actions
 
     @property
     def activer_player_castling_rights(self) -> str :
         """Renvoie les droits de 'castling' du joueur actif"""
         return self.__castling_rights[self.active_player]
+
+    @property
+    def is_over(self) -> bool :
+        return self.state == Dt.State.CHECKMATE or self.state == Dt.State.STALEMATE
 
     ###########
     # SETTERS #
@@ -134,16 +140,30 @@ class Game :
         castling_rights : list[str]
             les noueveaux droits de 'castling'
         """
-        self.__castling_rights[self.active_player] = ""
-        rook_pos: list[str]  = ["a1, h1"] if self.active_player == 0 else ["a8, h8"]
-        can_castle : bool = [True, True]
-        for i, position in enumerate(rook_pos) :
-            piece : Pcs.Piece = self.board[position]
-            if piece is None or piece.name != "rook" :
-                can_castle[i] = [False]
-        if all(can_castle) :
-            self.__castling_rights[self.active_player] += "K" if self.active_player == 0 else "k"
-            self.__castling_rights[self.active_player] += "Q" if self.active_player == 0 else "q"
+        row : int = self.board.size[0]
+        king_start_pos : list[str] = ["e1", f"e{row}"]
+        if (Dt.convert_coordinates(self.__kings_pos[self.active_player]) 
+        == king_start_pos[self.active_player]) :
+            self.__castling_rights[self.active_player] = ""
+            rook_pos : list[str] = None
+            col : str = chr(ord('a') + self.board.size[0] - 1)
+
+            if self.active_player == 0 :
+                rook_pos = ["a1", f"{col}1"]
+            else :
+                rook_pos = [f"a{row}", f"{col}{row}"]
+        
+            can_castle : bool = [True, True]
+            for i, position in enumerate(rook_pos) :
+                piece : Pcs.Piece = self.board[position]
+                if piece is None or piece.name != "rook" :
+                    can_castle[i] = [False]
+
+            if all(can_castle) :
+                self.__castling_rights[self.active_player] += "K" if self.active_player == 0 else "k"
+                self.__castling_rights[self.active_player] += "Q" if self.active_player == 0 else "q"
+            else :
+                self.__castling_rights[self.active_player] = None
         else :
             self.__castling_rights[self.active_player] = None
 
@@ -169,17 +189,6 @@ class Game :
         """
         self.__moves.append(move)
 
-    def _add_action(self, action : str) -> None : 
-        """
-        Ajoute un mouvement dans la liste des actions valides pour le joueur actif
-
-        Parameters
-        ----------
-        action : Moves
-            le mouvement à ajouter
-        """
-        self.__active_player_actions.append(action)
-
     ###################
     # OTHER FUNCTIONS #
     ###################
@@ -189,17 +198,18 @@ class Game :
         elif self.is_castling(move) :
             move.set_type(Dt.MoveType.CASTLING)
             self._get_castling_rook(move)
-            self.set_casling_rights()
         elif self.is_en_passant(move) :
             ...
 
     def _get_castling_rook(self, move : Mv.Move) -> None :
         king_side : bool = move.dest_pos - move.start_pos == (0, 2) 
+        col : str = chr(ord('a') + self.board.size[0] - 1)
+        row : int = self.board.size[0]
         rook_pos : str = ""
-        if king_side : rook_pos += "h"
-        else : rook_pos += "a"
-        if self.active_player == 0 : rook_pos += "1"
-        else : rook_pos += "8"
+        if king_side : rook_pos += f"{col}"
+        else : rook_pos += 'a'
+        if self.active_player == 0 : rook_pos += '1'
+        else : rook_pos += f"{row}"
         move.set_castling_rook(self.board[rook_pos])
 
     def push_move(self, move : Mv.Move) -> None :
@@ -208,6 +218,7 @@ class Game :
         if move.move_type == Dt.MoveType.CASTLING :
             self._push_castling(move)
             self.__kings_pos[self.active_player] = move.dest_pos
+            self.__castling_rights[self.active_player] = None
         elif move.move_type == Dt.MoveType.EN_PASSANT :
             ...
         else :
@@ -231,10 +242,11 @@ class Game :
     def _push_default(self, move : Mv.Move) -> None :
         if move.piece_moved.name == "king" :
             self.__kings_pos[self.active_player] = move.dest_pos
+            self.__castling_rights[self.active_player] = None
         self.update_board(move)
         if (move.piece_moved.name == "pawn" and move.piece_moved.can_double_start) :
             move.piece_moved.set_double_start(False)
-        if move.piece_moved.name in ["rook", "king"] :
+        elif move.piece_moved.name == "rook" :
             self.set_casling_rights()
 
     def pop_move(self) -> Mv.Move :
@@ -244,10 +256,10 @@ class Game :
         if move.move_type == Dt.MoveType.CASTLING :
             self._pop_castling(move)
             self.__kings_pos[move.piece_moved.owner] = move.start_pos
+            self.set_casling_rights()
         elif move.move_type == Dt.MoveType.EN_PASSANT :
             ...
         else :
-            # move.piece_moved.set_position(move.start_pos)
             self._pop_default(move)
         self.__round -= 1
         self.set_active_player(self.__round % 2)
@@ -257,9 +269,10 @@ class Game :
     def _pop_default(self, move : Mv.Move) -> None :
         if move.piece_moved.name == "king" :
             self.__kings_pos[move.piece_moved.owner] = move.start_pos
+            if Dt.convert_coordinates(move.start_pos) in ["e1", f"e{self.board.size[0]}"] :
+                self.set_casling_rights()
         if move.piece_captured :
             move.piece_captured.set_position(move.dest_pos)
-            # self.board.add_piece(move.piece_captured, move.piece_captured.owner)
         self.update_board(move, undo = True)
         if move.move_type == Dt.MoveType.PROMOTION :
             self._pop_promotion(move)
@@ -268,7 +281,7 @@ class Game :
         and ((move.start_pos.x == 6 and move.piece_moved.owner == 0)
         or (move.start_pos.x == 1 and move.piece_moved.owner == 1))) :
             move.piece_moved.set_double_start(True)
-        if move.piece_moved.name in ["rook", "king"] :
+        if move.piece_moved.name == "rook" :
             self.set_casling_rights()
 
     def _pop_promotion(self, move : Mv.Move) -> None :
@@ -317,7 +330,6 @@ class Game :
             action : str = actions[i]
             move : Mv.Move = Mv.Move(Dt.convert_coordinates(action[:2]), 
                 Dt.convert_coordinates(action[2:]), self.board)
-            # self.set_move_type(move)
             self.push_move(move)
             if self._is_in_check() :
                 actions.remove(action)
@@ -342,9 +354,6 @@ class Game :
         """Vérifie si la partie se trouve dans l'état 'match nul' (stalemate)"""
         return len(self.active_player_actions) == 0 and not self._is_in_check()
 
-    def is_over(self) -> bool :
-        return self.state == Dt.State.CHECKMATE or self.state == Dt.State.STALEMATE
-
     def update_board(self, move : Mv.Move, undo : bool = False) -> None :
         """
         Met à jour le plateau de jeu de la partie
@@ -365,15 +374,16 @@ class Game :
 
     def update_state(self) -> None :
         """Met à jour l'état de la partie"""
-        self.__active_player_actions = self._valid_actions()
+        actions = self._valid_actions()
         self.__round += 1
-        if len(self.active_player_actions) == 0 :
+        if len(actions) == 0 :
             if self._is_in_check() : self.set_state(Dt.State.CHECKMATE)
             else : self.set_state(Dt.State.STALEMATE)
         else :
             if self._is_in_check() : self.set_state(Dt.State.CHECK)
             else : self.set_state(Dt.State.ONGOING)
         self.__round -= 1
+        self.__active_player_actions = actions
 
     def reset(self) -> None :
         """Réinitialise à la partie"""

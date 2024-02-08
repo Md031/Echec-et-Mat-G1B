@@ -220,13 +220,12 @@ class GameController(Ctrl.Controller) :
 
     def handle(self, event) -> None :
         """Gère les événements qui ont lieu dans la fenêtre de l'application"""
-        if self.game.active_player == 0 or not self.__game_type :
-            if not self.gamePage.pawn_promotion_popup.is_active :
+        if self.gamePage.pawn_promotion_popup.is_active :
+            self._handle_pawn_promotion(event)
+        elif self.game.active_player == 0 or not self.__game_type :
                 super().handle(event)
-            else : 
-                self._handle_pawn_promotion(event)
         else:
-            action = self.__ia.minimax(3)
+            action = self.__ia.minimax(10)
             # self.game.set_move_type(action)
             self._play_move(action)            
             # begin, ending = self.__ia.random_ia()
@@ -235,6 +234,6 @@ class GameController(Ctrl.Controller) :
             # self.__ia.evaluation(self.game)
 
     def action_conversion(self, action: str) -> Mv.Move :
-        begin_action = Dt.convert_coordinates(action[0:2])
+        begin_action = Dt.convert_coordinates(action[:2])
         end_action = Dt.convert_coordinates(action[2:])
         return Mv.Move(begin_action, end_action, self.game.board)

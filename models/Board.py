@@ -95,7 +95,6 @@ class Board :
 
     def _init(self, board_fen : str = Dt.Utils.DEFAULT_BOARD_FEN) -> None :
         """Initialise le plateau de jeu"""
-        # self.__pieces : list[list[Pcs.Piece]] = [[], []]
         self.__grid : list[list[Pcs.Piece | None]] = []
         board_fen_list : list[str] = board_fen.split("/")
 
@@ -117,7 +116,6 @@ class Board :
                         case "Q" : piece = Pcs.Queen(position, owner)
                         case "K" : piece = Pcs.King(position, owner)
 
-                    # self.add_piece(piece, owner)
                     board_row.append(piece)
                     col += 1
                 elif data.isdigit() :
@@ -127,10 +125,6 @@ class Board :
                 
             self.__grid.append(board_row)
             row += 1
-
-    @property
-    def get_grid_size(self):
-        return len(self.__grid[0])
 
     def __setitem__(self, position : Dt.Point, piece : Pcs.Piece) -> None :
         self.grid[position.x][position.y] = piece
