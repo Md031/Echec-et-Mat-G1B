@@ -148,7 +148,10 @@ class Tile(Wdgt.Widget) :
         if self.pieceDisplayer :
             self.pieceDisplayer.display(window)
         if self.is_choice : # the move possible for the selected pawn
-            Pg.draw.circle(window.screen, Dt.Colors.YELLOW, (self.position.x, self.position.y), 10)
+            if self.pieceDisplayer is None : color : Pg.Color = Dt.Colors.YELLOW
+            else : color : Pg.Color = Dt.Colors.PURPLE
+            Pg.draw.circle(window.screen, color, (self.position.x, self.position.y), 10)
+
 
     def __str__(self) -> str :
         if self.__pieceDisplayer :
