@@ -203,6 +203,7 @@ class Game :
         move.set_castling_rook(self.board[rook_pos])
 
     def push_move(self, move : Mv.Move) -> None :
+        self._set_move_type(move)
         move.piece_moved.set_position(move.dest_pos)
         if move.move_type == Dt.MoveType.CASTLING :
             self._push_castling(move)
@@ -316,7 +317,7 @@ class Game :
             action : str = actions[i]
             move : Mv.Move = Mv.Move(Dt.convert_coordinates(action[:2]), 
                 Dt.convert_coordinates(action[2:]), self.board)
-            self._set_move_type(move)
+            # self.set_move_type(move)
             self.push_move(move)
             if self._is_in_check() :
                 actions.remove(action)

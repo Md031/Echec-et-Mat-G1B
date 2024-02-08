@@ -29,7 +29,7 @@ class Ia:
 
 	def random_ia(self) -> (Dt.Point, Dt.Point):
 		choice_move = rd.choice(self.__game._valid_actions())
-		begin = Dt.convert_coordinates(choice_move[0:2])
+		begin = Dt.convert_coordinates(choice_move[:2])
 		ending = Dt.convert_coordinates(choice_move[2:])
 		return begin, ending
 
@@ -42,6 +42,7 @@ class Ia:
 		for action in self.__game._valid_actions():
 			# print("in minimax action : ", action)
 			choice = self.__Gctrl.action_conversion(action)
+			# self.__game.set_move_type(choice)
 			self.__game.push_move(choice)
 			self.__game.update_state()
 			self.__last_action = action
@@ -53,18 +54,20 @@ class Ia:
 				finalAction = choice
 				# print("action : ", finalAction, " score : ", finalScore)
 			self.__game.pop_move() # we cancel the action we did
+			self.__game.update_state()
 		for elem in self.__dic_score:
 			print(elem)
 		self.__dic_score = {}  # reset the dictionnary
 		return choice
 
 	def maximize(self, depth : int) -> float:
-		if depth == 0 or self.__game._is_over():
+		if depth == 0 or self.__game.is_over():
 			return self.__dic_score[(self.__game.board.fen, self.__last_action)] + depth
 		else:
 			best_score = float('-inf')
 			for action in self.__game._valid_actions():
 				choice = self.__Gctrl.action_conversion(action)
+				# self.__game.set_move_type(choice)
 				self.__game.push_move(choice)
 				self.__game.update_state()
 				self.__last_action = action
@@ -73,15 +76,17 @@ class Ia:
 				self.__dic_score[(self.__game.board.fen, action)] = state_score
 				best_score = max(state_score, self.minimize(depth-1))
 				self.__game.pop_move()
+				self.__game.update_state()
 			return best_score
 
 	def minimize(self, depth: int) -> float:
-		if depth == 0 or self.__game._is_over():
+		if depth == 0 or self.__game.is_over():
 			return self.__dic_score[(self.__game.board.fen, self.__last_action)] - depth
 		else:
 			best_score = float('inf')
 			for action in self.__game._valid_actions():
 				choice = self.__Gctrl.action_conversion(action)
+				# self.__game.set_move_type(choice)
 				self.__game.push_move(choice)
 				self.__game.update_state()
 				self.__last_action = action
@@ -90,6 +95,7 @@ class Ia:
 				self.__dic_score[(self.__game.board.fen, action)] = state_score
 				best_score = min(state_score, self.maximize(depth-1))
 				self.__game.pop_move()
+				self.__game.update_state()
 			return best_score
 
 	def evaluation(self, state: Game) -> float:

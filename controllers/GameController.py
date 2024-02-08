@@ -69,7 +69,7 @@ class GameController(Ctrl.Controller) :
                             self.selected_tiles[1] = tile
                             move : Mv.Move = Mv.Move(self.selected_tiles[0].grid_position, \
                                 self.selected_tiles[1].grid_position, self.game.board)
-                            self.game._set_move_type(move)
+                            # self.game.set_move_type(move)
                             self._play_move(move)
                         else: # to remove the circle showing the possible move of a pawn
                             self._update_choice_tiles(self.selected_tiles[0].piece, False)
@@ -227,6 +227,7 @@ class GameController(Ctrl.Controller) :
                 self._handle_pawn_promotion(event)
         else:
             action = self.__ia.minimax(3)
+            # self.game.set_move_type(action)
             self._play_move(action)            
             # begin, ending = self.__ia.random_ia()
             # choice = Mv.Move(begin, ending, self.game.board)
