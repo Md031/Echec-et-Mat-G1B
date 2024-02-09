@@ -193,13 +193,15 @@ class Game :
     # OTHER FUNCTIONS #
     ###################
     def _set_move_type(self, move : Mv.Move) -> None :
-        if self.is_promotion(move) :
-            move.set_type(Dt.MoveType.PROMOTION)
-        elif self.is_castling(move) :
-            move.set_type(Dt.MoveType.CASTLING)
-            self._get_castling_rook(move)
-        elif self.is_en_passant(move) :
-            ...
+        if move.piece_moved.name == "pawn" :
+            if self.is_promotion(move) :
+                move.set_type(Dt.MoveType.PROMOTION)
+            elif self.is_en_passant(move) :
+                ...
+        elif move.piece_moved.name == "king" :
+            if self.is_castling(move) :
+                move.set_type(Dt.MoveType.CASTLING)
+                self._get_castling_rook(move)
 
     def _get_castling_rook(self, move : Mv.Move) -> None :
         king_side : bool = move.dest_pos - move.start_pos == (0, 2) 
@@ -215,10 +217,11 @@ class Game :
     def push_move(self, move : Mv.Move) -> None :
         self._set_move_type(move)
         move.piece_moved.set_position(move.dest_pos)
-        if move.move_type == Dt.MoveType.CASTLING :
-            self._push_castling(move)
-            self.__kings_pos[self.active_player] = move.dest_pos
-            self.__castling_rights[self.active_player] = None
+        if move.move_type == Dt.MoveType.CASTLING and move.castling_rook is not None :
+            if move.castling_rook is not None :
+                self._push_castling(move)
+                self.__kings_pos[self.active_player] = move.dest_pos
+                self.__castling_rights[self.active_player] = None
         elif move.move_type == Dt.MoveType.EN_PASSANT :
             ...
         else :
@@ -253,7 +256,7 @@ class Game :
         """"Annule le dernier mouvement efféctué dans la partie"""
         move : Mv.Move = self.__moves.pop()
         move.piece_moved.set_position(move.start_pos)
-        if move.move_type == Dt.MoveType.CASTLING :
+        if move.move_type == Dt.MoveType.CASTLING and move.castling_rook is not None :
             self._pop_castling(move)
             self.__kings_pos[move.piece_moved.owner] = move.start_pos
             self.set_casling_rights()
