@@ -135,22 +135,21 @@ class GameController(Ctrl.Controller) :
         if move.move_type == Dt.MoveType.CASTLING :
             self._play_castling(move)
         elif move.move_type == Dt.MoveType.EN_PASSANT :
-            ...
+            self._play_en_passant(move)
         elif move.move_type == Dt.MoveType.PROMOTION :
             self.gamePage.pawn_promotion_popup.set_active(True)
         self.game.update_state()
 
     def _play_castling(self, move : Mv.Move) -> None :
-        king_side : bool = move.dest_pos - move.start_pos == (0, 2) 
-        rook_pos : str = ""
-        if king_side : rook_pos += "h"
-        else : rook_pos += "a"
-        if move.piece_moved.owner == 0 : rook_pos += "1"
-        else : rook_pos += "8"
+        rook_pos : str = self.game.get_castling_rook_start_pos(move)
         start_tile : Tl.Tile = self.gamePage.baordDisplayer[Dt.convert_coordinates(rook_pos)]
         dest_tile : Tl.Tile = self.gamePage.baordDisplayer[move.castling_rook.position]
         dest_tile.set_piece(start_tile.pieceDisplayer)
         start_tile.set_piece(None)
+
+    def _play_en_passant(self, move : Mv.Move) -> None :
+        tile : Tl.Tile = self.gamePage.baordDisplayer[move.piece_captured.position]
+        tile.set_piece(None)
 
     def _revert_move(self) -> None :
         move : Mv.Move = self.game.pop_move()
@@ -159,15 +158,13 @@ class GameController(Ctrl.Controller) :
         start_tile.set_piece(dest_tile.pieceDisplayer)
         dest_tile.set_piece(
             PieceD.PieceDisplayer(dest_tile.position, move.piece_captured) 
-            if move.piece_captured else None)
+            if move.piece_captured and move.move_type != Dt.MoveType.EN_PASSANT else None)
         if move.move_type == Dt.MoveType.PROMOTION :
             self._revert_promotion(move)
         elif move.move_type == Dt.MoveType.CASTLING :
             self._revert_castling(move)
         elif move.move_type == Dt.MoveType.EN_PASSANT :
-            ...
-        if self.game.board[move.start_pos] == "pawn" :
-            self.check_pawn_promotion(move.piece_moved)
+            self._revert_en_passant(move)
         self.game.update_state()
 
     def _revert_promotion(self, move : Mv.Move) -> None :
@@ -185,6 +182,11 @@ class GameController(Ctrl.Controller) :
         dest_tile : Tl.Tile = self.gamePage.baordDisplayer[rook_dest_pos]
         start_tile.set_piece(dest_tile.pieceDisplayer)
         dest_tile.set_piece(None)
+
+    def _revert_en_passant(self, move : Mv.Move) -> None :
+        tile : Tl.Tile = self.gamePage.baordDisplayer[move.piece_captured.position]
+        pieceDisplayer : PieceD.PieceDisplayer = PieceD.PieceDisplayer(tile.position, move.piece_captured)
+        tile.set_piece(pieceDisplayer)
 
     def _update_choice_tiles(self, piece, is_choice : bool) -> None :
         """

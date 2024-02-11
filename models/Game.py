@@ -55,8 +55,8 @@ class Game :
 
         for piece0, piece1 in itertools.zip_longest(self.board.get_player_pieces(0), 
         self.board.get_player_pieces(1)) :
-            if piece0.name == "king" : self.__kings_pos[0] = piece0.position
-            if piece1.name == "king" : self.__kings_pos[1] = piece1.position
+            if isinstance(piece0, Pcs.King) : self.__kings_pos[0] = piece0.position
+            if isinstance(piece1, Pcs.King) : self.__kings_pos[1] = piece1.position
             if self.__kings_pos[0] and self.__kings_pos[1] : break
 
     def _parse_fen(self, fen : str) -> list[str] :
@@ -108,6 +108,12 @@ class Game :
     def is_over(self) -> bool :
         return self.state == Dt.State.CHECKMATE or self.state == Dt.State.STALEMATE
 
+    def get_last_move(self, piece : Pcs.Piece) -> Mv.Move :
+        for i in range(len(self.moves) - 1, -1, -1) :
+            move : Mv.Move = self.moves[i]
+            if move.piece_moved == piece :
+                return move
+
     ###########
     # SETTERS #
     ###########
@@ -142,6 +148,7 @@ class Game :
         """
         row : int = self.board.size[0]
         king_start_pos : list[str] = ["e1", f"e{row}"]
+        self.__active_player = (self.round - 1) % 2
         if (Dt.convert_coordinates(self.__kings_pos[self.active_player]) 
         == king_start_pos[self.active_player]) :
             self.__castling_rights[self.active_player] = ""
@@ -166,6 +173,7 @@ class Game :
                 self.__castling_rights[self.active_player] = None
         else :
             self.__castling_rights[self.active_player] = None
+        self.__active_player = self.round % 2
 
     def set_state(self, state : int) -> None :
         """
@@ -193,37 +201,45 @@ class Game :
     # OTHER FUNCTIONS #
     ###################
     def _set_move_type(self, move : Mv.Move) -> None :
-        if move.piece_moved.name == "pawn" :
+        if isinstance(move.piece_moved, Pcs.Pawn) :
             if self.is_promotion(move) :
                 move.set_type(Dt.MoveType.PROMOTION)
             elif self.is_en_passant(move) :
-                ...
-        elif move.piece_moved.name == "king" :
+                direction : Dt.Point = move.dest_pos - move.start_pos
+                move.set_type(Dt.MoveType.EN_PASSANT)
+                move.set_piece_captured(self.board[
+                    Dt.Point(move.start_pos.x, 
+                    move.start_pos.y +  direction.y)
+                ])
+        elif isinstance(move.piece_moved, Pcs.King) :
             if self.is_castling(move) :
                 move.set_type(Dt.MoveType.CASTLING)
                 self._get_castling_rook(move)
 
     def _get_castling_rook(self, move : Mv.Move) -> None :
+        rook_pos : str = self.get_castling_rook_start_pos(move)
+        move.set_castling_rook(self.board[rook_pos])
+
+    def get_castling_rook_start_pos(self, move : Mv.Move) -> Dt.Point :
         king_side : bool = move.dest_pos - move.start_pos == (0, 2) 
         col : str = chr(ord('a') + self.board.size[0] - 1)
         row : int = self.board.size[0]
         rook_pos : str = ""
         if king_side : rook_pos += f"{col}"
         else : rook_pos += 'a'
-        if self.active_player == 0 : rook_pos += '1'
+        if move.piece_moved.owner == 0 : rook_pos += '1'
         else : rook_pos += f"{row}"
-        move.set_castling_rook(self.board[rook_pos])
+        return rook_pos
 
     def push_move(self, move : Mv.Move) -> None :
         self._set_move_type(move)
         move.piece_moved.set_position(move.dest_pos)
         if move.move_type == Dt.MoveType.CASTLING and move.castling_rook is not None :
-            if move.castling_rook is not None :
-                self._push_castling(move)
-                self.__kings_pos[self.active_player] = move.dest_pos
-                self.__castling_rights[self.active_player] = None
+            self._push_castling(move)
+            self.__kings_pos[self.active_player] = move.dest_pos
+            self.__castling_rights[self.active_player] = None
         elif move.move_type == Dt.MoveType.EN_PASSANT :
-            ...
+            self._push_en_passant(move)
         else :
             self._push_default(move)
         self.__round += 1
@@ -242,14 +258,18 @@ class Game :
         self.update_board(move)
         self.update_board(rook_move)
 
+    def _push_en_passant(self, move : Mv.Move) -> None :
+        self.board[move.piece_captured.position] = None
+        self.update_board(move)
+
     def _push_default(self, move : Mv.Move) -> None :
-        if move.piece_moved.name == "king" :
+        if isinstance(move.piece_moved, Pcs.King) :
             self.__kings_pos[self.active_player] = move.dest_pos
             self.__castling_rights[self.active_player] = None
         self.update_board(move)
-        if (move.piece_moved.name == "pawn" and move.piece_moved.can_double_start) :
+        if (isinstance(move.piece_moved, Pcs.Pawn) and move.piece_moved.can_double_start) :
             move.piece_moved.set_double_start(False)
-        elif move.piece_moved.name == "rook" :
+        elif isinstance(move.piece_moved, Pcs.Rook):
             self.set_casling_rights()
 
     def pop_move(self) -> Mv.Move :
@@ -261,7 +281,7 @@ class Game :
             self.__kings_pos[move.piece_moved.owner] = move.start_pos
             self.set_casling_rights()
         elif move.move_type == Dt.MoveType.EN_PASSANT :
-            ...
+            self._pop_en_passant(move)
         else :
             self._pop_default(move)
         self.__round -= 1
@@ -270,22 +290,30 @@ class Game :
         return move
 
     def _pop_default(self, move : Mv.Move) -> None :
-        if move.piece_moved.name == "king" :
+        if isinstance(move.piece_moved, Pcs.King) :
             self.__kings_pos[move.piece_moved.owner] = move.start_pos
-            if Dt.convert_coordinates(move.start_pos) in ["e1", f"e{self.board.size[0]}"] :
-                self.set_casling_rights()
         if move.piece_captured :
             move.piece_captured.set_position(move.dest_pos)
         self.update_board(move, undo = True)
+        if isinstance(move.piece_moved, Pcs.Pawn) :
+            self._pop_pawn_move(move)
+        if isinstance(move.piece_moved, Pcs.King) :
+            self.set_casling_rights()
+
+    def _pop_pawn_move(self, move : Mv.Move) -> None :
         if move.move_type == Dt.MoveType.PROMOTION :
             self._pop_promotion(move)
-        if (move.piece_moved.name == "pawn" 
-        and not move.piece_moved.can_double_start
-        and ((move.start_pos.x == 6 and move.piece_moved.owner == 0)
+        elif move.move_type == Dt.MoveType.EN_PASSANT :
+            self._pop_en_passant(move)
+        if (not move.piece_moved.can_double_start
+        and ((move.start_pos.x == self.board.size[0] - 2 and move.piece_moved.owner == 0)
         or (move.start_pos.x == 1 and move.piece_moved.owner == 1))) :
             move.piece_moved.set_double_start(True)
-        if move.piece_moved.name == "rook" :
-            self.set_casling_rights()
+
+    def _pop_en_passant(self, move : Mv.Move) -> None :
+        self.board[move.piece_captured.position] = move.piece_captured
+        self.update_board(move, undo = True)
+        self.board[move.dest_pos] = None
 
     def _pop_promotion(self, move : Mv.Move) -> None :
         pawn : Pcs.Pawn = Pcs.Pawn(move.start_pos, move.piece_moved.owner)
@@ -303,21 +331,28 @@ class Game :
         self.update_board(rook_move)
 
     def is_promotion(self, move : Mv.Move) -> bool :
-        if move.piece_moved.name == "pawn" :
-            if ((move.piece_moved.owner == 0 and move.dest_pos.x == 0) or 
-            (move.piece_moved.owner == 1 and move.dest_pos.x == self.board.size[0] - 1)) :
-                return True
-            else : return False
+        return (isinstance(move.piece_moved, Pcs.Pawn) and 
+        ((move.piece_moved.owner == 0 and move.dest_pos.x == 0) or 
+        (move.piece_moved.owner == 1 and move.dest_pos.x == self.board.size[0] - 1)))
 
     def is_castling(self, move : Mv.Move) -> bool :
-        if (isinstance(move.piece_moved, Pcs.King) and 
-        move.dest_pos - move.start_pos in [(0, 2), (0, -2)]) : 
-            return True
-        else :
-            return False
+        return (isinstance(move.piece_moved, Pcs.King) and 
+        move.dest_pos - move.start_pos in [(0, 2), (0, -2)]) 
 
     def is_en_passant(self, move : Mv.Move) -> bool :
-        ...
+        if move.piece_captured is None :
+            direction : Dt.Point = move.dest_pos - move.start_pos
+            if direction in [(-1, 1), (1, 1), (-1, -1), (1, -1)] :
+                dest = move.start_pos + (0, direction.y)
+                piece_captured : Pcs.Piece = self.board[dest]
+                if (isinstance(piece_captured, Pcs.Pawn) 
+                and not piece_captured.can_double_start
+                and piece_captured.owner != move.piece_moved.owner) :
+                    p_captured_move : Mv.Move = self.get_last_move(piece_captured)
+                    if (p_captured_move.dest_pos - p_captured_move.start_pos 
+                    in [(-2, 0), (2, 0)]) :
+                        return True
+        return False
 
     def _available_actions(self) -> list[str] :
         """Renvoie une liste de toutes les actions possibles pour le joueur actif"""

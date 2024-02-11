@@ -43,9 +43,9 @@ class Move :
     def set_type(self, value : int) -> None :
         self.__type = value
 
-    def set_dest_pos(self, position : Dt.Point) -> None :
+    def set_piece_captured(self, piece : Pcs.Piece) -> None :
         if self.move_type == Dt.MoveType.EN_PASSANT :
-            self.__dest_pos = position
+            self.__piece_captured = piece
 
     def set_promotion(self, value : str) -> None :
         if self.move_type == Dt.MoveType.PROMOTION :
