@@ -102,7 +102,7 @@ class State :
     CHECK : int = 1
     CHECKMATE : int = 2
     STALEMATE : int = 3
-    RESIGNATION : int = 4
+    DRAW : int = 4
 
 class ButtonType :
     UP_ANIMATION : int = 0
@@ -122,7 +122,7 @@ class MoveType :
 
 
 
-PIECE_VALUES = [None, 100, 300, 300, 500, 900, 0]   #maps out the values of the pieces.
+PIECE_VALUES = [100, 300, 300, 500, 900, 0]   #maps out the values of the pieces.
                                                     # by default in the chess library these are the values chess.PAWN = 1, chess.KNIGHT= 2, chess.BISHOP= 3, chess.ROOK= 4, chess.QUEEN= 5, chess.KING= 6
                                                     #this is why the index 0 is None
                                                     #We can get then simply get the value of a piece with PIECE_VALUES[piece.piece_type]

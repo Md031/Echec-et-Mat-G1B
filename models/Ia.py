@@ -3,6 +3,7 @@ import Data as Dt
 import models.Game as Gm
 import controllers.GameController as GCtrl
 import models.Move as Mv
+import copy
 
 class Ia:
 	def __init__(self, game : Gm.Game, game_ctrl : GCtrl):
@@ -22,7 +23,7 @@ class Ia:
 		choice_move = rd.choice(self.game._valid_actions())
 		return self.game_controller.action_conversion(choice_move)
 
-	def minimax(self, max_depth : int = 3) -> Mv.Move :
+	def minimax(self, max_depth : int = 2) -> Mv.Move :
 		return self.maximize(max_depth)[1]
 
 	def maximize(self, depth : int, move : Mv.Move = None) -> float :
@@ -31,8 +32,9 @@ class Ia:
 
 		best_move : Mv.Move = None
 		score : float = float("-INF")
+		valid_actions : list[str] = copy.copy(self.__game.active_player_actions)
 
-		for player_action in self.game.active_player_actions :
+		for player_action in valid_actions :
 			action = self.game_controller.action_conversion(player_action)
 			self.game.push_move(action)
 			self.game.update_state()
@@ -50,8 +52,9 @@ class Ia:
 
 		best_move : Mv.Move = None
 		score : float = float("INF")
+		valid_actions : list[str] = copy.copy(self.__game.active_player_actions)
 
-		for player_action in self.__game.active_player_actions :
+		for player_action in valid_actions :
 			action = self.game_controller.action_conversion(player_action)
 			self.game.push_move(action)
 			self.game.update_state()
@@ -66,12 +69,13 @@ class Ia:
 	def evaluation(self) -> float:
 		score_total : int = 0
 		pieces : list = self.game.board.get_player_pieces(self.game.active_player)
+		# print("player : ", self.game.active_player)
 		for piece in pieces :
-			pieces_type = self.__piece_type[piece.name]
+			pieces_type = self.__piece_type[piece.name] 	
 			idx = int(piece.position.x) * self.game.board.size[0] + int(piece.position.y)
-			if self.game.active_player == 0: # white pieces
-				score_total += Dt.PIECE_TABLES_WHITE[pieces_type][idx]
+			if self.game.active_player == 1 : # white pieces
+				score_total += Dt.PIECE_VALUES[pieces_type]
 			else: # black pieces
-				score_total -= Dt.PIECE_TABLES_BLACK[pieces_type][idx]
+				score_total -= Dt.PIECE_VALUES[pieces_type]
 		return score_total
 		# TODO : add the change of score when we are in the end game

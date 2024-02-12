@@ -228,10 +228,11 @@ class GameController(Ctrl.Controller) :
             elif self.game.active_player == 0 or not self.__game_type :
                     super().handle(event)
             else:
-                action = self.__ia.minimax(15)
+                action = self.__ia.minimax()
                 self._play_move(action)            
 
     def action_conversion(self, action: str) -> Mv.Move :
         begin_action = Dt.convert_coordinates(action[:2])
         end_action = Dt.convert_coordinates(action[2:])
         return Mv.Move(begin_action, end_action, self.game.board)
+    
