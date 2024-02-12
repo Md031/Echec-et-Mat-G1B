@@ -1,6 +1,8 @@
 import chess
 from ai import *
 from human import Human
+import torch
+
 
 
 class Game:
@@ -18,13 +20,13 @@ class Game:
     def play(self):
         try:
             while not board.is_game_over(claim_draw=True):
+                print()
+                print(board)
                 if board.turn == chess.WHITE:
-                    uci = self.player_1.move(board, 20)
+                    uci = self.player_1.move(board)
                 else:
                     uci = self.player_2.move(board)
                 board.push_uci(uci)
-
-                print(board)
         except KeyboardInterrupt:
             msg = "Game interrupted!"
 
@@ -45,6 +47,6 @@ class Game:
 
 board = chess.Board()
 
-game = Game(board, player_1 = Minimax(), player_2 = Random())
+game = Game(board, player_1 = Human(), player_2 = Minimax())
 
 game.play()

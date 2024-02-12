@@ -1,4 +1,3 @@
-import random
 import chess
 
 class Human:
@@ -11,6 +10,9 @@ class Human:
         except:
             uci = None
         return uci
+
+    def set_color(self, color):
+        self.color = color
 
     def move(self, board):
         legal_uci_moves = [move.uci() for move in board.legal_moves]

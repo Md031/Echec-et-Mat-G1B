@@ -1,5 +1,7 @@
 import random 
 import chess 
+import chess.polyglot
+
 from pieceValues import *
 
 class Ai:   #Interface class
@@ -23,47 +25,16 @@ class Random(Ai):
 class Minimax(Ai):
     def __init__(self):
         super().__init__()
+        self.__book = chess.polyglot.open_reader("Human.bin")
 
-    # not complete
-    def move(self, board, depth):
-        bestMove = float('-inf')
-        for move in board.legal_moves:
-            board.push_uci(move.uci())
 
-            value = max(bestMove, self.max_value( board, depth -1))
-            board.pop()     #undo the last move
-
-            if(value > bestMove):
-                bestMove = value
-                bestMoveFinal = move
-                
-        return bestMoveFinal.uci()
-    
-    def max_value(self, board, depth):
-        if depth <= 0 or board.is_game_over :
-            return self.evaluation(board)
-
-        best_move = float('-inf')
-        for move in board.legal_moves:
-            board.push_uci(move.uci)()
-
-            best_move = max(best_move,  self.min_value(board, depth - 1))
-            board.pop()
-
-        return best_move
-                
-    def min_value(self, board, depth):
-        if depth <= 0 or board.is_game_over :
-            return self.evaluation(board)
-
-        best_move = float('inf')
-        for move in board.legal_moves:
-            board.push_uci(move.uci())
-
-            best_move = max(best_move, self.max_value(board, depth - 1))
-            board.pop()
-
-        return best_move
+    def move(self, board, depth=20):
+        main_entry = self.__book.find(board)
+        if main_entry is not None:
+            return main_entry.move.uci()
+        
+        else:
+            pass
                 
     def evaluation(self, board):
         total_evaluation = 0
