@@ -108,6 +108,7 @@ class Window() :
         """Renvoie le controlleur de la page active"""
         return self.__active_controller
 
+    @property
     def active_controller_type(self) -> int :
         """Renvoie le type du conttrolleur de la page active"""
         return self.__active_controller.type
@@ -135,6 +136,13 @@ class Window() :
         self.__active_canvas.display(self)
         self.__clock.tick(60)
 
+    def handle_event(self) -> None :
+        for event in Pg.event.get() :
+            if event.type == Pg.QUIT :
+                Pg.quit()
+                exit()
+            self.active_controller.handle(event)
+
     def main_loop(self) -> None :
         """lance la fenêtre"""
         running = True
@@ -145,8 +153,4 @@ class Window() :
                 print("in animation")
                 self.active_controller.update()
             else :
-                for event in Pg.event.get() :
-                    if event.type == Pg.QUIT :
-                        Pg.quit()
-                        exit()
-                    self.active_controller.handle(event)
+                self.handle_event()

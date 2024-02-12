@@ -4,15 +4,6 @@ import models.Game as Gm
 import controllers.GameController as GCtrl
 import models.Move as Mv
 
-# class Type_Pieces :
-# 	PAWN = 0
-# 	KNIGHT = 1
-# 	BISHOP = 2
-# 	ROOK = 3
-# 	QUEEN = 4
-# 	KING = 5
-# 	KING_END_GAME = 6
-
 class Ia:
 	def __init__(self, game : Gm.Game, game_ctrl : GCtrl):
 		self.__game_controller : GCtrl = game_ctrl

@@ -82,15 +82,12 @@ class Utils :
     DEFAULT_PIECE_DIMENSIONS : int = 60
     DEFAULT_TILE_DIMENSIONS : int = DEFAULT_BOARD_DIMENSIONS // DEFAULT_GRID_DIMENSIONS
     DEFAULT_TILE_OFFSET : int = (DEFAULT_TILE_DIMENSIONS - DEFAULT_PIECE_DIMENSIONS) / 2
-    # DEFAULT_BOARD_FEN : str = "rnbqk/ppppp/5/PPPPP/RNBQK"
-    DEFAULT_BOARD_FEN : str = "rnbqk/1p1p1/5/P1P1P/RNBQK"
+    DEFAULT_BOARD_FEN : str = "rnbqk/ppppp/5/PPPPP/RNBQK"
     # DEFAULT_BOARD_FEN : str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
     DEFAULT_CASTLING_RIGHTS : str = "KQ|kq"
     DEFAULT_FIRST_PLAYER : int = 0
     DEFAULT_FEN : str = f"{DEFAULT_BOARD_FEN} {str(DEFAULT_FIRST_PLAYER)} {DEFAULT_CASTLING_RIGHTS}"
     DEFAULT_PIECES_DIRECTIONS : dict[str : list[tuple[int]]] = {
-        # "pawn" : [[(-2, 0), (-1, 0), (-1, 1), (-1, -1), (-2, -1), (-2, 1)], 
-        #     [(2, 0), (1, 0), (1, 1), (1, -1), (2, -1), (2, 1)]], 
         "pawn" : [[(-2, 0), (-1, 0), (-1, 1), (-1, -1)], 
             [(2, 0), (1, 0), (1, 1), (1, -1)]],
         "knight" : [(-2, 1), (-1, 2), (1, 2), (2, 1), (2, -1), (1, -2), (-1, -2), (-2, -1)], 

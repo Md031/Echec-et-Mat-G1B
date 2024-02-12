@@ -342,5 +342,5 @@ class King(Piece) :
                     can_castle = False
                     break
         if can_castle and side in castling_rights :
-            dest = Dt.convert_coordinates(Dt.Point(self.position.x, self.position.y - 2))
+            dest : str = Dt.convert_coordinates(Dt.Point(self.position.x, movements[-1].y))
             return self.chess_positon + dest
