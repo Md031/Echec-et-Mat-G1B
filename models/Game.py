@@ -146,14 +146,14 @@ class Game :
         castling_rights : list[str]
             les noueveaux droits de 'castling'
         """
-        row : int = self.board.size[0]
+        row : int = self.board.size
         king_start_pos : list[str] = ["e1", f"e{row}"]
         self.__active_player = (self.round - 1) % 2
         if (Dt.convert_coordinates(self.__kings_pos[self.active_player]) 
         == king_start_pos[self.active_player]) :
             self.__castling_rights[self.active_player] = ""
             rook_pos : list[str] = None
-            col : str = chr(ord('a') + self.board.size[0] - 1)
+            col : str = chr(ord('a') + self.board.size - 1)
 
             if self.active_player == 0 :
                 rook_pos = ["a1", f"{col}1"]
@@ -222,8 +222,8 @@ class Game :
 
     def get_castling_rook_start_pos(self, move : Mv.Move) -> Dt.Point :
         king_side : bool = move.dest_pos - move.start_pos == (0, 2) 
-        col : str = chr(ord('a') + self.board.size[0] - 1)
-        row : int = self.board.size[0]
+        col : str = chr(ord('a') + self.board.size - 1)
+        row : int = self.board.size
         rook_pos : str = ""
         if king_side : rook_pos += f"{col}"
         else : rook_pos += 'a'
@@ -232,7 +232,7 @@ class Game :
         return rook_pos
 
     def push_move(self, move : Mv.Move) -> None :
-        self._set_move_type(move)
+        self._set_move_type(move)  # decide wether it's a castling, a normal move, a promotion or a "en passant" 
         move.piece_moved.set_position(move.dest_pos)
         if move.move_type == Dt.MoveType.CASTLING and move.castling_rook is not None :
             self._push_castling(move)
@@ -240,7 +240,7 @@ class Game :
             self.__castling_rights[self.active_player] = None
         elif move.move_type == Dt.MoveType.EN_PASSANT :
             self._push_en_passant(move)
-        else :
+        elif move.move_type == Dt.MoveType.DEFAULT:
             self._push_default(move)
         self.__round += 1
         self.set_active_player(self.round % 2)
@@ -306,7 +306,7 @@ class Game :
         elif move.move_type == Dt.MoveType.EN_PASSANT :
             self._pop_en_passant(move)
         if (not move.piece_moved.can_double_start
-        and ((move.start_pos.x == self.board.size[0] - 2 and move.piece_moved.owner == 0)
+        and ((move.start_pos.x == self.board.size - 2 and move.piece_moved.owner == 0)
         or (move.start_pos.x == 1 and move.piece_moved.owner == 1))) :
             move.piece_moved.set_double_start(True)
 
@@ -331,13 +331,10 @@ class Game :
         self.update_board(rook_move)
 
     def is_promotion(self, move : Mv.Move) -> bool :
-        return (isinstance(move.piece_moved, Pcs.Pawn) and 
-        ((move.piece_moved.owner == 0 and move.dest_pos.x == 0) or 
-        (move.piece_moved.owner == 1 and move.dest_pos.x == self.board.size[0] - 1)))
+        return (move.piece_moved.owner == 0 and move.dest_pos.x == 0) or (move.piece_moved.owner == 1 and move.dest_pos.x == self.board.size - 1)
 
     def is_castling(self, move : Mv.Move) -> bool :
-        return (isinstance(move.piece_moved, Pcs.King) and 
-        move.dest_pos - move.start_pos in [(0, 2), (0, -2)]) 
+        return move.dest_pos - move.start_pos in [(0, 2), (0, -2)]
 
     def is_en_passant(self, move : Mv.Move) -> bool :
         if move.piece_captured is None :
@@ -358,19 +355,18 @@ class Game :
         """Renvoie une liste de toutes les actions possibles pour le joueur actif"""
         actions : list[str] = []
         for piece in self.board.get_player_pieces(self.active_player) :
-            actions.extend(piece.available_actions(self))
+            piece.available_actions(self, actions)
         return actions
 
     def _valid_actions(self) -> list[str] :
         """Renvoie une liste de toutes les actions valides pour le joueur actif"""
         actions = self._available_actions()
         for i in range(len(actions) - 1, -1, -1) :
-            action : str = actions[i]
-            move : Mv.Move = Mv.Move(Dt.convert_coordinates(action[:2]), 
-                Dt.convert_coordinates(action[2:]), self.board)
+            move : Mv.Move = Mv.Move(Dt.convert_coordinates(actions[i][:2]), 
+                Dt.convert_coordinates(actions[i][2:]), self.board)
             self.push_move(move)
             if self._is_in_check() :
-                actions.remove(action)
+                actions.remove(actions[i])
             self.set_active_player(self.round % 2)
             self.pop_move()
         return actions
@@ -414,7 +410,7 @@ class Game :
         """Met à jour l'état de la partie"""
         actions = self._valid_actions()
         self.__round += 1
-        if len(actions) == 0 :
+        if len(actions) == 0 :  # the game is over or it's a draw
             if self._is_in_check() : self.set_state(Dt.State.CHECKMATE)
             else : self.set_state(Dt.State.STALEMATE)
         else :

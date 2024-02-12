@@ -23,6 +23,7 @@ class Board :
             le plateau de jeu en notation fen (Forsyth-Edwards Notation)
         """
         self._init(board_fen)
+        self.__size = len(self.grid)
 
     ###########
     # GETTERS #
@@ -55,7 +56,7 @@ class Board :
     @property
     def size(self) -> tuple[int] : 
         """Renvoie les dimensions du plateau de jeu"""
-        return len(self.grid), len(self.grid[0]) 
+        return self.__size
 
     def get_player_pieces(self, player : int) -> list[Pcs.Piece] : 
         """
@@ -134,12 +135,12 @@ class Board :
     ###################
     def __contains__(self, coords : Dt.Point | str | tuple) -> bool :
         if isinstance(coords, Dt.Point) :
-            return 0 <= coords.x < self.size[0] and 0 <= coords.y < self.size[1]
+            return 0 <= coords.x < self.size and 0 <= coords.y < self.size
         elif isinstance(coords, tuple) :
-            return 0 <= coords[0] < self.size[0] and 0 <= coords[1] < self.size[1]
+            return 0 <= coords[0] < self.size and 0 <= coords[1] < self.size
         elif isinstance(coords, str) :
             coords = Dt.convert_coordinates(coords)
-            return 0 <= coords[0] < self.size[0] and 0 <= coords[0] < self.size[1]
+            return 0 <= coords[0] < self.size and 0 <= coords[0] < self.size
 
     def __str__(self) -> str :
         str_board : str = ""

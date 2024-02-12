@@ -23,7 +23,7 @@ class Ia:
 		choice_move = rd.choice(self.game._valid_actions())
 		return self.game_controller.action_conversion(choice_move)
 
-	def minimax(self, max_depth : int = 2) -> Mv.Move :
+	def minimax(self, max_depth : int = 3) -> Mv.Move :
 		return self.maximize(max_depth)[1]
 
 	def maximize(self, depth : int, move : Mv.Move = None) -> float :
@@ -32,7 +32,8 @@ class Ia:
 
 		best_move : Mv.Move = None
 		score : float = float("-INF")
-		valid_actions : list[str] = copy.copy(self.__game.active_player_actions)
+		valid_actions = self.__game._valid_actions()
+		# valid_actions : list[str] = copy.copy(self.__game.active_player_actions)
 
 		for player_action in valid_actions :
 			action = self.game_controller.action_conversion(player_action)
@@ -52,7 +53,8 @@ class Ia:
 
 		best_move : Mv.Move = None
 		score : float = float("INF")
-		valid_actions : list[str] = copy.copy(self.__game.active_player_actions)
+		valid_actions = self.__game._valid_actions()
+		# valid_actions : list[str] = copy.copy(self.__game.active_player_actions)
 
 		for player_action in valid_actions :
 			action = self.game_controller.action_conversion(player_action)
@@ -72,7 +74,7 @@ class Ia:
 		# print("player : ", self.game.active_player)
 		for piece in pieces :
 			pieces_type = self.__piece_type[piece.name] 	
-			idx = int(piece.position.x) * self.game.board.size[0] + int(piece.position.y)
+			idx = int(piece.position.x) * self.game.board.size + int(piece.position.y)
 			if self.game.active_player == 1 : # white pieces
 				score_total += Dt.PIECE_VALUES[pieces_type]
 			else: # black pieces

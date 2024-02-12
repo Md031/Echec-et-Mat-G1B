@@ -106,7 +106,7 @@ class Piece(ABC) :
     # OTHER FUNCTIONS #
     ###################
     @abstractmethod
-    def available_actions(self, game) -> list[str] :
+    def available_actions(self, game, actions_list) -> None :
         """Renvoie une liste de toutes les actions possibles d'une pièce sur le plateau de jeu"""
 
     @abstractmethod
@@ -154,16 +154,14 @@ class Pawn(Piece) :
         """
         self.__double_start = value 
 
-    def available_actions(self, game) -> list[str] :
+    def available_actions(self, game, actions_list) -> None :
         """Renvoie les positions atteignables par le pion sur le plateau de jeu"""
-        actions : list[str] = []
         dest : Dt.Point = None
         directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name][self.owner]
         for direction in directions :
             dest = self.position + direction
             if self.is_possible_move(dest, direction, game) :
-                actions.append(self.chess_positon + Dt.convert_coordinates(dest))
-        return actions
+                actions_list.append(self.chess_positon + Dt.convert_coordinates(dest))
 
     def is_possible_move(self, dest : Dt.Point | list[Dt.Point], 
     direction : tuple[int], game) -> bool :
@@ -207,16 +205,15 @@ class Knight(Piece) :
         """
         super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, game) -> list[str] :
+    def available_actions(self, game, actions_list) -> None :
         """Renvoie les positions atteignables par le cavalier sur le plateau de jeu"""
-        actions : list[str] = []
         dest : Dt.Point = None
         directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
         for direction in directions :
             dest = self.position + direction
             if self.is_possible_move(dest, None, game) :
-                actions.append(self.chess_positon + Dt.convert_coordinates(dest))
-        return actions
+                actions_list.append(self.chess_positon + Dt.convert_coordinates(dest))
+
 
     def is_possible_move(self, dest : Dt.Point | list[Dt.Point], 
     direction : tuple[int], game) -> bool :
@@ -234,23 +231,21 @@ class Bishop(Piece) :
         """
         super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, game) -> list[str] :
+    def available_actions(self, game, actions_list) -> None :
         """Renvoie les positions atteignables par le fou sur le plateau de jeu"""
-        actions : list[str] = []
         directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
         available_directions : list[bool] = [True] * len(directions)
-        dests : list[Dt.Point] = [copy.copy(self.position) for i in range(len(directions))]
+        dests : list[Dt.Point] = [Dt.Point(self.position.x, self.position.y) for i in range(len(directions))]
         while available_directions.count(False) != len(directions) :
             for i in range(len(directions)) :
                 dest, direction, available = dests[i], directions[i], available_directions[i]
                 if available and self.is_possible_move(dest, direction, game) :
-                    actions.append(self.chess_positon + Dt.convert_coordinates(dests[i]))
+                    actions_list.append(self.chess_positon + Dt.convert_coordinates(dests[i]))
                     dest_owner : int = game.board[dest].owner if game.board[dest] else None
                     if dest_owner is not None :
                         available_directions[i] = False
                 else :
                     available_directions[i] = False
-        return actions
 
     def is_possible_move(self, dest : Dt.Point | list[Dt.Point], 
     direction : tuple[int], game) -> bool :
@@ -269,9 +264,9 @@ class Rook(Piece) :
         """
         super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, game) -> list[str] :
+    def available_actions(self, game, actions_list) -> None :
         """Renvoie les positions atteignables par la tour sur le plateau de jeu"""
-        return Bishop.available_actions(self, game)
+        Bishop.available_actions(self, game, actions_list)
 
     def is_possible_move(self, dest: Dt.Point | list[Dt.Point], 
     direction: tuple[int], game) -> bool:
@@ -288,9 +283,9 @@ class Queen(Piece) :
         """
         super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, game) -> list[str] :
+    def available_actions(self, game, actions_list) -> None :
         """Renvoie les positions atteignables par la reine sur le plateau de jeu"""
-        return Bishop.available_actions(self, game)
+        Bishop.available_actions(self, game, actions_list)
 
     def is_possible_move(self, dest: Dt.Point | list[Dt.Point], 
     direction: tuple[int], game) -> bool:
@@ -307,9 +302,9 @@ class King(Piece) :
         """
         super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, game) -> list[str] :
+    def available_actions(self, game, actions_list) -> None :
         """Renvoie les positions atteignables par le roi sur le plateau de jeu"""
-        available_moves : list[str] = Knight.available_actions(self, game)
+        Knight.available_actions(self, game, actions_list)
         castling_rights : str = game.activer_player_castling_rights
         if castling_rights is not None :
             king_side  : list[Dt.Point] = self.get_castling_pos(king_side = True)
@@ -321,8 +316,7 @@ class King(Piece) :
             ]
             for move in moves :
                 if move is not None :
-                    available_moves.append(move)
-        return available_moves
+                    actions_list.append(move)
 
     def get_castling_pos(self, king_side : bool) -> list[Dt.Point] :
         start, end, step = (1, 3, 1) if king_side else  (-1, -4, -1)
