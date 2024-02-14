@@ -2,31 +2,33 @@ import chess
 from ai import *
 from human import Human
 import torch
+from chessboard import display
 
 
 
 class Game:
-    def __init__(self, board, player_1, player_2) -> None:
+    def __init__(self, board, white_player, black_player) -> None:
         self.board = board
-        self.player_1 = player_1
-        self.player_2 = player_2
-
-        self.player_1.set_color(chess.WHITE)
-        self.player_2.set_color(chess.BLACK)
+        self.__white_player = white_player
+        self.__black_player = black_player
+        self.__white_player.set_color(chess.WHITE)
+        self.__black_player.set_color(chess.BLACK)
 
     def who(self, player):
         return "White" if player == chess.WHITE else "Black"
 
     def play(self):
+        disp = display.start(board.fen())
         try:
             while not board.is_game_over(claim_draw=True):
                 print()
                 print(board)
                 if board.turn == chess.WHITE:
-                    uci = self.player_1.move(board)
+                    uci = self.__white_player.move(board)
                 else:
-                    uci = self.player_2.move(board)
+                    uci = self.__black_player.move(board)
                 board.push_uci(uci)
+                display.update(board.fen(),disp)  
         except KeyboardInterrupt:
             msg = "Game interrupted!"
 
@@ -44,9 +46,8 @@ class Game:
         print(msg)
 
 
-
 board = chess.Board()
 
-game = Game(board, player_1 = Human(), player_2 = Minimax())
+game = Game(board, white_player= Human(), black_player = Minimax())
 
 game.play()

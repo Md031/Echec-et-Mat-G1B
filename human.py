@@ -1,6 +1,10 @@
 import chess
 
 class Human:
+    
+    def __init__(self) -> None:
+        self.color = None
+    
     def get_move(self, prompt):
         uci = input(prompt)
         if uci and uci[0] == "q":

@@ -25,16 +25,86 @@ class Random(Ai):
 class Minimax(Ai):
     def __init__(self):
         super().__init__()
-        self.__book = chess.polyglot.open_reader("Human.bin")
+        self.__book = chess.polyglot.open_reader("Human.bin")   #opening database
 
 
-    def move(self, board, depth=20):
-        main_entry = self.__book.find(board)
-        if main_entry is not None:
-            return main_entry.move.uci()
-        
-        else:
-            pass
+    def move(self, board, depth=4):
+        try :
+            main_entry = self.__book.find(board)
+            if main_entry is not None:
+                move = main_entry.move.uci()
+        except:
+            move = self.minimax(board, depth).uci() 
+        return move
+    
+    def minimax(self, board, depth) :
+        if board.turn == chess.WHITE:
+            return self.maximize(board, depth)[1]
+        else :
+            return self.minimize(board, depth)[1]
+    
+    def maximize(self, board, depth : int, alpha = float('-inf'), beta = float('inf'), move = None) -> float :
+        if depth == 0 or board.is_game_over() :
+            if board.is_checkmate():
+                if board.turn != self.color:    #If the current player has checkmate
+                    evaluation = float("INF") if self.color == chess.WHITE else float("-INF")
+                else:
+                    evaluation = float("-INF") if self.color == chess.WHITE else float("INF")
+                        
+            else:
+                evaluation = self.evaluation(board)
+            return evaluation, move
+
+        best_move  = None
+        score : float = float("-INF")
+        valid_actions = board.legal_moves
+
+        for action in valid_actions :
+            board.push(action)
+            action_score : float = self.minimize(board, depth - 1, alpha, beta, action)[0]
+            if action_score > score :
+                score = action_score
+                best_move = action
+            board.pop()
+            
+            if score >= beta :
+                return score, best_move
+            alpha = max(alpha, score)
+            
+        return score, best_move
+
+    def minimize(self, board, depth : int, alpha = float('-inf'), beta = float('inf'), move = None) -> float:
+        if depth == 0 or board.is_game_over() :
+            if board.is_checkmate():
+                if board.turn != self.color:    #If the current player has checkmate
+                    evaluation = float("INF") if self.color == chess.WHITE else float("-INF")
+                else:
+                    evaluation = float("-INF") if self.color == chess.WHITE else float("INF")
+                        
+            else:
+                evaluation = self.evaluation(board)
+            return evaluation, move
+
+
+        best_move = None
+        score : float = float("INF")
+        valid_actions = board.legal_moves
+
+        for action in valid_actions :
+            board.push(action)
+            action_score : float = self.maximize(board, depth - 1, alpha, beta, action)[0]
+            if action_score < score :
+                score = action_score
+                best_move = action
+            board.pop()
+            
+            if score <= alpha :
+                return score, best_move
+            beta = min(beta, score)
+            
+        return score, best_move
+    
+    
                 
     def evaluation(self, board):
         total_evaluation = 0
@@ -46,27 +116,22 @@ class Minimax(Ai):
                 if piece.color == chess.WHITE:  #Counts value of the piece using the white player table
                     if piece.piece_type == chess.KING:  #if the current piece is a king we need to check accordingly if its the end game or not
                             if self.is_end_game(board) :
-                                total_evaluation += PIECE_VALUES[piece.piece_type] + PIECE_TABLES_WHITE[KING_END_GAME][square]
+                                total_evaluation += PIECE_VALUES[piece.piece_type - 1] + PIECE_TABLES_WHITE[KING_END_GAME][square]
                             else :
-                                total_evaluation += PIECE_VALUES[piece.piece_type] + PIECE_TABLES_WHITE[KING_MIDDLE_GAME][square]
+                                total_evaluation += PIECE_VALUES[piece.piece_type - 1] + PIECE_TABLES_WHITE[KING_MIDDLE_GAME][square]
                                 
                     else:   #its not a king
-                            total_evaluation += PIECE_TABLES_WHITE[piece.piece_type - 1][square] # PIECE_TABLES[piece.piece_type - 1] because piece.piece_type starts at index 1 while our list starts at index 0 (to match the type in the table basically)
+                            total_evaluation += PIECE_VALUES[piece.piece_type -1] + PIECE_TABLES_WHITE[piece.piece_type - 1][square] # PIECE_TABLES[piece.piece_type - 1] because piece.piece_type starts at index 1 while our list starts at index 0 (to match the type in the table basically)
 
                 else:    #Counts value of the piece for the black player using the other table
                     if piece.piece_type == chess.KING:
                             if self.is_end_game(board) :
-                                total_evaluation -= PIECE_VALUES[piece.piece_type] + PIECE_TABLES_BLACK[KING_END_GAME][square]
+                                total_evaluation -= PIECE_VALUES[piece.piece_type - 1] + PIECE_TABLES_BLACK[KING_END_GAME][square]
                             else :
-                                total_evaluation -= PIECE_VALUES[piece.piece_type] + PIECE_TABLES_BLACK[KING_MIDDLE_GAME][square]
+                                total_evaluation -= PIECE_VALUES[piece.piece_type - 1] + PIECE_TABLES_BLACK[KING_MIDDLE_GAME][square]
                                 
                     else:
-                            total_evaluation -= PIECE_VALUES[piece.piece_type] * PIECE_TABLES_BLACK[piece.piece_type - 1][square] # PIECE_TABLES[piece.piece_type - 1] because piece.piece_type starts at index 1 while our list starts at index 0 (to match the type in the table basically)
-
-        
-        if(self.color == chess.BLACK):  #if we evaluate for the black player we need to invert this value this is easier than creating more conditions in the loop up there
-            total_evaluation = -total_evaluation
-
+                            total_evaluation -= PIECE_VALUES[piece.piece_type - 1] + PIECE_TABLES_BLACK[piece.piece_type - 1][square] # PIECE_TABLES[piece.piece_type - 1] because piece.piece_type starts at index 1 while our list starts at index 0 (to match the type in the table basically)
         return total_evaluation
 
     def is_end_game(self, board):
