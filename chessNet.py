@@ -31,7 +31,7 @@ class module(nn.Module):
         
 class ChessNet(nn.Module):
     def __init__(self, hidden_layers=4, hidden_size=200):
-        super(PolicyNet, self).__init__()
+        super(ChessNet, self).__init__()
         self.hidden_layers = hidden_layers
         self.input_layer = nn.Conv2d(6, hidden_size, 3, stride=1, padding=1)
         self.module_list = nn.ModuleList([module(hidden_size) for i in range(hidden_layers)])
@@ -47,13 +47,16 @@ class ChessNet(nn.Module):
         x = self.output_layer(x)
         
         return x
+    
+model = ChessNet()
+# model = model.to('cuda')
 
-metric_from = nn.CrossEntropyLoss()
-metric_to = nn.CrossEntropyLoss()
+# metric_from = nn.CrossEntropyLoss()
+# metric_to = nn.CrossEntropyLoss()
 
-loss_from = metric_from(output[:,0,:], y[:,0,:])
-loss_to = metric_to(output[:,1,:], y[:,1,:])
-loss = loss_from + loss_to
+# loss_from = metric_from(output[:,0,:], y[:,0,:])
+# loss_to = metric_to(output[:,1,:], y[:,1,:])
+# loss = loss_from + loss_to
 
 
 
@@ -77,6 +80,9 @@ def distribution_over_moves(vals):
     probs = probs / probs.sum()
     return probs
 
+def predict(x):
+    out = model.forward(x)
+    return out
 
 def choose_move(board: Board, player, color):
     legal_moves = list(board.legal_moves)
@@ -89,7 +95,7 @@ def choose_move(board: Board, player, color):
     if color == chess.BLACK:
         x *= -1
     x = x.unsqueeze(0)
-    move = predict(x) # Pas sur, normalement c'est predict
+    move = predict(x)
 
     vals = []
     froms = [str(legal_move)[:2] for legal_move in legal_moves]

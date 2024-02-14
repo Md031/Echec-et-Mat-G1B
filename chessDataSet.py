@@ -28,5 +28,18 @@ class ChessDataset(Dataset):
             x *= -1              #we multiply the board metrics by -1
         return x, y
     
+chess_data_raw = pd.read_csv('chess_games.csv', usecols = ['AN','WhiteElo'])
+chess_data = chess_data_raw[chess_data_raw['WhiteElo'] > 2000]
+
+
+del chess_data_raw
+gc.collect()
+
+chess_data = chess_data[['AN']]
+chess_data = chess_data[~chess_data['AN'].str.contains('{')]
+chess_data = chess_data[chess_data['AN'].str.len()>20]
+
+print("Shape chess_data =", chess_data.shape[0]) # Ce print vérifie combien de games contient l'array chess_data
+
 data_train = ChessDataset(chess_data['AN'])
 data_train_loader = DataLoader(data_train, batch_size=32, shuffle=True, drop_last=True) # Shuffle not necessary because games are selected randomly

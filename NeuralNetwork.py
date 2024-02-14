@@ -56,15 +56,15 @@ def move_2_rep(move, board):
 def create_move_list(s):
     return re.sub('\d*\. ','',s).split(' ')[:-1]
 
-chess_data_raw = pd.read_csv('chess_games.csv', usecols = ['AN','WhiteElo'])
-chess_data = chess_data_raw[chess_data_raw['WhiteElo'] > 2000]
+# chess_data_raw = pd.read_csv('chess_games.csv', usecols = ['AN','WhiteElo'])
+# chess_data = chess_data_raw[chess_data_raw['WhiteElo'] > 2000]
 
 
-del chess_data_raw
-gc.collect()
+# del chess_data_raw
+# gc.collect()
 
-chess_data = chess_data[['AN']]
-chess_data = chess_data[~chess_data['AN'].str.contains('{')]
-chess_data = chess_data[chess_data['AN'].str.len()>20]
+# chess_data = chess_data[['AN']]
+# chess_data = chess_data[~chess_data['AN'].str.contains('{')]
+# chess_data = chess_data[chess_data['AN'].str.len()>20]
 
-print(chess_data.shape[0])
+# print(chess_data.shape[0])
