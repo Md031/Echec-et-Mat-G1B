@@ -1,6 +1,8 @@
-from NeuralNetwork import *
+from NeuralNetworkUtils import board_2_rep, create_move_list, move_2_rep
 import chess
 from torch.utils.data import Dataset, DataLoader
+import gc
+import pandas as pd
 
 import numpy as np
 
