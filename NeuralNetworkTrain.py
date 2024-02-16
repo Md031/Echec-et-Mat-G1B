@@ -1,15 +1,13 @@
 import torch
 import torch.nn as nn
 
-torch.manual_seed(41)
-
 # Train
 from chessNet import ChessNet
+from chessDataSet import data_train_loader
+
+torch.manual_seed(41)
 
 model = ChessNet()
-model.load_state_dict(torch.load('ChessModel.pt'))
-
-model.eval()
 
 metric_from = nn.CrossEntropyLoss()
 metric_to = nn.CrossEntropyLoss()
@@ -20,17 +18,18 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001) # Learning rate can b
 if torch.cuda.is_available():
     print("Cuda is available")
     device = "cuda"
-else:
+    model.load_state_dict(torch.load('ChessModel.pt'))
+else: # for CPU-only machines
     print("Cuda is unavailable")
     device = "cpu"
+    model.load_state_dict(torch.load('ChessModel.pt', map_location=torch.device('cpu')))
+
+model.eval()
 
 model = model.to(device) # Moves model to the GPU, if available
 
 epochs = 1000
 losses = []
-
-from chessDataSet import data_train_loader
-
 
 for epoch_count, (X_input, y) in enumerate(data_train_loader): # X_input = 32 dispositions de board
     if epoch_count >= epochs: 
