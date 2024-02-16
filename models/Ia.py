@@ -23,7 +23,7 @@ class Ia:
 		choice_move = rd.choice(self.game._valid_actions())
 		return self.game_controller.action_conversion(choice_move)
 
-	def minimax(self, max_depth : int = 3) -> Mv.Move :
+	def minimax(self, max_depth : int = 4) -> Mv.Move :
 		return self.maximize(max_depth)[1]
 
 	def maximize(self, depth : int, move : Mv.Move = None) -> float :
@@ -71,13 +71,12 @@ class Ia:
 	def evaluation(self) -> float:
 		score_total : int = 0
 		pieces : list = self.game.board.get_player_pieces(self.game.active_player)
-		# print("player : ", self.game.active_player)
 		for piece in pieces :
 			pieces_type = self.__piece_type[piece.name] 	
-			idx = int(piece.position.x) * self.game.board.size + int(piece.position.y)
-			if self.game.active_player == 1 : # white pieces
+			# idx = int(piece.position.x) * self.game.board.size + int(piece.position.y)
+			if self.game.active_player == 1 : # black pieces
 				score_total += Dt.PIECE_VALUES[pieces_type]
-			else: # black pieces
+			else: # white pieces
 				score_total -= Dt.PIECE_VALUES[pieces_type]
 		return score_total
 		# TODO : add the change of score when we are in the end game

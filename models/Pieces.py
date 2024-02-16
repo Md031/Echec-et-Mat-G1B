@@ -106,7 +106,7 @@ class Piece(ABC) :
     # OTHER FUNCTIONS #
     ###################
     @abstractmethod
-    def available_actions(self, game, actions_list) -> None :
+    def available_actions(self, game, actions_list : set) -> None :
         """Renvoie une liste de toutes les actions possibles d'une pièce sur le plateau de jeu"""
 
     @abstractmethod
@@ -154,30 +154,30 @@ class Pawn(Piece) :
         """
         self.__double_start = value 
 
-    def available_actions(self, game, actions_list) -> None :
+    def available_actions(self, game, actions_list : set) -> None :
         """Renvoie les positions atteignables par le pion sur le plateau de jeu"""
         dest : Dt.Point = None
-        directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name][self.owner]
+        # directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name][self.owner]
+        directions : set[tuple(int)] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name][self.owner]
+        possible_dir = set()
         for direction in directions :
             dest = self.position + direction
             if self.is_possible_move(dest, direction, game) :
-                actions_list.append(self.chess_positon + Dt.convert_coordinates(dest))
+                actions_list.add(self.chess_positon + Dt.convert_coordinates(dest))
 
-    def is_possible_move(self, dest : Dt.Point | list[Dt.Point], 
-    direction : tuple[int], game) -> bool :
-        if dest in game.board :
+    def is_possible_move(self, dest : Dt.Point | list[Dt.Point], direction : tuple[int], game) -> bool :
+        if dest in game.board :  # is_in_board
             dest_owner : int | None = game.board[dest].owner if game.board[dest] else None
-            if direction in [(-2, 0), (2, 0)] : 
+            if direction in [(-2, 0), (2, 0)] :  # double start
                 return self._check_double_start(dest_owner, game)
-            elif direction in [(-1, 1), (1, 1), (-1, -1), (1, -1)] : 
+            elif direction in [(-1, 1), (1, 1), (-1, -1), (1, -1)] :  # capture or simple move 
                 return self._check_capture(dest_owner, direction, game)
             else : 
                 return dest_owner is None
         return False
 
     def _check_double_start(self, dest_owner : int, game) -> bool :
-        tmp = [game.board[self.position + (-1, 0)], 
-            game.board[self.position + (1, 0)]]
+        tmp = [game.board[self.position + (-1, 0)], game.board[self.position + (1, 0)]]
         return (self.can_double_start and dest_owner is None and 
         ((tmp[0] is None and self.owner == 0) or (tmp[1] is None and self.owner == 1)))
 
@@ -208,11 +208,11 @@ class Knight(Piece) :
     def available_actions(self, game, actions_list) -> None :
         """Renvoie les positions atteignables par le cavalier sur le plateau de jeu"""
         dest : Dt.Point = None
-        directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
+        directions : set[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
         for direction in directions :
             dest = self.position + direction
             if self.is_possible_move(dest, None, game) :
-                actions_list.append(self.chess_positon + Dt.convert_coordinates(dest))
+                actions_list.add(self.chess_positon + Dt.convert_coordinates(dest))
 
 
     def is_possible_move(self, dest : Dt.Point | list[Dt.Point], 
@@ -231,27 +231,52 @@ class Bishop(Piece) :
         """
         super().__init__(position, owner, image_type, name, symbol, icon)
 
-    def available_actions(self, game, actions_list) -> None :
+    def available_actions(self, game, actions_list : set[str]) -> None :
         """Renvoie les positions atteignables par le fou sur le plateau de jeu"""
-        directions : list[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
-        available_directions : list[bool] = [True] * len(directions)
-        dests : list[Dt.Point] = [Dt.Point(self.position.x, self.position.y) for i in range(len(directions))]
-        while available_directions.count(False) != len(directions) :
-            for i in range(len(directions)) :
-                dest, direction, available = dests[i], directions[i], available_directions[i]
-                if available and self.is_possible_move(dest, direction, game) :
-                    actions_list.append(self.chess_positon + Dt.convert_coordinates(dests[i]))
-                    dest_owner : int = game.board[dest].owner if game.board[dest] else None
-                    if dest_owner is not None :
-                        available_directions[i] = False
-                else :
-                    available_directions[i] = False
+        directions : set[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]  # the direction available for the piece we are looking at
+        possible_dir : set[tuple[int]] = set()
+        for elem in directions:
+            temp = Dt.convert_coordinates(elem)
+            if self.is_possible_move(self.position, temp, game):  # if the move in this direction is possible
+                possible_dir.add(elem)
+        for elem in possible_dir:  # all the available direction 
+            initial_pos = self.position
+            res = False
+            while not res:  # while we can move in this direction
+                if not self.is_possible_move(initial_pos, elem, game):  # we check if the move in the direction of elem is possible
+                    res = True
+                    break
+                initial_pos += elem  # we move in the direction of elem
+                actions_list.add(Dt.convert_coordinates(initial_pos))
+                # actions_list.add(Dt.convert_coordinates(initial_pos))
+                # if not self.is_possible_move(initial_pos, elem, game):  # look at the next move in the same direction
+                #     res = True
 
-    def is_possible_move(self, dest : Dt.Point | list[Dt.Point], 
-    direction : tuple[int], game) -> bool :
+        # directions : set[tuple[int]] = Dt.Utils.DEFAULT_PIECES_DIRECTIONS[self.name]
+        # available_directions : list[bool] = [True] * len(directions)
+        # dests : list[Dt.Point] = [Dt.Point(self.position.x, self.position.y) for i in range(len(directions))]
+        # while available_directions.count(False) != len(directions) :
+        #     for i in range(len(directions)) :
+        #         dest, direction, available = dests[i], directions[i], available_directions[i]
+        #         if available and self.is_possible_move(dest, direction, game) :
+        #             actions_list.add(self.chess_positon + Dt.convert_coordinates(dests[i]))
+        #             dest_owner : int = game.board[dest].owner if game.board[dest] else None
+        #             if dest_owner is not None :
+        #                 available_directions[i] = False
+        #         else :
+        #             available_directions[i] = False
+
+    def is_possible_move(self, dest : Dt.Point | list[Dt.Point], direction : tuple[int], game) -> bool :
+        # if self.name == "queen":
+        #     print(f"dest : {Dt.convert_coordinates(dest)} direction : {direction}, name : {self.name}")
         dest += direction
-        return (dest in game.board and (game.board[dest] is None 
-        or game.board[dest].owner != self.owner))
+        if dest not in game.board:  # check if is_in_board
+            return False
+        if game.board[dest] is not None:  # is the dest empty or not
+            if game.board[dest].owner == self.owner:
+                return False
+        return True
+        # return (dest in game.board and (game.board[dest] is None or game.board[dest].owner != self.owner))
 
 class Rook(Piece) :
     """Représente une tour dans le jeu d'échecs"""
@@ -316,7 +341,7 @@ class King(Piece) :
             ]
             for move in moves :
                 if move is not None :
-                    actions_list.append(move)
+                    actions_list.add(move)
 
     def get_castling_pos(self, king_side : bool) -> list[Dt.Point] :
         start, end, step = (1, 3, 1) if king_side else  (-1, -4, -1)

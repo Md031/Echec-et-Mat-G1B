@@ -353,27 +353,37 @@ class Game :
 
     def _available_actions(self) -> list[str] :
         """Renvoie une liste de toutes les actions possibles pour le joueur actif"""
-        actions : list[str] = []
+        actions : set[str] = set()
         for piece in self.board.get_player_pieces(self.active_player) :
             piece.available_actions(self, actions)
         return actions
 
-    def _valid_actions(self) -> list[str] :
+    def _valid_actions(self) -> set[str] :
         """Renvoie une liste de toutes les actions valides pour le joueur actif"""
         actions = self._available_actions()
-        for i in range(len(actions) - 1, -1, -1) :
-            move : Mv.Move = Mv.Move(Dt.convert_coordinates(actions[i][:2]), 
-                Dt.convert_coordinates(actions[i][2:]), self.board)
+        return_action = set()
+        for elem in actions:
+            move : Mv.Move = Mv.Move(Dt.convert_coordinates(elem[:2]), Dt.convert_coordinates(elem[2:]), self.board)
             self.push_move(move)
-            if self._is_in_check() :
-                actions.remove(actions[i])
+            if not self._is_in_check():
+                return_action.add(elem)
             self.set_active_player(self.round % 2)
             self.pop_move()
-        return actions
+        return return_action
+
+        # for i in range(len(actions) - 1, -1, -1) :
+        #     move : Mv.Move = Mv.Move(Dt.convert_coordinates(actions[i][:2]), 
+        #         Dt.convert_coordinates(actions[i][2:]), self.board)
+        #     self.push_move(move)
+        #     if self._is_in_check() :
+        #         actions.remove(actions[i])
+        #     self.set_active_player(self.round % 2)
+        #     self.pop_move()
+        # return actions
 
     def _is_in_check(self) -> bool :
         """Vérifie si la partie se trouve dans l'état 'échec' (check)"""
-        other_player_actions : list[str] = self._available_actions()
+        other_player_actions : set[str] = self._available_actions()
         self.set_active_player((self.round - 1) % 2)
         for other_action in other_player_actions :
             if Dt.convert_coordinates(other_action[2:]) == self.__kings_pos[self.active_player] :
