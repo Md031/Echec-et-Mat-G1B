@@ -26,7 +26,7 @@ class Game :
     def moves(self) -> list[ch.Move] : return self.board.move_stack
 
     @property
-    def active_player_actions(self) : return self.__active_player_actions
+    def active_player_actions(self) -> list[ch.Move] : return self.__active_player_actions
 
     @property
     def is_over(self) -> bool :
@@ -54,3 +54,4 @@ class Game :
     def reset(self) -> None :
         self.board.set_board_fen(self.__start_fen)
         self.update_state()
+

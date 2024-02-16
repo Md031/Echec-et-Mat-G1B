@@ -5,17 +5,18 @@ import views.pieceDisplayer as pieceD
 import views.gameDisplayer as gameD
 import views.tile as tl
 import models.game as gm
+import models.Ia as ia
 
 class GameController :
-    def __init__(self, window) -> None:
-        # self.__game_type : bool = game_type
+    def __init__(self, window, game_type : bool = False) -> None:
+        self.__game_type : bool = game_type
         self.__game : gm.Game = gm.Game()
         self.__game_displayer : gameD.GameDisplayer = window.game_displayer
         self.__game_displayer.set_game(self.__game)
         self.__start_tile : tl.Tile = None
         self.__dest_tile : tl.Tile = None
         self.__move : dt.Move = dt.Move()
-        # self.__ia : Ia = Ia(self.__game, self)
+        self.__ia : Ia = ia.Ia(self.__game)
         self.__animate : bool = False
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
 
@@ -274,11 +275,13 @@ class GameController :
             if self.game_displayer.pawn_promotion_popup.is_active :
                 self.handle_pawn_promotion(event)
             else :
-                # elif self.game.active_player == 0 or not self.__game_type :
-                        match event.type :
-                            case pg.MOUSEMOTION : self.handle_mouse_motion(event)
-                            case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
-                            case pg.KEYDOWN : self.handle_key_pressed(event)
-                # else:
-                #     action = self.__ia.minimax()
-                #     self._play_move(action) 
+                if self.game.active_player or not self.__game_type :
+                    match event.type :
+                        case pg.MOUSEMOTION : self.handle_mouse_motion(event)
+                        case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
+                        case pg.KEYDOWN : self.handle_key_pressed(event)
+                else:  # if we're playing against an ai
+                    move = self.__ia.alpha_beta()
+                    print(self.__ia.evaluation())
+                    self.set_move(move)
+                    self.play_move()
