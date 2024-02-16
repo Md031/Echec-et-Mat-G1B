@@ -11,16 +11,9 @@ class PieceDisplayer(wdgt.Widget) :
 
     def init_image(self) -> None :
         filename : str = "images/classic/"
-        if self.piece.color == ch.WHITE : filename += "W"
+        if self.piece.color : filename += "W"
         else : filename += "B"
-        match self.piece.symbol().upper() :
-            case "P" : filename += "pawn"
-            case "Q" : filename += "queen"
-            case "K" : filename += "king"
-            case "N" : filename += "knight"
-            case "B" : filename += "bishop"
-            case "R" : filename += "rook"
-        filename += ".png"
+        filename += f"{ch.PIECE_NAMES[self.piece.piece_type]}.png"
         self.__image : pg.Surface = pg.image.load(filename).convert_alpha()
 
     @property

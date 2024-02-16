@@ -43,7 +43,7 @@ class GameController :
         else : rook_pos += '8'
         return dt.convert_coordinates(rook_pos)
 
-    def set_move(self, move : ch.Move, undo : bool = False) -> None :
+    def set_move(self, move : ch.Move) -> None :
         self.move.movement = move
         if self.move.movement is not None :
             if self.start_tile is None :
@@ -87,11 +87,12 @@ class GameController :
             dest_tile.set_piece(start_tile.piece_displayer)
             start_tile.set_piece(None)
         else :
+            piece_captured_type : int = self.game.board.piece_at(self.move.movement.to_square)
             start_tile.set_piece(dest_tile.piece_displayer)
             dest_tile.set_piece(None)
-            if self.move.movement.drop is not None :
-                dest_tile.set_piece(pieceD.PieceDisplayer(ch.Piece(
-                    self.move.movement.drop, not self.game.active_player)))
+            if piece_captured_type is not None :
+                dest_tile.set_piece(pieceD.PieceDisplayer(
+                    ch.Piece(piece_captured_type.piece_type, not self.game.active_player)))
 
     def set_move_start_pos(self, tile : tl.Tile) -> None :
         if (not tile.is_clicked or 
@@ -130,17 +131,11 @@ class GameController :
         piece_moved = self.start_tile.piece if self.start_tile.piece_displayer is not None \
             else self.game.board.piece_at(self.move.movement.from_square) 
         if piece_moved.symbol().upper() == "P" :
-            if self.is_promotion() : 
-                if self.move.movement.drop is None : 
-                    self.move.movement.drop = self.dest_tile.piece.piece_type
-                return dt.MoveType.PROMOTION
+            if self.is_promotion() : return dt.MoveType.PROMOTION
             elif self.is_en_passant() : return dt.MoveType.EN_PASSANT
         elif piece_moved.symbol().upper() == "K" :
             if self.is_castling() : return dt.MoveType.CASTLING
-        if self.is_drop() : 
-            if self.move.movement.drop is None : 
-                self.move.movement.drop = self.dest_tile.piece.piece_type
-            return dt.MoveType.DROP
+        if self.is_drop() : return dt.MoveType.DROP
         return dt.MoveType.DEFAULT
 
     def play_casling(self) -> None : 
@@ -190,7 +185,7 @@ class GameController :
         tile.set_piece(pieceD.PieceDisplayer(piece))
 
     def revert_move(self) -> None :
-        self.set_move(self.game.pop_move(), undo = True)
+        self.set_move(self.game.pop_move())
         self.update_board_displayer(undo = True)
         match self.move.move_type :
             case dt.MoveType.CASTLING : self.revert_casling()
