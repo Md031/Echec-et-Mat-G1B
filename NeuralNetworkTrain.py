@@ -10,34 +10,40 @@ model = ChessNet()
 model.load_state_dict(torch.load('ChessModel.pt'))
 
 model.eval()
-model = model.to('cuda') # Uses GPU
 
 metric_from = nn.CrossEntropyLoss()
 metric_to = nn.CrossEntropyLoss()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01) # Learning rate can be modified here
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001) # Learning rate can be modified here
 
+# Checks if the a GPU is available
+if torch.cuda.is_available():
+    print("Cuda is available")
+    device = "cuda"
+else:
+    print("Cuda is unavailable")
+    device = "cpu"
 
+model = model.to(device) # Moves model to the GPU, if available
 
 epochs = 1000
 losses = []
-epoch_count = 0
 
 from chessDataSet import data_train_loader
 
 
-for X_input, y in data_train_loader: # X_input = 32 dispositions de board
+for epoch_count, (X_input, y) in enumerate(data_train_loader): # X_input = 32 dispositions de board
     if epoch_count >= epochs: 
         break
     
-    X_input, y = X_input.to("cuda"), y.to("cuda") # Sends the Data to the GPU
+    X_input, y = X_input.to(device), y.to(device) # Sends the Data to the GPU
 
     batch_size = X_input.size(0)
     batch_output = []
     for i in range(batch_size):
         single_board = X_input[i]  # Extract one board disposition at a time
 
-        single_board = torch.Tensor(single_board).float().to('cuda') # Uses GPU
+        single_board = torch.Tensor(single_board).float().to(device) # Uses GPU
         #single_board = torch.Tensor(single_board).float() # Uses CPU
 
         single_board = single_board.unsqueeze(0) # Turns single_board from 3D to 4D
@@ -63,6 +69,5 @@ for X_input, y in data_train_loader: # X_input = 32 dispositions de board
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-    epoch_count += 1
 
-torch.save(model.state_dict(), 'ChessModel.pt')
+    torch.save(model.state_dict(), 'ChessModel.pt') # Saves the model at each epoch
