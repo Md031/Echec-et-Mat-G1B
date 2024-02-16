@@ -16,7 +16,7 @@ class GameController :
         self.__start_tile : tl.Tile = None
         self.__dest_tile : tl.Tile = None
         self.__move : dt.Move = dt.Move()
-        self.__ia : Ia = ia.Ia(self.__game)
+        self.__ia : ia.Ia = ia.Ia(self.__game)
         self.__animate : bool = False
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
 
@@ -120,9 +120,10 @@ class GameController :
     def is_en_passant(self) -> bool :
         piece_captured_pos : tuple[int] = (self.start_tile.grid_x, 
             self.start_tile.grid_y + self.move.direction[1])
+        piece_captured : ch.Piece = self.game.board.piece_at(
+            56 - 8 * piece_captured_pos[0] + piece_captured_pos[1]) 
         return (self.move.direction in [(1, 1), (1, -1), (-1, 1), (-1, -1)] 
-        and self.game.board.piece_at(
-        56 - 8 * piece_captured_pos[0] + piece_captured_pos[1]) is not None)
+        and piece_captured is not None and piece_captured.color != self.game.active_player)
 
     def is_drop(self) -> bool : return ((self.dest_tile.piece_displayer is not None 
     and self.dest_tile.piece.color == (not self.game.active_player)) 
@@ -131,10 +132,10 @@ class GameController :
     def get_move_type(self) -> int :
         piece_moved = self.start_tile.piece if self.start_tile.piece_displayer is not None \
             else self.game.board.piece_at(self.move.movement.from_square) 
-        if piece_moved.symbol().upper() == "P" :
+        if piece_moved.piece_type == ch.PAWN :
             if self.is_promotion() : return dt.MoveType.PROMOTION
             elif self.is_en_passant() : return dt.MoveType.EN_PASSANT
-        elif piece_moved.symbol().upper() == "K" :
+        elif piece_moved.piece_type == ch.KING :
             if self.is_castling() : return dt.MoveType.CASTLING
         if self.is_drop() : return dt.MoveType.DROP
         return dt.MoveType.DEFAULT
