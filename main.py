@@ -48,6 +48,6 @@ class Game:
 
 board = chess.Board()
 
-game = Game(board, white_player= Human(), black_player = Minimax())
+game = Game(board, white_player = Human(), black_player = NeuronalNetworkModel("ChessModel.pt"))
 
 game.play()

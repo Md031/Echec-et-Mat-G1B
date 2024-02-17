@@ -24,11 +24,11 @@ def distribution_over_moves(vals):
     probs = probs / probs.sum()
     return probs
 
-def predict(x):
+def predict(x, model):
     out = model.forward(x)
     return out
 
-def choose_move(board: Board, player, color):
+def choose_move(board: Board, color, model):
     legal_moves = list(board.legal_moves)
 
     move = check_mate_single(board)
@@ -39,25 +39,26 @@ def choose_move(board: Board, player, color):
     if color == chess.BLACK:
         x *= -1
     x = x.unsqueeze(0)
-    move = predict(x)
+    move = predict(x, model)
 
     vals = []
     froms = [str(legal_move)[:2] for legal_move in legal_moves]
     froms = list(set(froms))
     for from_ in froms:
-        val = move[0, :, :][8 - int(from_[1]), letter_2_num[from_[0]]] 
-        vals.append(val)
-    
+        val = move[0, 0, :, :][8 - int(from_[1]), letter_2_num[from_[0]]] 
+        vals.append(val.detach().to('cpu'))
     probs = distribution_over_moves(vals)
-
     chosen_from = str(np.random.choice(froms, size=1, p=probs)[0])[:2]
+
+    
     vals = []
     for legal_move in legal_moves:
         from_ = str(legal_move)[:2]
         if from_ == chosen_from:
             to = str(legal_move)[2:]
-            val = move[1, :, :][8 - int(to[1]), letter_2_num[to[0]]]
-            vals.append(val)
+            val = move[0, 1, :, :][8 - int(to[1]), letter_2_num[to[0]]]
+            vals.append(val.detach().to('cpu'))
+            #vals.append(val)
         else:
             vals.append(0)
 

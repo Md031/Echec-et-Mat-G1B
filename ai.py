@@ -1,6 +1,9 @@
 import random 
 import chess 
 import chess.polyglot
+from NeuralNetworkPickMoves import choose_move
+from chessNet import ChessNet
+import torch
 
 from pieceValues import *
 
@@ -21,6 +24,24 @@ class Random(Ai):
     def move(self, board):
         move = random.choice(list(board.legal_moves))
         return move.uci()
+    
+class NeuronalNetworkModel(Ai):
+    def __init__(self, ModelPath):
+        super().__init__()
+        self.model = ChessNet()
+        self.model.load_state_dict(torch.load(ModelPath))
+        self.model.eval()
+        if torch.cuda.is_available():
+            device = "cuda"
+        else:
+            device = "cpu"
+        self.model.to(device)
+
+    
+    def move(self, board):
+        move = choose_move(board, self.color, self.model)
+        move = move.uci()
+        return move
     
 class Minimax(Ai):
     def __init__(self):
