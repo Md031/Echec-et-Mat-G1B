@@ -111,7 +111,7 @@ class GameController :
         return ch.Move.from_uci(uci)
 
     def is_promotion(self) -> bool :
-        return (self.move.direction in [(1, 1), (1, -1), (-1, 1), (-1, -1)] and
+        return (self.move.direction in [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0)] and
         ((self.start_tile.grid_x == 1 and self.game.active_player == ch.WHITE) 
         or (self.start_tile.grid_x == 6 and self.game.active_player == ch.BLACK))) 
 
@@ -187,6 +187,8 @@ class GameController :
         tile.set_piece(pieceD.PieceDisplayer(piece))
 
     def revert_move(self) -> None :
+        self.__start_tile = None  # in case the player clicked on a piece
+        self.__dest_tile = None
         self.set_move(self.game.pop_move())
         self.update_board_displayer(undo = True)
         match self.move.move_type :
@@ -263,10 +265,10 @@ class GameController :
             if self.start_tile :
                 self.start_tile.set_clicked(False)
                 self.update_available_moves(self.start_tile, False)
-        if key == pg.K_b :
-            if len(self.game.moves) > 0 :
+        if key == pg.K_b :  # reset the last move
+            if len(self.game.moves) > 0 :  # you must have done at least one move
                 self.revert_move()
-        if key == pg.K_r :
+        if key == pg.K_r :  # reset the board
             self.game.reset()
             self.game_displayer.set_game(self.game)
             self.game_displayer.pawn_promotion_popup.reset()
@@ -286,3 +288,4 @@ class GameController :
                     print(self.__ia.evaluation())
                     self.set_move(move)
                     self.play_move()
+                    print("------------------------")

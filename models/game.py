@@ -2,14 +2,14 @@ import chess as ch
 import data as dt
 
 class Game :
-    def __init__(self, fen : str = ch.STARTING_FEN) -> None :
-        self.__start_fen : str = fen
-        self.__board : ch.Board = ch.Board(self.__start_fen)
+    def __init__(self) -> None :
+        self.__board : ch.Board = ch.Board()
         self.__round : int = 0
         self.__state : int = dt.State.ONGOING
         self.__active_player_actions : list[ch.Move] = []
         self.update_state()
 
+    # getters 
     @property
     def board(self) -> ch.Board : return self.__board
 
@@ -35,12 +35,20 @@ class Game :
     @property
     def fen(self) -> str : self.board.fen
 
+    # other functions 
     def update_state(self) -> None :
+        # we check if the state of the game is blocking in any way
         if self.board.is_check() : return dt.State.CHECK
         elif self.board.is_checkmate() : return dt.State.CHECKMATE
         if self.board.is_stalemate() : return dt.State.STALEMATE
         if self.board.is_variant_draw() : return dt.State.DRAW
+        # if everything is ok we update the player actions
         self.__active_player_actions = self.board.legal_moves
+        
+        # print(" player : ", self.active_player, " actions : ")
+        # for elem in list(self.__active_player_actions):
+            # print(elem, " ", end= " ")
+        # print("\n-----------------------")
 
     def push_move(self, move : ch.Move) -> None :
         self.board.push(move)
@@ -52,6 +60,4 @@ class Game :
         return move
 
     def reset(self) -> None :
-        self.board.set_board_fen(self.__start_fen)
-        self.update_state()
-
+        self.__board.reset()
