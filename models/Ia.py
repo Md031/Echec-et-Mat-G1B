@@ -7,7 +7,7 @@ import data as Dt
 class Ia:
 	def __init__(self, game : gm.Game):
 		self.__game = game
-		
+
 	def random_ia(self) -> ch.Move :
 		actions = list(self.__game.active_player_actions)
 		return rd.choice(actions)
@@ -42,7 +42,7 @@ class Ia:
 				final_score = testScore
 				final_action = action
 			self.__game.pop_move()  # cancel the move
-			if final_score >= beta:
+			if final_score >= beta:  # pruning part
 				return final_score, final_action
 			alpha = max(alpha, final_score)
 		return final_score, final_action
@@ -55,12 +55,12 @@ class Ia:
 		final_action = None
 		for action in self.__game.active_player_actions:
 			self.__game.push_move(action)  # try the move
-			test_score, _ = self.maximize(depth - 1, alpha, beta, action)
+			test_score = self.maximize(depth - 1, alpha, beta, action)[0]
 			if test_score < final_score:
 				final_score = test_score
 				final_action = action
 			self.__game.pop_move()  # cancel the move
-			if final_score <= alpha:
+			if final_score <= alpha:  # pruning part
 				return final_score, final_action
 			beta = min(beta, final_score)
 		return final_score, final_action
