@@ -12,7 +12,8 @@ model = ChessNet()
 metric_from = nn.CrossEntropyLoss()
 metric_to = nn.CrossEntropyLoss()
 
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01) # Learning rate can be modified here
+learning_rate = 0.0001
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) # Learning rate can be modified here
 
 # Checks if the a GPU is available
 if torch.cuda.is_available():
@@ -71,4 +72,4 @@ for epoch_count, (X_input, y) in enumerate(data_train_loader): # X_input = 32 di
 
 
     if epoch_count % 10 == 0: # Saves the model each 10 epoch
-        torch.save(model.state_dict(), 'ChessModel.pt') # Saves the model at each epoch
+        torch.save(model.state_dict(), 'ChessModel.pt', _use_new_zipfile_serialization=False) # Saves the model at each epoch

@@ -12,7 +12,7 @@ class ChessDataset(Dataset):
         self.games = games
     
     def __len__(self):
-        return 40_000
+        return 700_000
     
     def __getitem__(self, index):
         game_i = np.random.randint(self.games.shape[0])

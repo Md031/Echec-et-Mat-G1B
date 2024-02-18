@@ -29,12 +29,18 @@ class NeuronalNetworkModel(Ai):
     def __init__(self, ModelPath):
         super().__init__()
         self.model = ChessNet()
-        self.model.load_state_dict(torch.load(ModelPath))
-        self.model.eval()
+
+        # Checks if the a GPU is available
         if torch.cuda.is_available():
+            print("Cuda is available")
             device = "cuda"
-        else:
+            self.model.load_state_dict(torch.load())
+        else: # for CPU-only machines
+            print("Cuda is unavailable")
             device = "cpu"
+            self.model.load_state_dict(torch.load(ModelPath, map_location=torch.device('cpu')))
+        
+        self.model.eval()
         self.model.to(device)
 
     
