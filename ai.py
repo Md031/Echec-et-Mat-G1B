@@ -34,7 +34,7 @@ class NeuronalNetworkModel(Ai):
         if torch.cuda.is_available():
             print("Cuda is available")
             device = "cuda"
-            self.model.load_state_dict(torch.load())
+            self.model.load_state_dict(torch.load(ModelPath))
         else: # for CPU-only machines
             print("Cuda is unavailable")
             device = "cpu"
