@@ -288,4 +288,4 @@ class GameController :
                     # self.set_move_start_pos(tile)
                     self.set_move(move)
                     self.play_move()
-                    self.game.next_round()  
+                    self.game.next_round

@@ -19,8 +19,8 @@ class Game :
     @property
     def round(self) -> int : return self.__round
 
-    def next_round(self) -> None:
-        self.__round += 1
+    @property
+    def next_round(self) -> None: self.__round += 1
 
     @property
     def state(self) -> int : return self.__state
@@ -47,11 +47,6 @@ class Game :
         if self.board.is_variant_draw() : return dt.State.DRAW
         # if everything is ok we update the player actions
         self.__active_player_actions = self.board.legal_moves
-        
-        # print(" player : ", self.active_player, " actions : ")
-        # for elem in list(self.__active_player_actions):
-            # print(elem, " ", end= " ")
-        # print("\n-----------------------")
 
     def push_move(self, move : ch.Move) -> None :
         self.board.push(move)

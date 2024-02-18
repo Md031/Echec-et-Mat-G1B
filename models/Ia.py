@@ -7,9 +7,7 @@ import data as Dt
 class Ia:
 	def __init__(self, game : gm.Game):
 		self.__game = game
-		self.__alpha : float = float('-inf')
-		self.__beta : float = float('inf')
-
+		
 	def random_ia(self) -> ch.Move :
 		actions = list(self.__game.active_player_actions)
 		return rd.choice(actions)
