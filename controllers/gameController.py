@@ -140,7 +140,7 @@ class GameController :
         if self.is_drop() : return dt.MoveType.DROP
         return dt.MoveType.DEFAULT
 
-    def play_casling(self) -> None : 
+    def play_castling(self) -> None : 
         rook_start_pos : tuple[int] = self.get_casling_rook_pos()
         rook_dest_pos : tuple[int] = (rook_start_pos[0], 
             rook_start_pos[1] + (-2) if self.move.direction[1] == 2 else 3)
@@ -160,11 +160,11 @@ class GameController :
         self.dest_tile.set_piece(pieceD.PieceDisplayer(piece))
 
     def play_move(self) -> None :
-        self.update_board_displayer()
         match self.move.move_type :
-            case dt.MoveType.CASTLING : self.play_casling()
+            case dt.MoveType.CASTLING : self.play_castling()
             case dt.MoveType.EN_PASSANT : self.play_en_passant()
             case dt.MoveType.PROMOTION : self.play_promotion()
+        self.update_board_displayer()
         self.game.push_move(self.move.movement)
 
     def revert_promotion(self) -> None :
@@ -187,8 +187,6 @@ class GameController :
         tile.set_piece(pieceD.PieceDisplayer(piece))
 
     def revert_move(self) -> None :
-        self.__start_tile = None  # in case the player clicked on a piece
-        self.__dest_tile = None
         self.set_move(self.game.pop_move())
         self.update_board_displayer(undo = True)
         match self.move.move_type :
@@ -265,8 +263,10 @@ class GameController :
             if self.start_tile :
                 self.start_tile.set_clicked(False)
                 self.update_available_moves(self.start_tile, False)
-        if key == pg.K_b :  # reset the last move
+        if key == pg.K_b :  # revert the last move
             if len(self.game.moves) > 0 :  # you must have done at least one move
+                self.__start_tile = None  # in case the player clicked on a piece before trying to revert
+                self.__dest_tile = None
                 self.revert_move()
         if key == pg.K_r :  # reset the board
             self.game.reset()
@@ -285,7 +285,7 @@ class GameController :
                         case pg.KEYDOWN : self.handle_key_pressed(event)
                 else:  # if we're playing against an ai
                     move = self.__ia.alpha_beta()
-                    print(self.__ia.evaluation())
+                    # self.set_move_start_pos(tile)
                     self.set_move(move)
                     self.play_move()
-                    print("------------------------")
+                    self.game.next_round()  

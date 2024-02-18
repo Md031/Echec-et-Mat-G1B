@@ -9,7 +9,7 @@ class Game :
         self.__active_player_actions : list[ch.Move] = []
         self.update_state()
 
-    # getters 
+    # getters / setters
     @property
     def board(self) -> ch.Board : return self.__board
 
@@ -18,6 +18,9 @@ class Game :
 
     @property
     def round(self) -> int : return self.__round
+
+    def next_round(self) -> None:
+        self.__round += 1
 
     @property
     def state(self) -> int : return self.__state
