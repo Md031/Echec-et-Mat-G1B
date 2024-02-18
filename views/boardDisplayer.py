@@ -24,10 +24,21 @@ class BoardDisplayer(wdgt.Widget) :
         tile : tl.Tile = None
         tile_position : tuple[int] = (row * dt.Utils.DEFAULT_TILE_DIMENSIONS, 
             col * dt.Utils.DEFAULT_TILE_DIMENSIONS)
+        print(tile_position)
         if (col + row) % 2 == 0 :
             tile = tl.Tile(tile_position, (col, row), dt.Colors.BEIGE)
         else :
             tile = tl.Tile(tile_position, (col, row), dt.Colors.BROWN)
+        if tile_position[0] == 0:  # numbers on the cols
+            tile.change_txt(str(col+1))
+        if tile_position[1] == 560:  # letters on the rows
+            if tile_position[0] == 0:
+                tile.two_txt()
+                tile.change_txt(str(col+1), 1)
+                tile.change_coord((tile_position[0], tile_position[1]))
+            # else:
+            tile.change_txt(chr(ord("A")+row))
+            tile.change_coord((tile_position[0], tile_position[1]+60))
         if piece :
             tile.set_piece(pieceD.PieceDisplayer(piece, (col, row)))
         return tile

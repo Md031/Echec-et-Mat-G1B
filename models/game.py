@@ -3,7 +3,7 @@ import data as dt
 
 class Game :
     def __init__(self) -> None :
-        self.__board : ch.Board = ch.Board()
+        self.__board : ch.Board = ch.Board("rnbqkbnr/pppppppP/8/8/8/7p/1PPPPPPP/RNBQKBNR")
         self.__round : int = 0
         self.__state : int = dt.State.ONGOING
         self.__active_player_actions : list[ch.Move] = []
@@ -59,3 +59,4 @@ class Game :
 
     def reset(self) -> None :
         self.__board.reset()
+        self.__round = 0

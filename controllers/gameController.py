@@ -160,11 +160,11 @@ class GameController :
         self.dest_tile.set_piece(pieceD.PieceDisplayer(piece))
 
     def play_move(self) -> None :
+        self.update_board_displayer()
         match self.move.move_type :
             case dt.MoveType.CASTLING : self.play_castling()
             case dt.MoveType.EN_PASSANT : self.play_en_passant()
             case dt.MoveType.PROMOTION : self.play_promotion()
-        self.update_board_displayer()
         self.game.push_move(self.move.movement)
 
     def revert_promotion(self) -> None :
@@ -205,7 +205,7 @@ class GameController :
                     if tile.is_choice :
                         move : ch.Move = self.set_move_dest_pos(tile)
                         self.set_move(move)
-                        if self.move.move_type == dt.MoveType.PROMOTION :
+                        if self.move.move_type == dt.MoveType.PROMOTION :  # if we arrive on a tile for promotion
                             self.game_displayer.pawn_promotion_popup.set_active(True)
                         else : self.play_move()
                     self.update_available_moves(self.start_tile, is_choice = False)
@@ -275,7 +275,7 @@ class GameController :
 
     def handle(self, event) -> None :
         if self.game.state not in [dt.State.CHECKMATE, dt.State.STALEMATE] :
-            if self.game_displayer.pawn_promotion_popup.is_active :
+            if self.game_displayer.pawn_promotion_popup.is_active :  # when the popup of the promotion is active
                 self.handle_pawn_promotion(event)
             else :
                 if self.game.active_player or not self.__game_type :
@@ -284,8 +284,11 @@ class GameController :
                         case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
                         case pg.KEYDOWN : self.handle_key_pressed(event)
                 else:  # if we're playing against an ai
+                    print("start tile before ai play :", self.start_tile)
                     move = self.__ia.alpha_beta()
                     # self.set_move_start_pos(tile)
                     self.set_move(move)
                     self.play_move()
+                    print("start tile after ai play :", self.start_tile)
+                    # self.update_available_moves(self.start_tile, is_choice = False)
                     self.game.next_round

@@ -19,9 +19,9 @@ class Ia:
 	        if piece is None:
 	            continue
 	        if piece.color == ch.WHITE:
-	            score_total -= Dt.PIECE_VALUES[piece.piece_type - 1]
+	            score_total -= Dt.PIECE_VALUES[piece.piece_type - 1] - Dt.PIECE_TABLES_WHITE[piece.piece_type - 1][square]
 	        else:
-	            score_total += Dt.PIECE_VALUES[piece.piece_type - 1]
+	            score_total += Dt.PIECE_VALUES[piece.piece_type - 1] + Dt.PIECE_TABLES_BLACK[piece.piece_type - 1][square]
 	    return score_total
 
 	def alpha_beta(self, max_depth: int = 4) -> ch.Move:

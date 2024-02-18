@@ -3,11 +3,11 @@ import chess as ch
 import data as dt
 import views.pieceDisplayer as pieceD
 import views.widget as wdgt
+import views.text as text
 
 class Tile(wdgt.Widget) :
 
-    def __init__(self, position : tuple[int], grid_position : tuple[int], color : pg.Color, 
-    piece : pieceD.PieceDisplayer = None, size : int = dt.Utils.DEFAULT_TILE_DIMENSIONS) -> None :
+    def __init__(self, position : tuple[int], grid_position : tuple[int], color : pg.Color, piece : pieceD.PieceDisplayer = None, size : int = dt.Utils.DEFAULT_TILE_DIMENSIONS) -> None :
         super().__init__(position, "Tile")
         self.__surface : pg.Surface = pg.Surface((size, size))
         self.surface.fill(color)
@@ -16,6 +16,7 @@ class Tile(wdgt.Widget) :
         self.__visited : bool = False
         self.__clicked : bool = False
         self.__choice : bool = False
+        self.__text : Text = [text.Text((position[0], position[1]), "", pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))]
 
     @property
     def surface(self) -> pg.Surface : return self.__surface
@@ -24,6 +25,16 @@ class Tile(wdgt.Widget) :
     def center(self) -> tuple[int] : 
         return (self.x + dt.Utils.DEFAULT_TILE_DIMENSIONS // 2, 
             self.y + dt.Utils.DEFAULT_TILE_DIMENSIONS // 2)
+
+    def change_txt(self, new_txt: str, pos: int = 0) -> None :
+        self.__text[pos].set_txt(new_txt)
+
+    def change_coord(self, new_coord : tuple[int], pos: int = 0) -> None:
+        self.__text[pos].set_coord(new_coord)
+
+    def two_txt(self) -> None:
+        temp = text.Text(self.position, "", pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))
+        self.__text.append(temp)
 
     @property
     def center_x(self) -> int : return self.center[0]
@@ -83,6 +94,8 @@ class Tile(wdgt.Widget) :
 
     def display(self, window) -> None :
         window.screen.blit(self.__surface, self.position)
+        for elem in self.__text:
+            elem.display(window)
         if self.is_clicked :
             pg.draw.rect(window.screen, dt.Colors.RED, [self.x, self.y, 
                 dt.Utils.DEFAULT_TILE_DIMENSIONS, dt.Utils.DEFAULT_TILE_DIMENSIONS], 2)

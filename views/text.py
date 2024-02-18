@@ -37,6 +37,14 @@ class Text(wdgt.Widget) :
         self.__bg_color = [None, None]
         self.__text_renderer = self.font.render(self.text, True, self.color, self.bg_color)
 
+    def set_txt(self, new_txt : str) -> None:
+        self.__text = new_txt
+        self.__text_renderer = self.font.render(self.text, True, self.color, self.bg_color)
+
+    def set_coord(self, new_coord: tuple[int]) -> None:
+        self.set_position(new_coord)
+        # self.__text_renderer = self.font.render(self.text, True, self.color, self.bg_color)
+
     def display(self, window) -> None : window.screen.blit(self.__text_renderer, self.position)
 
     def __str__(self) -> str : return f"{self.name}({self.text}, {self.position})"
