@@ -13,16 +13,16 @@ class Ia:
 		return rd.choice(actions)
 
 	def evaluation(self) -> float:
-	    score_total : int = 0
-	    for square in ch.SQUARES:
-	        piece = self.__game.board.piece_at(square)
-	        if piece is None:
-	            continue
-	        if piece.color == ch.WHITE:
-	            score_total -= Dt.PIECE_VALUES[piece.piece_type - 1] - Dt.PIECE_TABLES_WHITE[piece.piece_type - 1][square]
-	        else:
-	            score_total += Dt.PIECE_VALUES[piece.piece_type - 1] + Dt.PIECE_TABLES_BLACK[piece.piece_type - 1][square]
-	    return score_total
+		score_total : int = 0
+		for square in ch.SQUARES:
+			piece = self.__game.board.piece_at(square)
+			if piece is None:
+				continue
+			if piece.color == ch.WHITE:
+				score_total -= Dt.PIECE_VALUES[piece.piece_type - 1] - Dt.PIECE_TABLES_WHITE[piece.piece_type - 1][square]
+			else:
+				score_total += Dt.PIECE_VALUES[piece.piece_type - 1] + Dt.PIECE_TABLES_BLACK[piece.piece_type - 1][square]
+		return score_total
 
 	def alpha_beta(self, max_depth: int = 4) -> ch.Move:
 		if self.__game.active_player:
@@ -30,14 +30,15 @@ class Ia:
 			raise ValueError
 		return self.maximize(max_depth, float('-inf'), float('inf'))[1]
 
-	def maximize(self, depth: int, alpha: float, beta: float, move: ch.Move = None) -> list[float, ch.Move]:
+	def maximize(self, depth : int, alpha : float, 
+	beta : float, move : ch.Move = None) -> list[float, ch.Move]:
 		if depth == 0 or self.__game.is_over:
 			return self.evaluation(), move
 		final_score = float('-inf')
 		final_action = None
 		for action in self.__game.active_player_actions:
 			self.__game.push_move(action)  # try the move
-			testScore : float = self.minimize(depth-1, alpha, beta, action)[0]
+			testScore : float = self.minimize(depth - 1, alpha, beta, action)[0]
 			if testScore > final_score:
 				final_score = testScore
 				final_action = action
@@ -47,7 +48,8 @@ class Ia:
 			alpha = max(alpha, final_score)
 		return final_score, final_action
 
-	def minimize(self, depth: int, alpha: float, beta: float, move: ch.Move = None) -> list[float, ch.Move]:
+	def minimize(self, depth : int, alpha : float, 
+	beta : float, move : ch.Move = None) -> list[float, ch.Move]:
 		if depth == 0 or self.__game.is_over:
 			score = self.evaluation()
 			return score, move

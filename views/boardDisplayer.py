@@ -24,7 +24,6 @@ class BoardDisplayer(wdgt.Widget) :
         tile : tl.Tile = None
         tile_position : tuple[int] = (row * dt.Utils.DEFAULT_TILE_DIMENSIONS, 
             col * dt.Utils.DEFAULT_TILE_DIMENSIONS)
-        print(tile_position)
         if (col + row) % 2 == 0 :
             tile = tl.Tile(tile_position, (col, row), dt.Colors.BEIGE)
         else :

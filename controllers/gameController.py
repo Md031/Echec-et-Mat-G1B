@@ -166,7 +166,6 @@ class GameController :
             case dt.MoveType.EN_PASSANT : self.play_en_passant()
             case dt.MoveType.PROMOTION : self.play_promotion()
         self.game.push_move(self.move.movement)
-        self.set_move(None)
 
     def revert_promotion(self) -> None :
         piece : ch.Piece = ch.Piece(ch.PAWN, self.game.active_player)
@@ -221,6 +220,7 @@ class GameController :
             case "rook" : self.move.movement.promotion = ch.ROOK
             case "queen" : self.move.movement.promotion = ch.QUEEN
         self.play_move()
+        self.set_move(None)
 
     def handle_popup_mouse_motion(self, event) -> None :
         pawn_promotion_popup = self.game_displayer.pawn_promotion_popup
