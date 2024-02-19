@@ -166,6 +166,7 @@ class GameController :
             case dt.MoveType.EN_PASSANT : self.play_en_passant()
             case dt.MoveType.PROMOTION : self.play_promotion()
         self.game.push_move(self.move.movement)
+        self.set_move(None)
 
     def revert_promotion(self) -> None :
         piece : ch.Piece = ch.Piece(ch.PAWN, self.game.active_player)
@@ -284,11 +285,9 @@ class GameController :
                         case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
                         case pg.KEYDOWN : self.handle_key_pressed(event)
                 else:  # if we're playing against an ai
-                    print("start tile before ai play :", self.start_tile)
                     move = self.__ia.alpha_beta()
-                    # self.set_move_start_pos(tile)
                     self.set_move(move)
                     self.play_move()
-                    print("start tile after ai play :", self.start_tile)
+                    self.set_move(None)
                     # self.update_available_moves(self.start_tile, is_choice = False)
                     self.game.next_round
