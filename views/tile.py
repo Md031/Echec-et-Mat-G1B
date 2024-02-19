@@ -6,11 +6,11 @@ import views.widget as wdgt
 import views.text as text
 
 class Tile(wdgt.Widget) :
-
     def __init__(self, position : tuple[int], grid_position : tuple[int], color : pg.Color, piece : pieceD.PieceDisplayer = None, size : int = dt.Utils.DEFAULT_TILE_DIMENSIONS) -> None :
         super().__init__(position, "Tile")
         self.__surface : pg.Surface = pg.Surface((size, size))
         self.surface.fill(color)
+        self.__color = color
         self.__grid_position : tuple[int] = grid_position
         self.__piece_diplayer : pieceD.PieceDisplayer = piece
         self.__visited : bool = False
@@ -35,6 +35,12 @@ class Tile(wdgt.Widget) :
     def two_txt(self) -> None:
         temp = text.Text(self.position, "", pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))
         self.__text.append(temp)
+
+    def change_color(self, new_color : pg.Color = dt.Colors.BLACK) -> None:
+        self.surface.fill(new_color)
+
+    def reset_color(self) -> None:
+        self.surface.fill(self.__color)
 
     @property
     def center_x(self) -> int : return self.center[0]

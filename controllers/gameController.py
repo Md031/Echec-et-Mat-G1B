@@ -19,6 +19,7 @@ class GameController :
         self.__ia : ia.Ia = ia.Ia(self.__game)
         self.__animate : bool = False
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
+        self.__last_two_moves = [None, None]
 
     @property
     def game(self) -> gm.Game : return self.__game
@@ -53,11 +54,24 @@ class GameController :
             self.move.direction = (self.dest_tile.grid_x - self.start_tile.grid_x, 
                 self.dest_tile.grid_y - self.start_tile.grid_y)
             self.move.move_type = self.get_move_type()
+            self.update_color_last_move()
         else : 
             self.move.direction = None
             self.move.move_type = dt.MoveType.DEFAULT
             self.__start_tile = None
             self.__dest_tile = None
+    
+    def update_color_last_move(self) -> None:  
+    # d'abord vider last_two_moves et remettre les couleurs par défaut et ensuite
+    # rajouter start_tile et dest_tile dans last_two_moves et changer leur couleurs  
+        for elem in self.__last_two_moves:  # reset the colors of the last two tiles
+            if elem:  # elem is still None
+                elem.reset_color()  # remettre à default
+        self.__last_two_moves = []
+        self.__last_two_moves.append(self.__start_tile)
+        self.__last_two_moves.append(self.__dest_tile)
+        self.__last_two_moves[0].change_color(dt.Colors.YELLOW)  # change the colors of the tiles we used
+        self.__last_two_moves[1].change_color(dt.Colors.PURPLE)
 
     def update(self) -> None :
         """Met à jour les éléments de la liste 'to_animate'"""
