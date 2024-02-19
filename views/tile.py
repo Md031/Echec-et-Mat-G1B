@@ -3,7 +3,7 @@ import chess as ch
 import data as dt
 import views.pieceDisplayer as pieceD
 import views.widget as wdgt
-import views.text as text
+import views.text as txt
 
 class Tile(wdgt.Widget) :
     def __init__(self, position : tuple[int], grid_position : tuple[int], color : pg.Color, piece : pieceD.PieceDisplayer = None, size : int = dt.Utils.DEFAULT_TILE_DIMENSIONS) -> None :
@@ -16,7 +16,7 @@ class Tile(wdgt.Widget) :
         self.__visited : bool = False
         self.__clicked : bool = False
         self.__choice : bool = False
-        self.__text : Text = [text.Text((position[0], position[1]), "", pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))]
+        self.__text : list[txt.Text] = [txt.Text((position[0], position[1]), "", pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))]
 
     @property
     def surface(self) -> pg.Surface : return self.__surface
@@ -33,7 +33,7 @@ class Tile(wdgt.Widget) :
         self.__text[pos].set_coord(new_coord)
 
     def two_txt(self) -> None:
-        temp = text.Text(self.position, "", pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))
+        temp = txt.Text(self.position, "", pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))
         self.__text.append(temp)
 
     def change_color(self, new_color : pg.Color = dt.Colors.BLACK) -> None:
