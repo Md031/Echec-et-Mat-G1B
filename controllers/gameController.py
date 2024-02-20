@@ -37,11 +37,13 @@ class GameController :
     def move(self) -> dt.Move : return self.__move
 
     def get_casling_rook_pos(self) -> tuple[int] :
-        king_side : bool = self.move.movement == (0, 2) 
+        king_side : bool = self.move.direction == (0, 2) 
         rook_pos : str = ''
+        piece_color : bool = self.dest_tile.piece.color \
+            if self.dest_tile.piece_displayer else self.game.board.piece_at(self.move.movement.from_square).color
         if king_side : rook_pos += 'h'
         else : rook_pos += 'a'
-        if self.dest_tile.piece.color == ch.WHITE : rook_pos += '1'
+        if piece_color == ch.WHITE : rook_pos += '1'
         else : rook_pos += '8'
         return dt.convert_coordinates(rook_pos)
 
@@ -205,7 +207,7 @@ class GameController :
         self.set_move(self.game.pop_move())
         self.update_board_displayer(undo = True)
         match self.move.move_type :
-            case dt.MoveType.CASTLING : self.revert_casling()
+            case dt.MoveType.CASTLING : self.revert_castling()
             case dt.MoveType.EN_PASSANT : self.revert_en_passant()
             case dt.MoveType.PROMOTION : self.revert_promotion()
         self.set_move(None)
