@@ -70,8 +70,8 @@ class GameController :
         self.__last_two_moves = []
         self.__last_two_moves.append(self.__start_tile)
         self.__last_two_moves.append(self.__dest_tile)
-        self.__last_two_moves[0].change_color(dt.Colors.YELLOW)  # change the colors of the tiles we used
-        self.__last_two_moves[1].change_color(dt.Colors.PURPLE)
+        self.__last_two_moves[0].change_color(dt.Colors.L_YELLOW)  # change the colors of the tiles we used
+        self.__last_two_moves[1].change_color(dt.Colors.L_GREEN)
 
     def update(self) -> None :
         """Met à jour les éléments de la liste 'to_animate'"""
@@ -166,7 +166,7 @@ class GameController :
         piece_captured_pos : tuple[int] = (self.start_tile.grid_x, 
             self.start_tile.grid_y + self.move.direction[1])
         tile : tl.Tile = self.game_displayer.get_tile(piece_captured_pos)
-        tile.set_piece(None)
+        # tile.set_piece(None)
 
     def play_promotion(self) -> None :
         piece : ch.Piece = ch.Piece(self.move.movement.promotion, 
@@ -199,6 +199,7 @@ class GameController :
             self.start_tile.grid_y + self.move.direction[1])
         tile : tl.Tile = self.game_displayer.get_tile(piece_captured_pos)
         tile.set_piece(pieceD.PieceDisplayer(piece))
+        self.set_move(None)
 
     def revert_move(self) -> None :
         self.set_move(self.game.pop_move())
@@ -302,6 +303,4 @@ class GameController :
                     move = self.__ia.alpha_beta()
                     self.set_move(move)
                     self.play_move()
-                    self.set_move(None)
-                    # self.update_available_moves(self.start_tile, is_choice = False)
                     self.game.next_round

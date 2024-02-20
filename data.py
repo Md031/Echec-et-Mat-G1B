@@ -18,6 +18,8 @@ class Colors :
     BLACK : pg.Color = pg.Color(0, 0, 0)
     YELLOW : pg.Color = pg.Color(241, 196, 15)
     PURPLE : pg.Color = pg.Color(125, 60, 152)
+    L_GREEN : pg.Color = pg.Color(187, 204, 67)
+    L_YELLOW : pg.Color = pg.Color(244, 246, 126)
 
 class Utils :
     DEFAULT_WINDOW_WIDTH : int = 800
