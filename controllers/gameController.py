@@ -67,7 +67,7 @@ class GameController :
     # d'abord vider last_two_moves et remettre les couleurs par défaut et ensuite
     # rajouter start_tile et dest_tile dans last_two_moves et changer leur couleurs  
         for elem in self.__last_two_moves:  # reset the colors of the last two tiles
-            if elem:  # elem is still None
+            if elem:  # only if elem is not None
                 elem.reset_color()  # remettre à default
         self.__last_two_moves = []
         self.__last_two_moves.append(self.__start_tile)
