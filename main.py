@@ -1,14 +1,15 @@
 import pygame as Pg
 from window import Window
 from data import Utils
-from sys import argv
+from utils import handle_command_line_arguments
+
 
 def main() :
     Pg.init()
-    game_type : bool = True
-    if len(argv) > 1 and argv[1].lower() == "-ia":  # if we want to play with an ai
-        game_type = True
-    window : Window = Window((Utils.DEFAULT_WINDOW_WIDTH, Utils.DEFAULT_WINDOW_HEIGHT), game_type)
+    
+    playerWhite, playerBlack = handle_command_line_arguments()
+    
+    window : Window = Window((Utils.DEFAULT_WINDOW_WIDTH, Utils.DEFAULT_WINDOW_HEIGHT), playerWhite, playerBlack)
     window.main_loop()
 
 if __name__ == '__main__' :

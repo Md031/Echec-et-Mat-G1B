@@ -6,17 +6,23 @@ import views.gameDisplayer as gameD
 import views.tile as tl
 import models.game as gm
 import models.Ia as ia
+import time
 
 class GameController :
-    def __init__(self, window, game_type : bool = False) -> None:
-        self.__game_type : bool = game_type
+    def __init__(self, window, playerWhite, playerBlack) -> None:
+        self.playerWhite = playerWhite
+        self.playerBlack = playerBlack
         self.__game : gm.Game = gm.Game()
+        if playerWhite != None:
+            playerWhite.set_game(self.__game)
+        if playerBlack != None:
+            playerBlack.set_game(self.__game)
         self.__game_displayer : gameD.GameDisplayer = window.game_displayer
         self.__game_displayer.set_game(self.__game)
         self.__start_tile : tl.Tile = None
         self.__dest_tile : tl.Tile = None
         self.__move : dt.Move = dt.Move()
-        self.__ia : ia.Ia = ia.Ia(self.__game)
+        #self.__ia : ia.Ia = ia.Ia(self.__game)
         self.__animate : bool = False
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
         self.__last_two_moves = [None, None]
@@ -291,18 +297,29 @@ class GameController :
             self.game_displayer.set_game(self.game)
             self.game_displayer.pawn_promotion_popup.reset()
 
+    def handle_move(self, color: ch.Color, event):
+        if (self.playerBlack == None and color == ch.BLACK) or (self.playerWhite == None and color == ch.WHITE): # Human player
+            match event.type :
+                case pg.MOUSEMOTION : self.handle_mouse_motion(event)
+                case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
+                case pg.KEYDOWN : self.handle_key_pressed(event)
+        else:
+            # time.sleep(2) # Pour pas que les moves s'enchainent trop vite (si AI vs AI)
+            if color == ch.WHITE:
+                move = self.playerWhite.move()
+            else:
+                move = self.playerBlack.move()
+            self.set_move(move)
+            self.play_move()
+            self.game.next_round
+
     def handle(self, event) -> None :
         if self.game.state not in [dt.State.CHECKMATE, dt.State.STALEMATE] :
             if self.game_displayer.pawn_promotion_popup.is_active :  # when the popup of the promotion is active
                 self.handle_pawn_promotion(event)
             else :
-                if self.game.active_player or not self.__game_type :
-                    match event.type :
-                        case pg.MOUSEMOTION : self.handle_mouse_motion(event)
-                        case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
-                        case pg.KEYDOWN : self.handle_key_pressed(event)
-                else:  # if we're playing against an ai
-                    move = self.__ia.neuralNetworkMove()
-                    self.set_move(move)
-                    self.play_move()
-                    self.game.next_round
+                if self.game.active_player : # White player
+                    self.handle_move(ch.WHITE, event)
+                else:  # Black player
+                    self.handle_move(ch.BLACK, event)
+

@@ -3,12 +3,12 @@ import views.gameDisplayer as gd
 import controllers.gameController as ctrl
 
 class Window() :
-    def __init__(self, size : tuple[int], game_type : bool) -> None :
+    def __init__(self, size : tuple[int], playerWhite, playerBlack) -> None :
         self.__screen : pg.Surface = pg.display.set_mode(size)
         self.__font : pg.font.Font = pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18)
         self.__screen.fill((60,25,60))
         self.__game_dislayer : gd.GameDisplayer = gd.GameDisplayer(self.font)
-        self.__game_controller : ctrl.GameController = ctrl.GameController(self, game_type)
+        self.__game_controller : ctrl.GameController = ctrl.GameController(self, playerWhite, playerBlack)
         self.__clock : pg.time.Clock = pg.time.Clock() 
         pg.display.set_caption("pyChess")
 
