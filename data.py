@@ -20,9 +20,9 @@ class Colors :
     PURPLE : pg.Color = pg.Color(125, 60, 152)
     L_GREEN : pg.Color = pg.Color(187, 204, 67)
     L_YELLOW : pg.Color = pg.Color(244, 246, 126)
-
+    BG_COLOR : pg.Color = pg.Color(222, 211, 202)
 class Utils :
-    DEFAULT_WINDOW_WIDTH : int = 800
+    DEFAULT_WINDOW_WIDTH : int = 1000
     DEFAULT_WINDOW_HEIGHT : int = 640
     DEFAULT_BOARD_DIMENSIONS : int = 640
     DEFAULT_GRID_DIMENSIONS : int = 8

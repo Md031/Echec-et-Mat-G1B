@@ -1,16 +1,22 @@
 import views.boardDisplayer as boardD
+import views.menuDisplayer as menuD
+
 import data as dt
 import views.tile as tl
 import models.game as gm
 import views.popup as pup
 import views.text as txt
 import views.button as btn
+import pygame as pg
 
 class GameDisplayer :
     def __init__(self, font) -> None:
         self.__board_displayer : boardD.BoardDisplayer = None
+        self.__menu_displayer = menuD.MenuDisplayer()
         self.__popup_pawn_promotion : pup.Popup = pup.Popup((300, 100))
         self._init_pawn_promotion_popup(font)
+        # self.ai_move_timer = txt.Text((660, 20), "Minimax played move in 2.00ms" , pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))
+
 
     def _init_pawn_promotion_popup(self, font) -> None :
         self.pawn_promotion_popup.add_widget(txt.Text(
@@ -40,6 +46,7 @@ class GameDisplayer :
     def set_game(self, game : gm.Game) : self.__board_displayer = boardD.BoardDisplayer(game.board)
 
     def display(self, window) -> None : 
-        self.board_displayer.display(window)
+        self.__board_displayer.display(window)
+        self.__menu_displayer.display(window)
         if self.pawn_promotion_popup.is_active :
             self.pawn_promotion_popup.display(window)

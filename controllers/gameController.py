@@ -280,6 +280,9 @@ class GameController :
         mouse_pos : tuple[int] = event.pos
         if mouse_pos in self.game_displayer.board_displayer :
             self.handle_tile_selection(mouse_pos)
+        # elif mouse_pos in self.game_displayer.menu_displayer :
+            
+        
 
     def handle_key_pressed(self, event) -> None :
         key = event.key
