@@ -12,7 +12,7 @@ model = ChessNet()
 metric_from = nn.CrossEntropyLoss()
 metric_to = nn.CrossEntropyLoss()
 
-learning_rate = 0.0001
+learning_rate = 0.00001
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) # Learning rate can be modified here
 
 # Checks if the a GPU is available
