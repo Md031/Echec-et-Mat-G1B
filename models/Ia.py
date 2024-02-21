@@ -2,11 +2,29 @@ import random as rd
 import models.game as gm
 import chess as ch
 import data as Dt
+import torch
+from NeuralNetwork.chessNet import ChessNet 
+from NeuralNetwork.NeuralNetworkPickMoves import choose_move
 # import controllers.GameController as GCtrl
 
 class Ia:
-	def __init__(self, game : gm.Game):
+	def __init__(self, game : gm.Game, modelPath = "NeuralNetwork/ChessModel.pt"):
 		self.__game = game
+
+		self.model = ChessNet()
+
+		# Checks if the a GPU is available
+		if torch.cuda.is_available():
+			print("Cuda is available")
+			device = "cuda"
+			self.model.load_state_dict(torch.load(modelPath))
+		else: # for CPU-only machines
+			print("Cuda is unavailable")
+			device = "cpu"
+			self.model.load_state_dict(torch.load(modelPath, map_location=torch.device('cpu')))
+
+		self.model.eval()
+		self.model.to(device)
 
 	def random_ia(self) -> ch.Move :
 		actions = list(self.__game.active_player_actions)
@@ -66,3 +84,7 @@ class Ia:
 				return final_score, final_action
 			beta = min(beta, final_score)
 		return final_score, final_action
+	
+	def neuralNetworkMove(self):
+		move = choose_move(self.__game.board, ch.BLACK, self.model)
+		return move

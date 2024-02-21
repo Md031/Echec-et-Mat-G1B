@@ -302,7 +302,7 @@ class GameController :
                         case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
                         case pg.KEYDOWN : self.handle_key_pressed(event)
                 else:  # if we're playing against an ai
-                    move = self.__ia.alpha_beta()
+                    move = self.__ia.neuralNetworkMove()
                     self.set_move(move)
                     self.play_move()
                     self.game.next_round
