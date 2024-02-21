@@ -33,13 +33,18 @@ class Random(Ai):
 class Minimax(Ai):
 	def __init__(self, color, game = None):
 		super().__init__(color, game)
+		self.timer_move = 0
 
 	def move(self, max_depth: int = 4) -> ch.Move:
+		begin = time.perf_counter()
 		if self.game.active_player == ch.WHITE:
-			return self.maximize(max_depth)[1]
+			move = self.maximize(max_depth)[1]
 		else :
-			return self.minimize(max_depth)[1]
-
+			move = self.minimize(max_depth)[1]
+		end = time.perf_counter()  # A few seconds later
+		self.timer_move = end - begin 
+		return move
+	
 	def evaluation(self) -> float:
 		score_total : int = 0
 		for square in ch.SQUARES:

@@ -36,6 +36,9 @@ class GameDisplayer :
     def board_displayer(self) -> boardD.BoardDisplayer : return self.__board_displayer
 
     @property
+    def menu_displayer(self) -> menuD.MenuDisplayer : return self.__menu_displayer
+
+    @property
     def pawn_promotion_popup(self) -> pup.Popup : return self.__popup_pawn_promotion
 
     def get_tile(self, position : tuple[int] | int) -> tl.Tile :
