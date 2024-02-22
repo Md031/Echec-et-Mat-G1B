@@ -27,6 +27,7 @@ class GameController :
         self.__animate : bool = False
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
         self.__last_two_moves = [None, None]
+        self.__iaType = ["Minimax", "Random", "Neural Network"]
 
     @property
     def game(self) -> gm.Game : return self.__game
@@ -188,11 +189,25 @@ class GameController :
             case dt.MoveType.CASTLING : self.play_castling()
             case dt.MoveType.EN_PASSANT : self.play_en_passant()
             case dt.MoveType.PROMOTION : self.play_promotion()
-        self.game_displayer.moves_displayer.add_text(str(self.move.movement))
-        if type(self.playerWhite) == ia or type(self.playerWhite) == ia.Random or type(self.playerWhite) == ia.NeuronalNetwork:
-            self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerWhite.get_timer()) + " seconds")
-        elif type(self.playerBlack) == ia.Minimax or type(self.playerBlack) == ia.Random or type(self.playerBlack) == ia.NeuronalNetwork:
-            self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerBlack.get_timer()) + " seconds")
+        txt = ""
+        if self.game.active_player and \
+        (type(self.playerWhite) == ia.Minimax or type(self.playerWhite) == ia.Random or type(self.playerWhite) == ia.NeuronalNetwork):  # joueur blanc == ia
+            txt = f'{self.move.movement} by {self.playerWhite.type_ia()} in {self.playerWhite.get_timer()} seconds' 
+        elif not self.game.active_player and \
+        (type(self.playerBlack) == ia.Minimax or type(self.playerBlack) == ia.Random or type(self.playerBlack) == ia.NeuronalNetwork):  # joueur noir == ia
+            txt = f'{self.move.movement} by {self.playerBlack.type_ia()} in {self.playerBlack.get_timer()} seconds' 
+        else:  # humain vs humain
+            txt = f'{self.move.movement} by White'
+        # txt = str(self.move.movement) + " by White"
+        # if not self.game.active_player:
+        #     txt = str(self.move.movement) + " by Black"
+        # if type(self.playerWhite) == ia.Minimax or type(self.playerWhite) == ia.Random or type(self.playerWhite) == ia.NeuronalNetwork:
+        #     txt = f'{self.move.movement} by {self.playerWhite.type_ia} in {self.playerWhite.get_timer()} seconds' 
+        #     # self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerWhite.get_timer()) + " seconds")
+        # elif type(self.playerBlack) == ia.Minimax or type(self.playerBlack) == ia.Random or type(self.playerBlack) == ia.NeuronalNetwork:
+        #     txt = f'{self.move.movement} by {self.playerWhite.type_ia} in {self.playerBlack.get_timer()} seconds' 
+        #     # self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerBlack.get_timer()) + " seconds")
+        self.game_displayer.moves_displayer.add_text(txt)
         self.game.push_move(self.move.movement)
 
     def revert_promotion(self) -> None :
@@ -290,7 +305,6 @@ class GameController :
             self.handle_reset_button_pressed()
         elif mouse_pos in self.game_displayer.menu_displayer.take_back_move :
             self.handle_take_back_move_pressed()
-            
 
     def handle_take_back_move_pressed(self):
         if len(self.game.moves) > 0 :  # you must have done at least one move
@@ -303,8 +317,6 @@ class GameController :
         self.game_displayer.set_game(self.game)
         self.game_displayer.pawn_promotion_popup.reset()
         
-
-
     def handle_key_pressed(self, event) -> None :
         key = event.key
         if key == pg.K_b or key == pg.K_r :

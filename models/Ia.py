@@ -28,6 +28,8 @@ class Ai:   #Interface class
 	def get_timer(self):
 		return round(self.timer, 3)
 
+	def type_ia(self) -> str:
+		return 0
 
 class Random(Ai):
 	def __init__(self, color, game = None, timer = 0.0):
@@ -39,10 +41,14 @@ class Random(Ai):
 		end_time = time.time()
 		self.timer = end_time - start_time
 		return move
+
+	def type_ia(self) -> str: return "Random"
 	
 class Minimax(Ai):
 	def __init__(self, color, game = None, timer = 0.0):
 		super().__init__(color, game, timer)
+
+	def type_ia(self) -> str: return "Minimax"
 
 	def move(self, max_depth: int = 4) -> ch.Move:
 		start_time = time.time()
@@ -135,7 +141,8 @@ class NeuronalNetwork(Ai):
         self.model.eval()
         self.model.to(device)
 
-    
+    def type_ia(self) -> str: return "Neural Network"
+
     def move(self):
         move = choose_move(self.game.board, self.color, self.model)
         return move
