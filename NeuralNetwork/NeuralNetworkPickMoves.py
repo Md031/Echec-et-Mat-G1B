@@ -35,7 +35,13 @@ def choose_move(board: Board, color, model):
     if move is not None:
         return move
     
-    x = torch.Tensor(board_2_rep(board)).float().to('cuda')
+    if torch.cuda.is_available():
+        device = "cuda"
+        x = torch.Tensor(board_2_rep(board)).float().to(device)
+    else: # for CPU-only machines
+        device = "cpu"
+        x = torch.Tensor(board_2_rep(board)).float().to(device)
+    
     if color == chess.BLACK:
         x *= -1
     x = x.unsqueeze(0)

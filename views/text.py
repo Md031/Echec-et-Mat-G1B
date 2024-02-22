@@ -24,6 +24,9 @@ class Text(wdgt.Widget) :
     @property
     def font(self) -> pg.font.Font : return self.__font
 
+    @property
+    def text_renderer(self) -> pg.Surface : return self.__text_renderer
+
     def set_color(self, value : pg.Color) -> None :
         self.__color[1] = value
         self.__text_renderer = self.font.render(self.text, True, self.__color[1], self.bg_color)

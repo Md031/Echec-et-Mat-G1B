@@ -10,7 +10,7 @@ class Window() :
         self.__screen.fill((dt.Colors.BG_COLOR))
         self.__game_dislayer : gd.GameDisplayer = gd.GameDisplayer(self.font)
         self.__game_controller : ctrl.GameController = ctrl.GameController(self, playerWhite, playerBlack)
-        self.__clock : pg.time.Clock = pg.time.Clock() 
+        self.__clock : pg.time.Clock = pg.time.Clock()
         pg.display.set_caption("pyChess")
 
     ###########

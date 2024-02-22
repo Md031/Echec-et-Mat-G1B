@@ -22,7 +22,7 @@ class GameController :
         self.__start_tile : tl.Tile = None
         self.__dest_tile : tl.Tile = None
         self.__move : dt.Move = dt.Move()
-        #self.__ia : ia.Ia = ia.Ia(self.__game)
+        # self.__ia : ia.Ai = ia.Ai(self.__game)
         self.__animate : bool = False
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
         self.__last_two_moves = [None, None]
@@ -187,6 +187,11 @@ class GameController :
             case dt.MoveType.CASTLING : self.play_castling()
             case dt.MoveType.EN_PASSANT : self.play_en_passant()
             case dt.MoveType.PROMOTION : self.play_promotion()
+        self.game_displayer.moves_displayer.add_text(str(self.move.movement))
+        if type(self.playerWhite) == ia or type(self.playerWhite) == ia.Random or type(self.playerWhite) == ia.NeuronalNetwork:
+            self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerWhite.get_timer()) + " seconds")
+        elif type(self.playerBlack) == ia.Minimax or type(self.playerBlack) == ia.Random or type(self.playerBlack) == ia.NeuronalNetwork:
+            self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerBlack.get_timer()) + " seconds")
         self.game.push_move(self.move.movement)
 
     def revert_promotion(self) -> None :

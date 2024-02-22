@@ -11,34 +11,50 @@ import time
 
 
 class Ai:   #Interface class
-	def __init__(self, color, game = None):
+	def __init__(self, color, game = None, timer = 0.0):
 		self.game = game
 		self.color = color
+		self.timer = timer
 
 	def move():
 		raise Exception("NotImplementedException")
 	
 	def set_game(self, game):
 		self.game = game
+	
+	def set_timer(self, timer):
+		self.timer = timer
+	
+	def get_timer(self):
+		return round(self.timer, 3)
 
 
 class Random(Ai):
-	def __init__(self, color, game = None):
-		super().__init__(color, game)
+	def __init__(self, color, game = None, timer = 0.0):
+		super().__init__(color, game, timer)
 
 	def move(self) -> ch.Move :
+		start_time = time.time()
 		move = random.choice(list(self.game.board.legal_moves))
+		end_time = time.time()
+		self.timer = end_time - start_time
+		print(f"Temps pris pour choisir un mouvement : {self.timer} secondes")
 		return move
 	
 class Minimax(Ai):
-	def __init__(self, color, game = None):
-		super().__init__(color, game)
+	def __init__(self, color, game = None, timer = 0.0):
+		super().__init__(color, game, timer)
 
 	def move(self, max_depth: int = 4) -> ch.Move:
+		start_time = time.time()
 		if self.game.active_player == ch.WHITE:
-			return self.maximize(max_depth)[1]
+			move = self.maximize(max_depth)[1]
 		else :
-			return self.minimize(max_depth)[1]
+			move = self.minimize(max_depth)[1]
+		end_time = time.time()
+		self.timer = end_time - start_time
+		print(f"Temps pris pour choisir un mouvement : {self.timer} secondes")
+		return move
 
 	def evaluation(self) -> float:
 		score_total : int = 0
