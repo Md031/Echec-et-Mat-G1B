@@ -1,10 +1,7 @@
-import views.boardDisplayer as boardD
+import views.resetButtonDisplayer as resetBD
+import views.takeBackMove as tkb
 import data as dt
-import views.tile as tl
-import models.game as gm
-import views.popup as pup
 import views.text as txt
-import views.button as btn
 import pygame as pg
 
 class MenuDisplayer :

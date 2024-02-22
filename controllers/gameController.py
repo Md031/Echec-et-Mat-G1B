@@ -7,6 +7,7 @@ import views.tile as tl
 import models.game as gm
 import models.Ia as ia
 import time
+import views.text as txt
 
 class GameController :
     def __init__(self, window, playerWhite, playerBlack) -> None:
@@ -285,9 +286,24 @@ class GameController :
         mouse_pos : tuple[int] = event.pos
         if mouse_pos in self.game_displayer.board_displayer :
             self.handle_tile_selection(mouse_pos)
-        # elif mouse_pos in self.game_displayer.menu_displayer :
+        elif mouse_pos in self.game_displayer.menu_displayer.reset_button_displayer :
+            self.handle_reset_button_pressed()
+        elif mouse_pos in self.game_displayer.menu_displayer.take_back_move :
+            self.handle_take_back_move_pressed()
             
+
+    def handle_take_back_move_pressed(self):
+        if len(self.game.moves) > 0 :  # you must have done at least one move
+                self.__start_tile = None  # in case the player clicked on a piece before trying to revert
+                self.__dest_tile = None
+                self.revert_move()    
         
+    def handle_reset_button_pressed(self):
+        self.game.reset()
+        self.game_displayer.set_game(self.game)
+        self.game_displayer.pawn_promotion_popup.reset()
+        
+
 
     def handle_key_pressed(self, event) -> None :
         key = event.key
@@ -315,7 +331,11 @@ class GameController :
             # time.sleep(2) # Pour pas que les moves s'enchainent trop vite (si AI vs AI)
             if color == ch.WHITE:
                 move = self.playerWhite.move()
+                if isinstance(self.playerWhite, ia.Minimax):
+                    self.game_displayer.menu_displayer.ai_move_timer.set_txt(str(self.playerWhite.timer_move) + " secondes")    #This line doesnt overwrite the text need to fix it
             else:
+                if isinstance(self.playerBlack, ia.Minimax):
+                    self.game_displayer.menu_displayer.ai_move_timer.set_txt(str(self.playerBlack.timer_move) + " secondes")
                 move = self.playerBlack.move()
             self.set_move(move)
             self.play_move()
