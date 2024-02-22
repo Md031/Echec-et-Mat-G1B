@@ -38,7 +38,6 @@ class Random(Ai):
 		move = random.choice(list(self.game.board.legal_moves))
 		end_time = time.time()
 		self.timer = end_time - start_time
-		print(f"Temps pris pour choisir un mouvement : {self.timer} secondes")
 		return move
 	
 class Minimax(Ai):
@@ -53,7 +52,6 @@ class Minimax(Ai):
 			move = self.minimize(max_depth)[1]
 		end_time = time.time()
 		self.timer = end_time - start_time
-		print(f"Temps pris pour choisir un mouvement : {self.timer} secondes")
 		return move
 
 	def evaluation(self) -> float:
