@@ -331,11 +331,7 @@ class GameController :
             # time.sleep(2) # Pour pas que les moves s'enchainent trop vite (si AI vs AI)
             if color == ch.WHITE:
                 move = self.playerWhite.move()
-                if isinstance(self.playerWhite, ia.Minimax):
-                    self.game_displayer.menu_displayer.ai_move_timer.set_txt(str(self.playerWhite.timer_move) + " secondes")    #This line doesnt overwrite the text need to fix it
             else:
-                if isinstance(self.playerBlack, ia.Minimax):
-                    self.game_displayer.menu_displayer.ai_move_timer.set_txt(str(self.playerBlack.timer_move) + " secondes")
                 move = self.playerBlack.move()
             self.set_move(move)
             self.play_move()
