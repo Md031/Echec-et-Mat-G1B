@@ -48,6 +48,25 @@ class Text(wdgt.Widget) :
         self.set_position(new_coord)
         # self.__text_renderer = self.font.render(self.text, True, self.color, self.bg_color)
 
+    def draw_background(self, screen, width=None, height=None) -> None:
+        """Dessine un rectangle de fond à la position du texte avec la couleur de fond spécifiée.
+
+        Args:
+            screen (pg.Surface): La surface sur laquelle dessiner le rectangle.
+            width (Optional[int]): La largeur du rectangle. Si None, utilise la largeur du texte rendu.
+            height (Optional[int]): La hauteur du rectangle. Si None, utilise la hauteur du texte rendu.
+        """
+        if self.__bg_color[0] is not None:  # Vérifie si une couleur de fond est définie
+            if width is None and height is None:
+                # Utilise la taille du texte rendu si aucune dimension n'est fournie
+                rect_size = self.__text_renderer.get_size()
+            else:
+                # Utilise les dimensions fournies
+                rect_size = (width if width is not None else self.__text_renderer.get_width(),
+                             height if height is not None else self.__text_renderer.get_height())
+            # Dessine le rectangle
+            pg.draw.rect(screen, self.__bg_color[0], (*self.position, *rect_size))
+
     def display(self, window) -> None : window.screen.blit(self.__text_renderer, self.position)
 
     def __str__(self) -> str : return f"{self.name}({self.text}, {self.position})"

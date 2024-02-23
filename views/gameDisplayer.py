@@ -10,7 +10,7 @@ import views.button as btn
 class GameDisplayer :
     def __init__(self, font) -> None:
         self.__board_displayer : boardD.BoardDisplayer = None
-        self.__menu_displayer = menuD.MenuDisplayer() 
+        self.__menu_displayer = menuD.MenuDisplayer()
         self.__popup_pawn_promotion : pup.Popup = pup.Popup((300, 100))
         self._init_pawn_promotion_popup(font)
 

@@ -203,16 +203,9 @@ class GameController :
             txt = f'{self.move.movement} by White'
         else:
             txt = f'{self.move.movement} by Black'
-        # txt = str(self.move.movement) + " by White"
-        # if not self.game.active_player:
-        #     txt = str(self.move.movement) + " by Black"
-        # if type(self.playerWhite) == ia.Minimax or type(self.playerWhite) == ia.Random or type(self.playerWhite) == ia.NeuronalNetwork:
-        #     txt = f'{self.move.movement} by {self.playerWhite.type_ia} in {self.playerWhite.get_timer()} seconds' 
-        #     # self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerWhite.get_timer()) + " seconds")
-        # elif type(self.playerBlack) == ia.Minimax or type(self.playerBlack) == ia.Random or type(self.playerBlack) == ia.NeuronalNetwork:
-        #     txt = f'{self.move.movement} by {self.playerWhite.type_ia} in {self.playerBlack.get_timer()} seconds' 
-        #     # self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerBlack.get_timer()) + " seconds")
+
         self.game_displayer.menu_displayer.moves_displayer.add_text(txt)
+            # self.game_displayer.menu_displayer.moves_displayer.l_texts[0].draw_background(pg.display.set_mode(dt.Utils.DEFAULT_WINDOW_WIDTH, dt.Utils.DEFAULT_WINDOW_HEIGHT))
         self.game.push_move(self.move.movement)
 
     def revert_promotion(self) -> None :
@@ -321,6 +314,7 @@ class GameController :
         self.game.reset()
         self.game_displayer.set_game(self.game)
         self.game_displayer.pawn_promotion_popup.reset()
+        self.game_displayer.menu_displayer.moves_displayer.reset()
         
     def handle_key_pressed(self, event) -> None :
         key = event.key
