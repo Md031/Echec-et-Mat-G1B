@@ -10,4 +10,4 @@ class ResetButtonDisplayer(txt.Text) :
     
     def __contains__(self, coords: tuple[int]) -> bool:
         x, y = coords
-        return (640 < x < 740 and 500 < y < 640)
+        return (750 < x < 850 and 540 < y < 630)

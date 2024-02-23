@@ -6,6 +6,8 @@ import data as dt
 class Window() :
     def __init__(self, size : tuple[int], playerWhite, playerBlack) -> None :
         self.__screen : pg.Surface = pg.display.set_mode(size)
+        icon = pg.image.load('images/classic/WKnight.png') 
+        pg.display.set_icon(icon)
         self.__font : pg.font.Font = pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18)
         self.__screen.fill((dt.Colors.BG_COLOR))
         self.__game_dislayer : gd.GameDisplayer = gd.GameDisplayer(self.font)
