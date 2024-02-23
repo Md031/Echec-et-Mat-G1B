@@ -48,6 +48,7 @@ class Minimax(Ai):
 	def type_ia(self) -> str: return "Minimax"
 
 	def move(self, max_depth: int = 4) -> ch.Move:
+		self.__nodes_expanded = 0
 		start_time = time.time()
 		if self.game.active_player == ch.WHITE:
 			move = self.maximize(max_depth)[1]
