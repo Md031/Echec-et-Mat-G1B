@@ -29,11 +29,11 @@ class BoardDisplayer(wdgt.Widget) :
         else :
             tile = tl.Tile(tile_position, (col, row), dt.Colors.BROWN)
         if tile_position[0] == 0:  # numbers on the cols
-            tile.change_txt(str(col+1))
+            tile.change_txt(str(dt.Utils.DEFAULT_GRID_DIMENSIONS - col))
         if tile_position[1] == 560:  # letters on the rows
             if tile_position[0] == 0:
                 tile.two_txt()
-                tile.change_txt(str(col+1), 1)
+                tile.change_txt(str(dt.Utils.DEFAULT_GRID_DIMENSIONS - col), 1)
                 tile.change_coord((tile_position[0], tile_position[1]))
             # else:
             tile.change_txt(chr(ord("A")+row))
