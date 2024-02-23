@@ -209,7 +209,7 @@ class GameController :
         # elif type(self.playerBlack) == ia.Minimax or type(self.playerBlack) == ia.Random or type(self.playerBlack) == ia.NeuronalNetwork:
         #     txt = f'{self.move.movement} by {self.playerWhite.type_ia} in {self.playerBlack.get_timer()} seconds' 
         #     # self.game_displayer.timer_displayer.change_text("Minimax played move in " + str(self.playerBlack.get_timer()) + " seconds")
-        self.game_displayer.moves_displayer.add_text(txt)
+        self.game_displayer.menu_displayer.moves_displayer.add_text(txt)
         self.game.push_move(self.move.movement)
 
     def revert_promotion(self) -> None :

@@ -21,6 +21,6 @@ class TakeBackMove(wdgt.Widget) :
 
     def __contains__(self, coords: tuple[int]) -> bool :
         x, y = coords
-        return (600 < x < 700 and 60 < y < 120)
+        return (600 < x < 700 and 0 < y < 60)
 
     def __str__(self) -> str : return f"{self.piece.symbol()}"

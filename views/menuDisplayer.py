@@ -5,6 +5,22 @@ import views.text as txt
 import pygame as pg
 
 class MenuDisplayer :
+    def __init__(self) -> None:
+        self.reset_button_displayer = resetBD.ResetButtonDisplayer((660, 600), "RESET" , pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 30), dt.Colors.WHITE, dt.Colors.BROWN)
+        self.take_back_move = tkb.TakeBackMove((660, 20))
+        self.move_history = txt.Text((660, 100), "a" , pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))
+        self.timer_displayer = TextDisplayer("")
+        self.moves_displayer = TextDisplayer("Moves played : ", (660, 50))
+
+    def display(self, window) -> None : 
+        self.reset_button_displayer.display(window)
+        self.take_back_move.display(window)
+        self.move_history = txt.Text((660, 100), "a" , pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18))
+        self.timer_displayer.display(window)
+        self.moves_displayer.display(window)
+        
+    
+class TextDisplayer(MenuDisplayer):
     def __init__(self, text=None, position=(660, 20)) -> None:
         self.position = position
         self.l_texts = [txt.Text(position, text , pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18), dt.Colors.BLACK, dt.Colors.BG_COLOR)]

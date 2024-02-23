@@ -1,6 +1,7 @@
 import data as dt
 import views.text as txt
 import pygame as pg
+
 class ResetButtonDisplayer(txt.Text) :
 
     def __init__(self, position : tuple[int], text : str, font : pg.font.Font, 
