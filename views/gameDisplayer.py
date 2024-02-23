@@ -8,7 +8,7 @@ import views.text as txt
 import views.button as btn
 
 class GameDisplayer :
-    def __init__(self, font, timer=0.0) -> None:
+    def __init__(self, font) -> None:
         self.__board_displayer : boardD.BoardDisplayer = None
         self.__menu_displayer = menuD.MenuDisplayer() 
         self.__popup_pawn_promotion : pup.Popup = pup.Popup((300, 100))
@@ -29,6 +29,9 @@ class GameDisplayer :
 
     @property
     def board_displayer(self) -> boardD.BoardDisplayer : return self.__board_displayer
+
+    @property
+    def menu_displayer(self) -> menuD.MenuDisplayer : return self.__menu_displayer
 
     @property
     def pawn_promotion_popup(self) -> pup.Popup : return self.__popup_pawn_promotion
