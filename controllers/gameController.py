@@ -192,9 +192,13 @@ class GameController :
         if self.game.active_player and \
         (type(self.playerWhite) == ia.Minimax or type(self.playerWhite) == ia.Random or type(self.playerWhite) == ia.NeuronalNetwork):  # joueur blanc == ia
             txt = f'{self.move.movement} by {self.playerWhite.type_ia()} in {self.playerWhite.get_timer()} seconds' 
+            if type(self.playerWhite) == ia.Minimax:
+                txt += f', {self.playerWhite.nodes_expanded} nodes expanded.'
         elif not self.game.active_player and \
         (type(self.playerBlack) == ia.Minimax or type(self.playerBlack) == ia.Random or type(self.playerBlack) == ia.NeuronalNetwork):  # joueur noir == ia
             txt = f'{self.move.movement} by {self.playerBlack.type_ia()} in {self.playerBlack.get_timer()} seconds' 
+            if type(self.playerBlack) == ia.Minimax:
+                txt += f', {self.playerBlack.nodes_expanded} nodes expanded.'
         elif self.game.active_player:  # humain vs humain
             txt = f'{self.move.movement} by White'
         else:

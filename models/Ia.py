@@ -43,6 +43,7 @@ class Random(Ai):
 class Minimax(Ai):
 	def __init__(self, color, game = None, timer = 0.0):
 		super().__init__(color, game, timer)
+		self.__nodes_expanded = 0
 
 	def type_ia(self) -> str: return "Minimax"
 
@@ -70,6 +71,7 @@ class Minimax(Ai):
 	
 	def maximize(self, depth : int, alpha : float = float('-inf'), 
 	beta : float = float('inf'), move : ch.Move = None) -> list[float, ch.Move]:
+		self.__nodes_expanded +=1
 		if depth == 0 or self.game.is_over:
 			if self.game.board.is_checkmate():
 				if  self.game.active_player != self.color:    #If the current player has checkmate
@@ -96,6 +98,7 @@ class Minimax(Ai):
 
 	def minimize(self, depth : int, alpha : float = float('-inf'), 
 	beta : float = float('inf'), move : ch.Move = None) -> list[float, ch.Move]:
+		self.__nodes_expanded +=1
 		if depth == 0 or self.game.is_over:
 			if self.game.board.is_checkmate():
 				if  self.game.active_player != self.color:    #If the current player has checkmate
@@ -118,6 +121,9 @@ class Minimax(Ai):
 				return final_score, final_action
 			beta = min(beta, final_score)
 		return final_score, final_action
+	
+	@property
+	def nodes_expanded(self) -> int : return self.__nodes_expanded
 	
 class NeuronalNetwork(Ai):
     def __init__(self, color, ModelPath="NeuralNetwork/ChessModel.pt", game = None):
