@@ -6,7 +6,6 @@ import views.gameDisplayer as gameD
 import views.tile as tl
 import models.game as gm
 import models.Ia as ia
-import time
 import views.text as txt
 
 class GameController :

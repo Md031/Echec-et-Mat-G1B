@@ -2,7 +2,6 @@ import pygame as pg
 import views.widget as wdgt
 
 class TakeBackMove(wdgt.Widget) :
-
     def __init__(self, position : tuple[int] = None) -> None :
         super().__init__(position, "TakeBackMove")
         self.init_image()

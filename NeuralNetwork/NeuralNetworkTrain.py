@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-
-# Train
 from NeuralNetwork.chessNet import ChessNet
 from NeuralNetwork.chessDataSet import data_train_loader
 

@@ -1,5 +1,3 @@
-import random as rd
-import models.game as gm
 import chess as ch
 import data as Dt
 import torch
@@ -7,8 +5,6 @@ from NeuralNetwork.chessNet import ChessNet
 from NeuralNetwork.NeuralNetworkPickMoves import choose_move
 import random
 import time
-# import controllers.GameController as GCtrl
-
 
 class Ai:   #Interface class
 	def __init__(self, color, game = None, timer = 0.0):

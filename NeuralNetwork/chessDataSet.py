@@ -3,7 +3,6 @@ import chess
 from torch.utils.data import Dataset, DataLoader
 import gc
 import pandas as pd
-
 import numpy as np
 
 class ChessDataset(Dataset):

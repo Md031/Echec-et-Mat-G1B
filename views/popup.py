@@ -3,7 +3,6 @@ import data as dt
 import views.widget as wdgt
 
 class Popup(wdgt.Widget) :
-
     def __init__(self, size : tuple[int], content : list[wdgt.Widget] = [], 
     frame : tuple[int] = (dt.Utils.DEFAULT_BOARD_DIMENSIONS, dt.Utils.DEFAULT_BOARD_DIMENSIONS)) :
         self.__size : tuple[int] = size

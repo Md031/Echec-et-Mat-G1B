@@ -1,4 +1,3 @@
-import data as dt
 from abc import abstractmethod, ABC
 
 class Widget(ABC) :

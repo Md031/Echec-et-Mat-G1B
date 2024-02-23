@@ -6,7 +6,6 @@ import models.game as gm
 import views.popup as pup
 import views.text as txt
 import views.button as btn
-import pygame as pg
 
 class GameDisplayer :
     def __init__(self, font, timer=0.0) -> None:

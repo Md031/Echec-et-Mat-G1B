@@ -4,8 +4,6 @@ from NeuralNetwork.NeuralNetworkUtils import board_2_rep, letter_2_num
 import numpy as np
 import chess
 
-# Picking Moves
-
 def check_mate_single(board: Board):
     board = board.copy()
     legal_moves = list(board.legal_moves)
