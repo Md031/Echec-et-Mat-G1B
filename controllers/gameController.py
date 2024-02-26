@@ -319,7 +319,7 @@ class GameController :
         self.game.reset()
         self.game_displayer.set_game(self.game)
         self.game_displayer.pawn_promotion_popup.reset()
-        self.game_displayer.menu_displayer.moves_displayer.reset()
+        self.game_displayer.menu_displayer.moves_displayer.reset_state()
         
     def handle_key_pressed(self, event) -> None :
         key = event.key
