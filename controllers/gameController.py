@@ -371,11 +371,11 @@ class GameController :
                         else:  # Black player
                             self.__thread = self.handle_move_in_background(ch.BLACK, event)
                 else:
-                    self.mutex_lock.acquire()
+                    self.__mutex_lock.acquire()
                     try:
                         if self.game.active_player: # White player
                             self.handle_move(ch.WHITE, event)
                         else:  # Black player
                             self.handle_move(ch.BLACK, event)
                     finally:
-                        self.mutex_lock.release()
+                        self.__mutex_lock.release()
