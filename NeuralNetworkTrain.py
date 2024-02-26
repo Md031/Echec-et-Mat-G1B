@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from chessNet import ChessNet
-from chessDataSet import data_train_loader
+from NeuralNetwork.chessNet import ChessNet
+from NeuralNetwork.chessDataSet import data_train_loader
 
 torch.manual_seed(41)
 

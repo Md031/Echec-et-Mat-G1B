@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
-from NeuralNetworkUtils import *
+from NeuralNetwork.NeuralNetworkUtils import *
 
 class module(nn.Module):
     def __init__(self, hidden_size):
