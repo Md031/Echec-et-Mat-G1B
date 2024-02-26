@@ -1,6 +1,6 @@
 import torch
 from chess import Board
-from NeuralNetwork.NeuralNetworkUtils import board_2_rep, letter_2_num
+from NeuralNetworkUtils import board_2_rep, letter_2_num
 import numpy as np
 import chess
 
