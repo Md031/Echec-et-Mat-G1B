@@ -7,6 +7,8 @@ import views.tile as tl
 import models.game as gm
 import models.Ia as ia
 import views.text as txt
+import threading
+import time
 
 class GameController :
     def __init__(self, window, playerWhite, playerBlack) -> None:
@@ -27,6 +29,7 @@ class GameController :
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
         self.__last_two_moves = [None, None]
         self.__iaType = ["Minimax", "Random", "Neural Network"]
+        self.__thread = None
 
     @property
     def game(self) -> gm.Game : return self.__game
@@ -189,13 +192,11 @@ class GameController :
             case dt.MoveType.EN_PASSANT : self.play_en_passant()
             case dt.MoveType.PROMOTION : self.play_promotion()
         txt = ""
-        if self.game.active_player and \
-        (type(self.playerWhite) == ia.Minimax or type(self.playerWhite) == ia.Random or type(self.playerWhite) == ia.NeuronalNetwork):  # joueur blanc == ia
+        if self.game.active_player and (isinstance(self.playerWhite, ia.Ai)):  # joueur blanc == ia
             txt = f'{self.move.movement} by {self.playerWhite.type_ia()} in {self.playerWhite.get_timer()} seconds' 
             if type(self.playerWhite) == ia.Minimax:
                 txt += f', {self.playerWhite.nodes_expanded} nodes expanded.'
-        elif not self.game.active_player and \
-        (type(self.playerBlack) == ia.Minimax or type(self.playerBlack) == ia.Random or type(self.playerBlack) == ia.NeuronalNetwork):  # joueur noir == ia
+        elif not self.game.active_player and isinstance(self.playerBlack, ia.Ai):  # joueur noir == ia
             txt = f'{self.move.movement} by {self.playerBlack.type_ia()} in {self.playerBlack.get_timer()} seconds' 
             if type(self.playerBlack) == ia.Minimax:
                 txt += f', {self.playerBlack.nodes_expanded} nodes expanded.'
@@ -341,22 +342,35 @@ class GameController :
                 case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
                 case pg.KEYDOWN : self.handle_key_pressed(event)
         else:
-            # time.sleep(2) # Pour pas que les moves s'enchainent trop vite (si AI vs AI)
             if color == ch.WHITE:
                 move = self.playerWhite.move()
             else:
                 move = self.playerBlack.move()
+            #time.sleep(0.1) # Pour pas que les moves s'enchainent trop vite (si AI vs AI)
+            self.__start_tile = None
             self.set_move(move)
             self.play_move()
             self.game.next_round
+        
+            
+    def handle_move_in_background(self, color: ch.Color, event):
+        thread = threading.Thread(target=self.handle_move, args=(color, event))
+        thread.start()
+        return thread
 
     def handle(self, event) -> None :
         if self.game.state not in [dt.State.CHECKMATE, dt.State.STALEMATE] :
             if self.game_displayer.pawn_promotion_popup.is_active :  # when the popup of the promotion is active
                 self.handle_pawn_promotion(event)
             else :
-                if self.game.active_player : # White player
-                    self.handle_move(ch.WHITE, event)
-                else:  # Black player
-                    self.handle_move(ch.BLACK, event)
-
+                if self.game.active_player and isinstance(self.playerWhite, ia.Ai) or not self.game.active_player and isinstance(self.playerBlack, ia.Ai): # To know if an AI is playing
+                    if self.__thread is None or not self.__thread.is_alive():
+                        if self.game.active_player : # White player
+                            self.__thread = self.handle_move_in_background(ch.WHITE, event)
+                        else:  # Black player
+                            self.__thread = self.handle_move_in_background(ch.BLACK, event)
+                else:
+                    if self.game.active_player : # White player
+                        self.handle_move(ch.WHITE, event)
+                    else:  # Black player
+                        self.handle_move(ch.BLACK, event)

@@ -147,5 +147,9 @@ class NeuronalNetwork(Ai):
     def type_ia(self) -> str: return "Neural Network"
 
     def move(self):
+        start_time = time.time()
         move = choose_move(self.game.board, self.color, self.model)
+        end_time = time.time()
+        self.timer = end_time - start_time
+        #print(self.timer)
         return move
