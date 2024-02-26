@@ -350,15 +350,14 @@ class GameController :
                 move = self.playerBlack.move()
             #time.sleep(0.1) # Pour pas que les moves s'enchainent trop vite (si AI vs AI)
             self.__start_tile = None
-            self.set_move(move)
             self.__mutex_display.acquire()
             try:
+                self.set_move(move)
                 self.play_move()
             finally:
                 self.__mutex_display.release()
             self.game.next_round
         
-            
     def handle_move_in_background(self, color: ch.Color, event):
         thread = threading.Thread(target=self.handle_move, args=(color, event))
         thread.start()
@@ -376,11 +375,11 @@ class GameController :
                         else:  # Black player
                             self.__thread = self.handle_move_in_background(ch.BLACK, event)
                 else:
-                    self.__mutex_move.acquire()
-                    try:
-                        if self.game.active_player: # White player
-                            self.handle_move(ch.WHITE, event)
-                        else:  # Black player
-                            self.handle_move(ch.BLACK, event)
-                    finally:
-                        self.__mutex_move.release()
+                    # self.__mutex_move.acquire()
+                    # try:
+                    if self.game.active_player: # White player
+                        self.handle_move(ch.WHITE, event)
+                    else:  # Black player
+                        self.handle_move(ch.BLACK, event)
+                    # finally:
+                        # self.__mutex_move.release()
