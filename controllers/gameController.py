@@ -180,7 +180,7 @@ class GameController :
         piece_captured_pos : tuple[int] = (self.start_tile.grid_x, 
             self.start_tile.grid_y + self.move.direction[1])
         tile : tl.Tile = self.game_displayer.get_tile(piece_captured_pos)
-        # tile.set_piece(None)
+        tile.set_piece(None)
 
     def play_promotion(self) -> None :
         piece : ch.Piece = ch.Piece(self.move.movement.promotion, 
