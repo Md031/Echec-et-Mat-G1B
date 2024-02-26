@@ -30,7 +30,8 @@ class GameController :
         self.__last_two_moves = [None, None]
         self.__iaType = ["Minimax", "Random", "Neural Network"]
         self.__thread = None
-        self.__mutex_lock = threading.Lock()
+        self.__mutex_move = threading.Lock()
+        self.__mutex_display = threading.Lock()
 
     @property
     def game(self) -> gm.Game : return self.__game
@@ -350,7 +351,11 @@ class GameController :
             #time.sleep(0.1) # Pour pas que les moves s'enchainent trop vite (si AI vs AI)
             self.__start_tile = None
             self.set_move(move)
-            self.play_move()
+            self.__mutex_display.acquire()
+            try:
+                self.play_move()
+            finally:
+                self.__mutex_display.release()
             self.game.next_round
         
             
@@ -371,11 +376,11 @@ class GameController :
                         else:  # Black player
                             self.__thread = self.handle_move_in_background(ch.BLACK, event)
                 else:
-                    self.__mutex_lock.acquire()
+                    self.__mutex_move.acquire()
                     try:
                         if self.game.active_player: # White player
                             self.handle_move(ch.WHITE, event)
                         else:  # Black player
                             self.handle_move(ch.BLACK, event)
                     finally:
-                        self.__mutex_lock.release()
+                        self.__mutex_move.release()
