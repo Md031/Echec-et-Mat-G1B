@@ -30,6 +30,7 @@ class GameController :
         self.__last_two_moves = [None, None]
         self.__iaType = ["Minimax", "Random", "Neural Network"]
         self.__thread = None
+        self.__mutex_lock = threading.Lock()
 
     @property
     def game(self) -> gm.Game : return self.__game
@@ -341,7 +342,7 @@ class GameController :
                 case pg.MOUSEMOTION : self.handle_mouse_motion(event)
                 case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
                 case pg.KEYDOWN : self.handle_key_pressed(event)
-        else:
+        else:  # Ai is playing
             if color == ch.WHITE:
                 move = self.playerWhite.move()
             else:
@@ -370,7 +371,11 @@ class GameController :
                         else:  # Black player
                             self.__thread = self.handle_move_in_background(ch.BLACK, event)
                 else:
-                    if self.game.active_player : # White player
-                        self.handle_move(ch.WHITE, event)
-                    else:  # Black player
-                        self.handle_move(ch.BLACK, event)
+                    self.mutex_lock.acquire()
+                    try:
+                        if self.game.active_player: # White player
+                            self.handle_move(ch.WHITE, event)
+                        else:  # Black player
+                            self.handle_move(ch.BLACK, event)
+                    finally:
+                        self.mutex_lock.release()

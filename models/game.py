@@ -38,7 +38,6 @@ class Game :
     @property
     def fen(self) -> str : self.board.fen
 
-
     # other functions 
     def update_state(self) -> None :
         # we check if the state of the game is blocking in any way
