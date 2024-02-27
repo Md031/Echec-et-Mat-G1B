@@ -1,4 +1,4 @@
-from NeuralNetworkUtils import board_2_rep, create_move_list, move_2_rep
+from NeuralNetwork.NeuralNetworkUtils import board_2_rep, create_move_list, move_2_rep
 import chess
 from torch.utils.data import Dataset, DataLoader
 import gc

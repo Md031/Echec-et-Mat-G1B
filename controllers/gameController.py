@@ -204,13 +204,10 @@ class GameController :
                 txt += f', {self.playerBlack.nodes_expanded} nodes expanded.'
         elif self.game.active_player:  # humain vs humain
             txt = f'{self.move.movement} by White'
-            txt += "                     " # pour effacer la partie du texte qui reste inchangée (pas la bonne manière de faire, à remplacer sûrement)
         else:
             txt = f'{self.move.movement} by Black'
-            txt += "                     "  # pour effacer la partie du texte qui reste inchangée
 
         self.game_displayer.menu_displayer.moves_displayer.add_text(txt)
-            # self.game_displayer.menu_displayer.moves_displayer.l_texts[0].draw_background(pg.display.set_mode(dt.Utils.DEFAULT_WINDOW_WIDTH, dt.Utils.DEFAULT_WINDOW_HEIGHT))
         self.game.push_move(self.move.movement)
 
     def revert_promotion(self) -> None :

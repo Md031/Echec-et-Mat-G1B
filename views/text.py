@@ -4,13 +4,16 @@ import views.widget as wdgt
 
 class Text(wdgt.Widget) :
     def __init__(self, position : tuple[int], text : str, font : pg.font.Font, 
-    color : pg.Color = dt.Colors.BLACK, bg_color : pg.Color = None) :
+    color : pg.Color = dt.Colors.BLACK, bg_color : pg.Color = None, moves_history = False) :
         super().__init__(position, "Text")
         self.__color : pg.Color = [color, None]
         self.__bg_color : pg.Color = [bg_color, None]
         self.__text : str = text
         self.__font : pg.font.Font = font
+        self.background_rect = pg.Rect(position[0], position[1], 400, 20)
         self.__text_renderer : pg.Surface = font.render(text, True, self.__color[0], self.__bg_color[0])
+        self.moves_history = moves_history
+
 
     @property
     def text(self) -> str : return self.__text
@@ -23,6 +26,9 @@ class Text(wdgt.Widget) :
 
     @property
     def font(self) -> pg.font.Font : return self.__font
+
+    def draw_text_background(self, screen) -> None:
+        pg.draw.rect(screen, dt.Colors.BG_COLOR, self.background_rect)
 
     @property
     def text_renderer(self) -> pg.Surface : return self.__text_renderer
@@ -38,7 +44,8 @@ class Text(wdgt.Widget) :
     def reset(self) -> None :
         self.__color = [self.__color[0], None]  
         self.__bg_color = [dt.Colors.BG_COLOR, None]
-        self.__text_renderer = self.font.render(self.text, True, self.color[0], self.bg_color[0])
+        self.background_rect = pg.Rect(self.position[0], self.position[1], 400, 20)
+
 
     def set_txt(self, new_txt : str) -> None:
         self.__text = new_txt
@@ -48,7 +55,10 @@ class Text(wdgt.Widget) :
         self.set_position(new_coord)
         self.__text_renderer = self.font.render(self.text, True, self.color, self.bg_color)
 
-    def display(self, window) -> None : window.screen.blit(self.__text_renderer, self.position)
+    def display(self, window) -> None : 
+        if self.moves_history:
+            self.draw_text_background(window.screen)
+        window.screen.blit(self.__text_renderer, self.position)
 
     def __str__(self) -> str : return f"{self.name}({self.text}, {self.position})"
 
