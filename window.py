@@ -41,11 +41,14 @@ class Window() :
         self.__clock.tick(60)
 
     def handle_event(self) -> None :
-        for event in pg.event.get() :
-            if event.type == pg.QUIT :
-                pg.quit()
-                exit()
-            self.game_controller.handle(event)
+        if len(pg.event.get()) == 0:  # the ai is playing
+            self.game_controller.handle(pg.event.get())
+        else:
+            for event in pg.event.get() :
+                if event.type == pg.QUIT :
+                    pg.quit()
+                    exit()
+                self.game_controller.handle(event)
 
     def main_loop(self) -> None :
         running = True
