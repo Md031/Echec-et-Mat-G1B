@@ -49,6 +49,17 @@ class Window() :
                     pg.quit()
                     exit()
 
+        # print("events : ", pg.event.get())
+        # if len(pg.event.get()) == 0:  # the ai is playing
+        #     self.game_controller.handle(pg.event.get())
+        # else:
+        #     for event in pg.event.get() :
+        #         # print("event Type: ", event.type)
+        #         if event.type == pg.QUIT :
+        #             # print("je clique sur fermer")
+        #             pg.quit()
+        #             exit()
+        #         self.game_controller.handle(event)
 
     def main_loop(self) -> None :
         running = True

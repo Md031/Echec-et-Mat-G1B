@@ -336,10 +336,11 @@ class GameController :
 
     def handle_move(self, color: ch.Color, event):
         if (self.playerBlack == None and color == ch.BLACK) or (self.playerWhite == None and color == ch.WHITE): # Human player
-            match event.type :
-                case pg.MOUSEMOTION : self.handle_mouse_motion(event)
-                case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(event)
-                case pg.KEYDOWN : self.handle_key_pressed(event)
+            for e in event:
+                match e.type :
+                    case pg.MOUSEMOTION : self.handle_mouse_motion(e)
+                    case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(e)
+                    case pg.KEYDOWN : self.handle_key_pressed(e)
         else:  # Ai is playing
             if color == ch.WHITE:
                 move = self.playerWhite.move()
