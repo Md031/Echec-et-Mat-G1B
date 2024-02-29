@@ -42,10 +42,10 @@ class Game :
     # other functions 
     def update_state(self) -> None :
         # we check if the state of the game is blocking in any way
-        if self.board.is_check() : return dt.State.CHECK
-        elif self.board.is_checkmate() : return dt.State.CHECKMATE
-        if self.board.is_stalemate() : return dt.State.STALEMATE
-        if self.board.is_variant_draw() : return dt.State.DRAW
+        if self.board.is_check() : self.__state = dt.State.CHECK
+        elif self.board.is_checkmate() : self.__state = dt.State.CHECKMATE
+        if self.board.is_stalemate() : self.__state = dt.State.STALEMATE
+        if self.board.can_claim_draw() : self.__state = dt.State.DRAW
         # if everything is ok we update the player actions
         self.__active_player_actions = self.board.legal_moves
 

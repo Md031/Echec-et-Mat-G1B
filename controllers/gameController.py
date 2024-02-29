@@ -371,10 +371,11 @@ class GameController :
     def handle_move_in_background(self, color: ch.Color, event):
         thread = threading.Thread(target=self.handle_move, args=(color, event))
         thread.start()
+        thread.join()
         return thread
 
     def handle(self, event) -> None :
-        if self.game.state not in [dt.State.CHECKMATE, dt.State.STALEMATE] :
+        if self.game.state not in [dt.State.CHECKMATE, dt.State.STALEMATE, dt.State.DRAW] :
             if self.game_displayer.pawn_promotion_popup.is_active :  # when the popup of the promotion is active
                 self.handle_pawn_promotion(event)
             else :
@@ -393,3 +394,5 @@ class GameController :
                         self.handle_move(ch.BLACK, event)
                     # finally:
                         # self.__mutex_move.release()
+        else:  # add buton to replay the game + end game popup
+            print("fin de partie")
