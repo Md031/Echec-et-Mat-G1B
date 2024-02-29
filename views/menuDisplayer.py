@@ -6,7 +6,7 @@ import pygame as pg
 
 class MenuDisplayer :
     def __init__(self) -> None:
-        self.reset_button_displayer = resetBD.ResetButtonDisplayer((810, 560), "REPLAY" , pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 50), dt.Colors.WHITE, dt.Colors.BROWN)
+        self.reset_button_displayer = resetBD.ResetButtonDisplayer((810, 560), "RESET" , pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 50), dt.Colors.WHITE, dt.Colors.BROWN)
         self.take_back_move = tkb.TakeBackMove((660, 20))
         self.moves_displayer = TextDisplayer("Moves played : ", (660, 50))
         self.background_rect = pg.Rect(660, 60, 430, 500)

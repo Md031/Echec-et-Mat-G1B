@@ -288,23 +288,25 @@ class GameController :
                         pawn_promotion_popup.reset() 
 
     def handle_pawn_promotion(self, event) -> None :
-        match event.type :
-            case pg.MOUSEMOTION : self.handle_popup_mouse_motion(event)
-            case pg.MOUSEBUTTONDOWN : self.handle_popup_mouse_click(event)
+        for e in event:
+            match e.type :
+                case pg.MOUSEMOTION : self.handle_popup_mouse_motion(e)
+                case pg.MOUSEBUTTONDOWN : self.handle_popup_mouse_click(e)
 
     def handle_mouse_motion(self, event) -> None :
         mouse_pos : tuple[int] = event.pos
         for tile in self.game_displayer.board_displayer :
             tile.set_visited(True) if mouse_pos in tile else tile.set_visited(False)
 
-    def handle_mouse_click(self, event) -> None :
+    def handle_mouse_click(self, event, ia) -> None :
         mouse_pos : tuple[int] = event.pos
-        if mouse_pos in self.game_displayer.board_displayer :
-            self.handle_tile_selection(mouse_pos)
-        elif mouse_pos in self.game_displayer.menu_displayer.reset_button_displayer :
+        if not ia:
+            if mouse_pos in self.game_displayer.board_displayer :
+                self.handle_tile_selection(mouse_pos)
+        if mouse_pos in self.game_displayer.menu_displayer.reset_button_displayer :
             self.handle_reset_button_pressed()
-        elif mouse_pos in self.game_displayer.menu_displayer.take_back_move :
-            self.handle_take_back_move_pressed()
+        if mouse_pos in self.game_displayer.menu_displayer.take_back_move :
+                self.handle_take_back_move_pressed()
 
     def handle_take_back_move_pressed(self):
         if len(self.game.moves) > 0 :  # you must have done at least one move
@@ -334,14 +336,22 @@ class GameController :
             self.game_displayer.set_game(self.game)
             self.game_displayer.pawn_promotion_popup.reset()
 
-    def handle_move(self, color: ch.Color, event):
-        if (self.playerBlack == None and color == ch.BLACK) or (self.playerWhite == None and color == ch.WHITE): # Human player
-            for e in event:
+    def event_cases(self, event, ia) :
+        for e in event:
+            if ia:
+                match e.type :
+                    case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(e, True)
+            else:
                 match e.type :
                     case pg.MOUSEMOTION : self.handle_mouse_motion(e)
-                    case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(e)
+                    case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(e, False)
                     case pg.KEYDOWN : self.handle_key_pressed(e)
+
+    def handle_move(self, color: ch.Color, event):
+        if (self.playerBlack == None and color == ch.BLACK) or (self.playerWhite == None and color == ch.WHITE): # Human player
+            self.event_cases(event, False)
         else:  # Ai is playing
+            self.event_cases(event, True)
             if color == ch.WHITE:
                 move = self.playerWhite.move()
             else:
@@ -355,6 +365,8 @@ class GameController :
             finally:
                 self.__mutex_display.release()
             self.game.next_round
+            
+
         
     def handle_move_in_background(self, color: ch.Color, event):
         thread = threading.Thread(target=self.handle_move, args=(color, event))
