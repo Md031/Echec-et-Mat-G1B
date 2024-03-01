@@ -33,7 +33,7 @@ class Game :
 
     @property
     def is_over(self) -> bool :
-        return self.state == dt.State.CHECKMATE or self.state == dt.State.STALEMATE
+        return self.state == dt.State.CHECKMATE or self.state == dt.State.STALEMATE or self.state == dt.State.DRAW
 
     @property
     def fen(self) -> str : self.board.fen
@@ -45,7 +45,7 @@ class Game :
         if self.board.is_check() : self.__state = dt.State.CHECK
         elif self.board.is_checkmate() : self.__state = dt.State.CHECKMATE
         if self.board.is_stalemate() : self.__state = dt.State.STALEMATE
-        if self.board.can_claim_draw() : self.__state = dt.State.DRAW
+        if self.board.is_variant_draw() : self.__state = dt.State.DRAW
         # if everything is ok we update the player actions
         self.__active_player_actions = self.board.legal_moves
 

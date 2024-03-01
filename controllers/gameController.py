@@ -33,6 +33,8 @@ class GameController :
         self.__mutex_move = threading.Lock()
         self.__mutex_display = threading.Lock()
 
+        self.__ai_thread = [None, None]  # 0 = whites, 1 = blacks
+
     @property
     def game(self) -> gm.Game : return self.__game
 
@@ -133,7 +135,7 @@ class GameController :
         else:
             self.__start_tile = None
 
-    def set_move_dest_pos(self, tile) -> ch.Move :
+    def set_move_dest_pos(self, tile : tl.Tile) -> ch.Move :
         self.update_available_moves(self.start_tile, is_choice = False)
         uci : str = (self.start_tile.chess_position + tile.chess_position)
         return ch.Move.from_uci(uci)
@@ -367,32 +369,82 @@ class GameController :
             self.game.next_round
             
 
-        
-    def handle_move_in_background(self, color: ch.Color, event):
-        thread = threading.Thread(target=self.handle_move, args=(color, event))
-        thread.start()
-        thread.join()
-        return thread
+    def is_active_player_ai(self) -> bool:
+        if self.game.active_player: 
+            return isinstance(self.playerWhite, ia.Ai)  # check if the whites are played by an ai
+        return isinstance(self.playerBlack, ia.Ai)  # check if the blacks are played by an ai
 
     def handle(self, event) -> None :
-        if self.game.state not in [dt.State.CHECKMATE, dt.State.STALEMATE, dt.State.DRAW] :
+        if not self.game.is_over:
             if self.game_displayer.pawn_promotion_popup.is_active :  # when the popup of the promotion is active
                 self.handle_pawn_promotion(event)
-            else :
-                if self.game.active_player and isinstance(self.playerWhite, ia.Ai) or not self.game.active_player and isinstance(self.playerBlack, ia.Ai): # To know if an AI is playing
-                    if self.__thread is None or not self.__thread.is_alive():
-                        if self.game.active_player : # White player
-                            self.__thread = self.handle_move_in_background(ch.WHITE, event)
-                        else:  # Black player
-                            self.__thread = self.handle_move_in_background(ch.BLACK, event)
-                else:
-                    # self.__mutex_move.acquire()
-                    # try:
-                    if self.game.active_player: # White player
-                        self.handle_move(ch.WHITE, event)
-                    else:  # Black player
-                        self.handle_move(ch.BLACK, event)
-                    # finally:
-                        # self.__mutex_move.release()
-        else:  # add buton to replay the game + end game popup
-            print("fin de partie")
+            else:
+                if self.game.active_player:  # the whites are playing
+                    if self.is_active_player_ai():  # ai turn
+                        self.play_ai_move(event)
+                    else:  # human turn
+                        self.play_human_move(event)
+                else:  # the blacks are playing
+                    if self.is_active_player_ai():  # ai turn
+                        self.play_ai_move(event)
+                    else:  # human turn
+                        self.play_human_move(event)
+        else:  # add buton to replay the game
+            print("the game is over")
+
+    def play_ai_move(self, event) -> None:
+        for e in event:  # if when an ai is playing we want to close or reset the game
+            match e.type :
+                case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(e, True)
+        move = None
+        if self.game.active_player:
+            move = self.playerWhite.move()
+        else:
+            move = self.playerBlack.move()
+        self.__start_tile = None
+        self.__mutex_display.acquire()
+        try:  # to synchronise the threads
+            self.set_move(move)
+            self.play_move()
+        finally:
+            self.__mutex_display.release()
+        self.game.next_round
+
+    def play_human_move(self, event) -> None:
+        for e in event:
+            match e.type :
+                case pg.MOUSEMOTION : self.handle_mouse_motion(e)
+                case pg.MOUSEBUTTONDOWN : self.handle_mouse_click(e, False)
+                case pg.KEYDOWN : self.handle_key_pressed(e)
+                
+    def handle_move_in_background(self, color: ch.Color, event):
+        thread = threading.Thread(target=self.handle_move, args=(color, event))
+        print("DANS CREATION THREAD")
+        thread.start()
+        return thread
+
+    # def handle(self, event) -> None :
+    #     if self.game.state not in [dt.State.CHECKMATE, dt.State.STALEMATE, dt.State.DRAW] :
+    #         if self.game_displayer.pawn_promotion_popup.is_active :  # when the popup of the promotion is active
+    #             self.handle_pawn_promotion(event)
+    #         else :
+    #             if self.game.active_player and isinstance(self.playerWhite, ia.Ai) or not self.game.active_player and isinstance(self.playerBlack, ia.Ai): # To know if an AI is playing
+    #                 print("thread : ", self.__thread)
+    #                 if self.__thread is None or not self.__thread.is_alive():
+    #                     if self.game.active_player : # White player
+    #                         print("dans thread blanc")
+    #                         self.__thread = self.handle_move_in_background(ch.WHITE, event)
+    #                     else:  # Black player
+    #                         print("dans thread noir")
+    #                         self.__thread = self.handle_move_in_background(ch.BLACK, event)
+    #             else:
+    #                 # self.__mutex_move.acquire()
+    #                 # try:
+    #                 if self.game.active_player: # White player
+    #                     self.handle_move(ch.WHITE, event)
+    #                 else:  # Black player
+    #                     self.handle_move(ch.BLACK, event)
+    #                 # finally:
+    #                     # self.__mutex_move.release()
+    #     else:  # add buton to replay the game + end game popup
+    #         print("fin de partie")

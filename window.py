@@ -2,6 +2,7 @@ import pygame as pg
 import views.gameDisplayer as gd
 import controllers.gameController as ctrl
 import data as dt
+import threading
 
 class Window() :
     def __init__(self, size : tuple[int], playerWhite, playerBlack) -> None :
@@ -14,6 +15,10 @@ class Window() :
         self.__game_controller : ctrl.GameController = ctrl.GameController(self, playerWhite, playerBlack)
         self.__clock : pg.time.Clock = pg.time.Clock()
         pg.display.set_caption("pyChess")
+        self.__threads_ai = [None, None]
+        self.__threads_ai[0] = threading.Thread(target=self.main_loop)
+        self.__threads_ai[1] = threading.Thread(target=self.main_loop)
+        self.__mutex_move = threading.Lock()
 
     ###########
     # GETTERS #
@@ -51,10 +56,22 @@ class Window() :
 
     def main_loop(self) -> None :
         running = True
+        # self.__threads_ai[0] = threading.Thread(target=self.handle_move, args=(color, event))
+        # self.__threads_ai[1] = threading.Thread(target=self.handle_move, args=(color, event))
         while running :
-            pg.display.update()
-            self.display()
-            # if self.game_controller.is_in_animation :
-            #     self.game_controller.update()
-            # else :
-            self.handle_event()
+            self.__mutex_move.acquire()
+            try:  # to synchronise the threads
+                pg.display.update()
+                self.display()
+                self.handle_event()
+            finally:
+                self.__mutex_move.release()
+
+                
+            # pg.display.update()
+            # self.display()
+            # # if self.game_controller.is_in_animation :
+            # #     self.game_controller.update()
+            # # else :
+            # self.handle_event()
+
