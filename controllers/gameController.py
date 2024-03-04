@@ -191,21 +191,37 @@ class GameController :
             case dt.MoveType.EN_PASSANT : self.play_en_passant()
             case dt.MoveType.PROMOTION : self.play_promotion()
         txt = ""
+        color = dt.Colors.BLACK
         if self.game.active_player and (isinstance(self.playerWhite, ia.Ai)):  # joueur blanc == ia
-            txt = f'{self.move.movement} by {self.playerWhite.type_ia()} in {self.playerWhite.get_timer()} seconds' 
+            txt = f'{self.move.movement} by {self.playerWhite.type_ia()} in {self.playerWhite.get_timer()} seconds'
+            color = dt.Colors.BROWN
             if type(self.playerWhite) == ia.Minimax:
+                self.game_displayer.menu_displayer.moves_displayer.add_text("Minimax is thinking...", color)
                 txt += f', {self.playerWhite.nodes_expanded} nodes expanded.'
+            else :
+                self.game_displayer.menu_displayer.moves_displayer.add_text(txt, color)
+    
         elif not self.game.active_player and isinstance(self.playerBlack, ia.Ai):  # joueur noir == ia
             txt = f'{self.move.movement} by {self.playerBlack.type_ia()} in {self.playerBlack.get_timer()} seconds' 
             if type(self.playerBlack) == ia.Minimax:
+                self.game_displayer.menu_displayer.moves_displayer.add_text("Minimax is thinking...", color)
                 txt += f', {self.playerBlack.nodes_expanded} nodes expanded.'
+            else :
+                self.game_displayer.menu_displayer.moves_displayer.add_text(txt, color)
         elif self.game.active_player:  # humain vs humain
             txt = f'{self.move.movement} by White'
+            color = dt.Colors.BROWN
+            self.game_displayer.menu_displayer.moves_displayer.add_text(txt, color)
+
         else:
             txt = f'{self.move.movement} by Black'
+            self.game_displayer.menu_displayer.moves_displayer.add_text(txt, color)
 
-        self.game_displayer.menu_displayer.moves_displayer.add_text(txt)
+
+        # self.game_displayer.menu_displayer.moves_displayer.add_text("Minimax is thinking...", color)
+        # time.sleep(0.5)
         self.game.push_move(self.move.movement)
+        self.game_displayer.menu_displayer.moves_displayer.change_text(txt)
 
     def revert_promotion(self) -> None :
         piece : ch.Piece = ch.Piece(ch.PAWN, self.game.active_player)

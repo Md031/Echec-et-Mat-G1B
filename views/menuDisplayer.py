@@ -28,16 +28,16 @@ class TextDisplayer(MenuDisplayer):
         self.l_texts = [txt.Text(position, text , pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18), dt.Colors.BLACK, dt.Colors.BG_COLOR)]
 
     def change_text(self, new_text : str) -> None :
-        self.l_texts[0].set_txt(new_text)
+        self.l_texts[-1].set_txt(new_text)
 
     def resize(self) -> None :
         for i in range(1,len(self.l_texts)) :
             self.l_texts[i].set_position((660, 50 + 20 * i))
             self.l_texts[i].reset()
     
-    def add_text(self, text) -> None :
+    def add_text(self, text, color) -> None :
         pos = self.get_position()
-        new_text = txt.Text((pos[0], pos[1] + 20), text, pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18), dt.Colors.BLACK, dt.Colors.BG_COLOR, True)
+        new_text = txt.Text((pos[0], pos[1] + 20), text, pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18), color, dt.Colors.BG_COLOR, True)
         self.l_texts.append(new_text)
         if (self.get_position()[1] > 500):  # si on dépasse pas la zone propre à l'historique de move
             self.l_texts.pop(1)

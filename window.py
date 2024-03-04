@@ -18,6 +18,7 @@ class Window():
         self.__thread_run = True
         self.__threads_ai = [threading.Thread(target=self.handle_event_thread, args=[0]), threading.Thread(target=self.handle_event_thread, args=[1])]
         self.__mutex_move = threading.Lock()
+        self.__mutex_event = threading.Lock()
         self.__threads_ai[0].start()
         self.__threads_ai[1].start()
 
@@ -53,7 +54,12 @@ class Window():
 
     def handle_event(self) -> None:
         event = pg.event.get()
-        res = self.game_controller.handle(event)
+        res = 0
+        self.__mutex_event.acquire()
+        try:
+            res = self.game_controller.handle(event)
+        finally:
+            self.__mutex_event.release()
         if res == 1:
             self.__thread_run = False
         if len(event) != 0:
@@ -69,7 +75,6 @@ class Window():
                 self.handle_event()
             finally:
                 self.__mutex_move.release()
-        self.__mutex_move.release()
 
     def main_loop(self) -> None:
         running = True
