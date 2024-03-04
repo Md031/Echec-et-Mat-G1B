@@ -28,7 +28,6 @@ class GameController :
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
         self.__last_two_moves = [None, None]
         self.__iaType = ["Minimax", "Random", "Neural Network"]
-        self.__mutex_move = threading.Lock()
 
     @property
     def game(self) -> gm.Game : return self.__game
@@ -112,7 +111,7 @@ class GameController :
         if not undo :
             dest_tile.set_piece(start_tile.piece_displayer)
             start_tile.set_piece(None)
-        else :
+        else:
             piece_captured_type : int = self.game.board.piece_at(self.move.movement.to_square)
             start_tile.set_piece(dest_tile.piece_displayer)
             dest_tile.set_piece(None)
@@ -365,12 +364,8 @@ class GameController :
         else:
             move = self.playerBlack.move()
         self.__start_tile = None
-        self.__mutex_move.acquire()
-        try:  # to synchronise the threads
-            self.set_move(move)
-            self.play_move()
-        finally:
-            self.__mutex_move.release()
+        self.set_move(move)
+        self.play_move()
         self.game.next_round
 
     def play_human_move(self, event) -> None:
@@ -387,6 +382,7 @@ class GameController :
                 self.handle_pawn_promotion(event)
             else:
                 if self.game.active_player:  # the whites are playing
+                    print("nb actions : ", len(list(self.game.active_player_actions)), " state : ", self.game.state)
                     if self.is_active_player_ai():  # ai turn
                         self.play_ai_move(event)
                     else:  # human turn
@@ -397,5 +393,5 @@ class GameController :
                     else:  # human turn
                         self.play_human_move(event)
         else:  # add buton to replay the game
-            print("the game is over")
+            print("nb actions : ", len(list(self.game.active_player_actions)), " state : ", self.game.state)
             return 1

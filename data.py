@@ -43,11 +43,11 @@ class ButtonType :
     NO_ANIMATION : int  = 2
 
 class MoveType :
-    DEFAULT : int = 0
-    DROP : int = 1
-    PROMOTION : int = 2
-    CASTLING : int = 3
-    EN_PASSANT : int = 4
+    DEFAULT : int = 5
+    DROP : int = 6
+    PROMOTION : int = 7
+    CASTLING : int = 8
+    EN_PASSANT : int = 9
 
 class Move :
     movement : ch.Move = None

@@ -11,11 +11,12 @@ class Window():
         pg.display.set_icon(icon)
         self.__font: pg.font.Font = pg.font.Font("font/sh-pinscher/SHPinscher-Regular.otf", 18)
         self.__screen.fill((dt.Colors.BG_COLOR))
-        self.__game_dislayer: gd.GameDisplayer = gd.GameDisplayer(self.font)
+        self.__game_displayer: gd.GameDisplayer = gd.GameDisplayer(self.font)
         self.__game_controller: ctrl.GameController = ctrl.GameController(self, playerWhite, playerBlack)
         self.__clock: pg.time.Clock = pg.time.Clock()
         pg.display.set_caption("pyChess")
         self.__thread_run = True
+        self.__cmpt = 0
         self.__threads_ai = [threading.Thread(target=self.handle_event_thread, args=[0]), threading.Thread(target=self.handle_event_thread, args=[1])]
         self.__mutex_move = threading.Lock()
         self.__mutex_event = threading.Lock()
@@ -35,7 +36,7 @@ class Window():
 
     @property
     def game_displayer(self) -> gd.GameDisplayer:
-        return self.__game_dislayer
+        return self.__game_displayer
 
     @property
     def game_controller(self) -> ctrl.GameController:
@@ -75,6 +76,13 @@ class Window():
                 self.handle_event()
             finally:
                 self.__mutex_move.release()
+        self.__mutex_move.acquire()
+        try:
+            self.__cmpt += 1
+        finally:
+            self.__mutex_move.release()
+        if self.__cmpt == 1:
+            self.game_displayer.menu_displayer.moves_displayer.add_text("The game is over, you can replay by pressing the reset button.", dt.Colors.RED)
 
     def main_loop(self) -> None:
         running = True
@@ -82,3 +90,7 @@ class Window():
             pg.display.update()
             self.display()
             pg.event.pump()
+        # last update for when the game is over
+        pg.display.update()
+        self.display()
+        pg.event.pump()
