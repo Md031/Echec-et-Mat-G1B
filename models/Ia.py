@@ -27,6 +27,9 @@ class Ai:   #Interface class
 	def type_ia(self) -> str:
 		return 0
 
+	def get_txt(self) -> str:
+		return 0
+
 class Random(Ai):
 	def __init__(self, color, game = None, timer = 0.0):
 		super().__init__(color, game, timer)
@@ -39,6 +42,9 @@ class Random(Ai):
 		return move
 
 	def type_ia(self) -> str: return "Random"
+
+	def get_txt(self) -> str:
+		return f'by Random in {self.get_timer()} seconds.'
 	
 class Minimax(Ai):
 	def __init__(self, color, game = None, timer = 0.0):
@@ -125,31 +131,35 @@ class Minimax(Ai):
 	
 	@property
 	def nodes_expanded(self) -> int : return self.__nodes_expanded
+
+	def get_txt(self) -> str:
+		return f'by Minimax in {self.get_timer()} seconds, {self.nodes_expanded} nodes expanded.'
 	
 class NeuronalNetwork(Ai):
-    def __init__(self, color, ModelPath="NeuralNetwork/ChessModel.pt", game = None):
-        super().__init__(color, game)
-        self.model = ChessNet()
+	def __init__(self, color, ModelPath="NeuralNetwork/ChessModel.pt", game = None):
+		super().__init__(color, game)
+		self.model = ChessNet()
 
-        # Checks if the a GPU is available
-        if torch.cuda.is_available():
-            print("Cuda is available")
-            device = "cuda"
-            self.model.load_state_dict(torch.load(ModelPath))
-        else: # for CPU-only machines
-            print("Cuda is unavailable")
-            device = "cpu"
-            self.model.load_state_dict(torch.load(ModelPath, map_location=torch.device('cpu')))
-        
-        self.model.eval()
-        self.model.to(device)
+		# Checks if the a GPU is available
+		if torch.cuda.is_available():
+			print("Cuda is available")
+			device = "cuda"
+			self.model.load_state_dict(torch.load(ModelPath))
+		else: # for CPU-only machines
+			print("Cuda is unavailable")
+			device = "cpu"
+			self.model.load_state_dict(torch.load(ModelPath, map_location=torch.device('cpu')))
+		self.model.eval()
+		self.model.to(device)
 
-    def type_ia(self) -> str: return "Neural Network"
+	def type_ia(self) -> str: return "Neural Network"
 
-    def move(self):
-        start_time = time.time()
-        move = choose_move(self.game.board, self.color, self.model)
-        end_time = time.time()
-        self.timer = end_time - start_time
-        #print(self.timer)
-        return move
+	def move(self):
+		start_time = time.time()
+		move = choose_move(self.game.board, self.color, self.model)
+		end_time = time.time()
+		self.timer = end_time - start_time
+		return move
+
+	def get_txt(self) -> str:
+		return f'by Neural in {self.get_timer()} seconds.'

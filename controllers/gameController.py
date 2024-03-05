@@ -192,27 +192,20 @@ class GameController :
         txt = ""
         color = dt.Colors.BLACK
         if self.game.active_player:
-            if (isinstance(self.playerWhite, ia.Ai)):  # joueur blanc == ia
-                txt = f'{self.move.movement} by {self.playerWhite.type_ia()} in {self.playerWhite.get_timer()} seconds'
-                color = dt.Colors.BROWN
-                if type(self.playerWhite) == ia.Minimax:
-                    txt += f', {self.playerWhite.nodes_expanded} nodes expanded.'
+            color = dt.Colors.BROWN
+            if self.is_active_player_ai():  # ai player
+                txt = f'{self.move.movement} {self.playerWhite.get_txt()}' 
                 self.game_displayer.menu_displayer.moves_displayer.change_text(txt)
-                    
-            else: 
-                txt = f'{self.move.movement} by White'
-                color = dt.Colors.BROWN
+            else:  # human player
+                txt = f'{self.move.movement} by White' 
                 self.game_displayer.menu_displayer.moves_displayer.add_text(txt, color)
         else :
-            if isinstance(self.playerBlack, ia.Ai):  # joueur noir == ia
-                txt = f'{self.move.movement} by {self.playerBlack.type_ia()} in {self.playerBlack.get_timer()} seconds' 
-                if type(self.playerBlack) == ia.Minimax:
-                    txt += f', {self.playerBlack.nodes_expanded} nodes expanded.'
+            if self.is_active_player_ai():  # ai player
+                txt = f'{self.move.movement} {self.playerBlack.get_txt()}'
                 self.game_displayer.menu_displayer.moves_displayer.change_text(txt)
-            else :
-                txt = f'{self.move.movement} by Black'
+            else:
+                txt = txt = f'{self.move.movement} by Black'
                 self.game_displayer.menu_displayer.moves_displayer.add_text(txt, color)
-
         self.game.push_move(self.move.movement)
 
     def revert_promotion(self) -> None :
@@ -377,7 +370,6 @@ class GameController :
                 self.handle_pawn_promotion(event)
             else:
                 if self.game.active_player:  # the whites are playing
-                    print("nb actions : ", len(list(self.game.active_player_actions)), " state : ", self.game.state)
                     if self.is_active_player_ai():  # ai turn
                         self.play_ai_move(event)
                     else:  # human turn
@@ -388,5 +380,4 @@ class GameController :
                     else:  # human turn
                         self.play_human_move(event)
         else:  # add buton to replay the game
-            print("nb actions : ", len(list(self.game.active_player_actions)), " state : ", self.game.state)
-            return 1
+            return int(self.game.active_player)

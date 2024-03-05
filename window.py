@@ -22,6 +22,7 @@ class Window():
         self.__mutex_event = threading.Lock()
         self.__threads_ai[0].start()
         self.__threads_ai[1].start()
+        self.__winner = None
 
     ###########
     # GETTERS #
@@ -55,19 +56,20 @@ class Window():
 
     def handle_event(self) -> None:
         event = pg.event.get()
+        if len(event) != 0:
+            for e in event:
+                if e.type == pg.QUIT:
+                    pg.quit()
+                    exit()
         res = 0
         self.__mutex_event.acquire()
         try:
             res = self.game_controller.handle(event)
         finally:
             self.__mutex_event.release()
-        if res == 1:
+        if res == 0 or res == 1:
             self.__thread_run = False
-        if len(event) != 0:
-            for e in event:
-                if e.type == pg.QUIT:
-                    pg.quit()
-                    exit()
+            self.__winner = "Whites" if res == 0 else "Blacks"
 
     def handle_event_thread(self, thread_index: int) -> None:
         while self.__thread_run:
@@ -81,8 +83,8 @@ class Window():
             self.__cmpt += 1
         finally:
             self.__mutex_move.release()
-        if self.__cmpt == 1:
-            self.game_displayer.menu_displayer.moves_displayer.add_text("The game is over, you can replay by pressing the reset button.", dt.Colors.RED)
+        if self.__cmpt == 1:  # to only show the message once
+            self.game_displayer.menu_displayer.moves_displayer.add_text(f'The {self.__winner} won the game.', dt.Colors.RED)
 
     def main_loop(self) -> None:
         running = True
@@ -90,7 +92,3 @@ class Window():
             pg.display.update()
             self.display()
             pg.event.pump()
-        # last update for when the game is over
-        pg.display.update()
-        self.display()
-        pg.event.pump()
