@@ -415,5 +415,6 @@ class GameController :
                         self.play_ai_move(event)
                     else:  # human turn
                         self.play_human_move(event)
-        else:  # add buton to replay the game
+        else:
             self.handle_popup_end_game(event)
+            return int(self.game.active_player)

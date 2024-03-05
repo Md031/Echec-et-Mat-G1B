@@ -9,12 +9,14 @@ import views.button as btn
 
 class GameDisplayer :
     def __init__(self, font) -> None:
+        self.__font = font
         self.__board_displayer : boardD.BoardDisplayer = None
         self.__menu_displayer = menuD.MenuDisplayer()
         self.__popup_game_has_ended: pup.Popup = pup.Popup((350, 350), position=(dt.Utils.DEFAULT_WINDOW_WIDTH - 405, dt.Utils.DEFAULT_WINDOW_HEIGHT - 500))
         self._init_game_has_ended_popup(font)
         self.__popup_pawn_promotion : pup.Popup = pup.Popup((300, 100))
         self._init_pawn_promotion_popup(font)
+        self.__popup_game_has_ended_updated = False
 
     def _init_pawn_promotion_popup(self, font) -> None :
         self.pawn_promotion_popup.add_widget(txt.Text(
@@ -31,7 +33,7 @@ class GameDisplayer :
 
     def _init_game_has_ended_popup(self, font) -> None:
         self.__popup_game_has_ended.reset_content()
-        self.__popup_game_has_ended.add_widget(txt.Text((self.__popup_game_has_ended.x + 95, self.__popup_game_has_ended.y + 85), "La partie est terminée.", font))
+        self.__popup_game_has_ended.add_widget(txt.Text((self.__popup_game_has_ended.x + 100, self.__popup_game_has_ended.y + 45), "La partie est terminée.", font))
         self.__popup_game_has_ended.add_widget(txt.Text((self.__popup_game_has_ended.x + 60, self.__popup_game_has_ended.y + 125), "Cliquez sur CLOSE pour fermer la jeu.", font))
         # Création du bouton CLOSE (ferme le programme)
         button_pos : tuple[int] = (self.__popup_game_has_ended.x + 140, self.__popup_game_has_ended.y + 190)
@@ -68,4 +70,7 @@ class GameDisplayer :
         else:
             self.__board_displayer.display(window)
             self.__menu_displayer.display(window)
+            if not self.__popup_game_has_ended_updated:
+                self.__popup_game_has_ended.add_widget(txt.Text((self.__popup_game_has_ended.x + 87, self.__popup_game_has_ended.y + 85), f"Les gagnants sont les {window.winner}", self.__font, color=dt.Colors.BLACK if window.winner=="Blacks" else dt.Colors.BROWN))
+                self.__popup_game_has_ended_updated = True
             self.__popup_game_has_ended.display(window)

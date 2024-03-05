@@ -52,6 +52,10 @@ class Window():
     def game_running(self) -> bool:
         return self.__game_running
     
+    @property
+    def winner(self) -> str:
+        return self.__winner
+    
     ###################
     # OTHER FUNCTIONS #
     ###################
