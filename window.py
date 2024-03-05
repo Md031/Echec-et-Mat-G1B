@@ -17,6 +17,7 @@ class Window():
         pg.display.set_caption("pyChess")
         self.__thread_run = True
         self.__cmpt = 0
+        self.__game_running = True
         self.__threads_ai = [threading.Thread(target=self.handle_event_thread, args=[0]), threading.Thread(target=self.handle_event_thread, args=[1])]
         self.__mutex_move = threading.Lock()
         self.__mutex_event = threading.Lock()
@@ -46,10 +47,15 @@ class Window():
     @property
     def font(self) -> pg.font.Font:
         return self.__font
-
+    
+    @property 
+    def game_running(self) -> bool:
+        return self.__game_running
+    
     ###################
     # OTHER FUNCTIONS #
     ###################
+
     def display(self) -> None:
         self.game_displayer.display(self)
         self.__clock.tick(60)
@@ -72,7 +78,7 @@ class Window():
             self.__winner = "Whites" if res == 0 else "Blacks"
 
     def handle_event_thread(self, thread_index: int) -> None:
-        while self.__thread_run:
+        while not self.__game_controller.player_exited_program:
             self.__mutex_move.acquire()
             try:
                 self.handle_event()
@@ -87,8 +93,9 @@ class Window():
             self.game_displayer.menu_displayer.moves_displayer.add_text(f'The {self.__winner} won the game.', dt.Colors.RED)
 
     def main_loop(self) -> None:
-        running = True
-        while running:
+        while self.__game_running or not self.__game_controller.player_exited_program:
             pg.display.update()
             self.display()
             pg.event.pump()
+            if self.game_controller.game.is_over:
+                self.__game_running = False

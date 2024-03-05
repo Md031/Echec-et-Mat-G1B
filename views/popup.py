@@ -4,9 +4,10 @@ import views.widget as wdgt
 
 class Popup(wdgt.Widget) :
     def __init__(self, size : tuple[int], content : list[wdgt.Widget] = [], 
-    frame : tuple[int] = (dt.Utils.DEFAULT_BOARD_DIMENSIONS, dt.Utils.DEFAULT_BOARD_DIMENSIONS)) :
+    frame : tuple[int] = (dt.Utils.DEFAULT_BOARD_DIMENSIONS, dt.Utils.DEFAULT_BOARD_DIMENSIONS), position = None) :
         self.__size : tuple[int] = size
-        position : tuple[int] = ((frame[0] - self.size[0]) // 2, (frame[1] - self.size[1]) // 2)
+        if position is None:
+            position : tuple[int] = ((frame[0] - self.size[0]) // 2, (frame[1] - self.size[1]) // 2)
         super().__init__(position, "Pop-up")
         self.__content : list[wdgt.Widget] = content
         self.__active : bool = False
@@ -41,6 +42,9 @@ class Popup(wdgt.Widget) :
         self.set_active(False)
         for widget in self.content :
             widget.reset()
+    
+    def reset_content(self) -> None:
+        self.__content = []
 
     def __str__(self) -> str :
         popup_str : str = f"{self.name} :\n"

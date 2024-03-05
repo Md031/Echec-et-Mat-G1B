@@ -9,6 +9,7 @@ import models.Ia as ia
 import views.text as txt
 import threading
 import time
+import window as win
 
 class GameController :
     def __init__(self, window, playerWhite, playerBlack) -> None:
@@ -28,9 +29,13 @@ class GameController :
         self.__to_animate : list[tuple[any, tuple[int], tuple[int]]] = []
         self.__last_two_moves = [None, None]
         self.__iaType = ["Minimax", "Random", "Neural Network"]
+        self.__player_exited_program = False
 
     @property
     def game(self) -> gm.Game : return self.__game
+
+    @property
+    def player_exited_program(self) -> bool : return self.__player_exited_program
 
     @property
     def game_displayer(self) -> gameD.GameDisplayer : return self.__game_displayer
@@ -264,7 +269,7 @@ class GameController :
         self.play_move()
         self.set_move(None)
 
-    def handle_popup_mouse_motion(self, event) -> None :
+    def handle_popup_pawn_promotion_mouse_motion(self, event) -> None :
         pawn_promotion_popup = self.game_displayer.pawn_promotion_popup
         mouse_pos : tuple[int] = event.pos
         for widget in pawn_promotion_popup.content :
@@ -274,7 +279,17 @@ class GameController :
                 else : 
                     widget.set_visited(False)
 
-    def handle_popup_mouse_click(self, event) -> None :
+    def handle_popup_end_game_mouse_motion(self, event) -> None :
+        end_game_popup = self.game_displayer.end_game_popup
+        mouse_pos : tuple[int] = event.pos
+        for widget in end_game_popup.content :
+            if widget.name != "Text" :
+                if mouse_pos in widget : 
+                    widget.set_visited(True)
+                else : 
+                    widget.set_visited(False)
+
+    def handle_popup_pawn_promotion_mouse_click(self, event) -> None :
         pawn_promotion_popup = self.game_displayer.pawn_promotion_popup
         mouse_pos : tuple[int] = event.pos
         for widget in pawn_promotion_popup.content :
@@ -285,11 +300,28 @@ class GameController :
                         self.promote_pawn(widget.content.text)
                         pawn_promotion_popup.reset() 
 
+    def handle_popup_end_game_mouse_click(self, event) -> None :
+        end_game_popup = self.game_displayer.end_game_popup
+        mouse_pos : tuple[int] = event.pos
+        for widget in end_game_popup.content :
+            if widget.name != "text" :
+                if mouse_pos in widget : 
+                    widget.set_clicked(not widget.is_clicked)
+                    if widget.is_clicked :
+                        if widget.content.text == "CLOSE": # If it's the CLOSE button that is clicked
+                            self.__player_exited_program = True
+    
+    def handle_popup_end_game(self, event) -> None :
+        for e in event:
+            match e.type :
+                case pg.MOUSEMOTION : self.handle_popup_end_game_mouse_motion(e)
+                case pg.MOUSEBUTTONDOWN : self.handle_popup_end_game_mouse_click(e)
+
     def handle_pawn_promotion(self, event) -> None :
         for e in event:
             match e.type :
-                case pg.MOUSEMOTION : self.handle_popup_mouse_motion(e)
-                case pg.MOUSEBUTTONDOWN : self.handle_popup_mouse_click(e)
+                case pg.MOUSEMOTION : self.handle_popup_pawn_promotion_mouse_motion(e)
+                case pg.MOUSEBUTTONDOWN : self.handle_popup_pawn_promotion_mouse_click(e)
 
     def handle_mouse_motion(self, event) -> None :
         mouse_pos : tuple[int] = event.pos
@@ -313,6 +345,9 @@ class GameController :
                 self.revert_move()    
         
     def handle_reset_button_pressed(self):
+        self.reset_game()
+
+    def reset_game(self):
         self.game.reset()
         self.game_displayer.set_game(self.game)
         self.game_displayer.pawn_promotion_popup.reset()
@@ -370,6 +405,7 @@ class GameController :
                 self.handle_pawn_promotion(event)
             else:
                 if self.game.active_player:  # the whites are playing
+                    #print("nb actions : ", len(list(self.game.active_player_actions)), " state : ", self.game.state)
                     if self.is_active_player_ai():  # ai turn
                         self.play_ai_move(event)
                     else:  # human turn
@@ -380,4 +416,4 @@ class GameController :
                     else:  # human turn
                         self.play_human_move(event)
         else:  # add buton to replay the game
-            return int(self.game.active_player)
+            self.handle_popup_end_game(event)
