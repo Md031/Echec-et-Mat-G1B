@@ -209,7 +209,7 @@ class GameController :
                 txt = f'{self.move.movement} {self.playerBlack.get_txt()}'
                 self.game_displayer.menu_displayer.moves_displayer.change_text(txt)
             else:
-                txt = txt = f'{self.move.movement} by Black'
+                txt = f'{self.move.movement} by Black'
                 self.game_displayer.menu_displayer.moves_displayer.add_text(txt, color)
         self.game.push_move(self.move.movement)
 
