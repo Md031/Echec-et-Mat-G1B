@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 from NeuralNetwork.chessNet import ChessNet
 from NeuralNetwork.chessDataSet import data_train_loader
+import random
 
-torch.manual_seed(41)
+torch.manual_seed(random.randint(1, 100))
 
 model = ChessNet()
 
@@ -59,7 +60,7 @@ for epoch_count, (X_input, y) in enumerate(data_train_loader): # X_input = 32 di
     losses.append(loss.detach().cpu().numpy()) # Sends data to the cpu so that it can be turned to a numpy array
 
     # print every 10 epoch
-    if epoch_count % 10 == 0:
+    if epoch_count % 100 == 0:
         print(f'Epoch: {epoch_count} and loss: {loss}')
 
     # Do some back propagation: take the error rate of forward propagation and feed it back

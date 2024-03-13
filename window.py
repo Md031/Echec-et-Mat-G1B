@@ -79,7 +79,6 @@ class Window():
             self.__mutex_event.release()
         if res == 0 or res == 1:
             self.__thread_run = False
-            self.__winner = "Whites" if res == 0 else "Blacks"
 
     def handle_event_thread(self, thread_index: int) -> None:
         while not self.__game_controller.player_exited_program:
@@ -97,7 +96,7 @@ class Window():
             self.game_displayer.menu_displayer.moves_displayer.add_text(f'The {self.__winner} won the game.', dt.Colors.RED)
 
     def main_loop(self) -> None:
-        while self.__game_running or not self.__game_controller.player_exited_program:
+        while not self.__game_controller.player_exited_program:
             pg.display.update()
             self.display()
             pg.event.pump()

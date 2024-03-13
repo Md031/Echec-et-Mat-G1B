@@ -400,6 +400,7 @@ class GameController :
 
     def handle(self, event) -> int :
         self.game.update_state()
+        print("state : ", self.game.state)
         if not self.game.is_over:
             if self.game_displayer.pawn_promotion_popup.is_active :  # when the popup of the promotion is active
                 self.handle_pawn_promotion(event)

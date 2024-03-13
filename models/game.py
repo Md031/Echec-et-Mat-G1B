@@ -33,7 +33,7 @@ class Game :
 
     @property
     def is_over(self) -> bool :
-        return self.__state in [dt.State.CHECKMATE, dt.State.STALEMATE, dt.State.DRAW]
+        return self.__state in [dt.State.CHECKMATE]
 
     @property
     def fen(self) -> str : self.board.fen
@@ -41,14 +41,14 @@ class Game :
     # other functions 
     def update_state(self) -> None :
         # we check if the state of the game is blocking in any way
-        # if self.board.is_check() : self.__state = dt.State.CHECK
-        if self.board.is_checkmate() : self.__state = dt.State.CHECKMATE
-        if self.board.is_stalemate() : self.__state = dt.State.STALEMATE
-        # if self.board.is_variant_draw() : self.__state = dt.State.DRAW
+        if self.board.is_check() : self.__state = dt.State.CHECK
+        elif self.board.is_checkmate() : self.__state = dt.State.CHECKMATE
+        elif self.board.is_stalemate(): self.__state = dt.State.STALEMATE
+        elif self.board.is_variant_draw() : self.__state = dt.State.DRAW
+        else: self.__state = dt.State.ONGOING
         self.__active_player_actions = self.board.legal_moves
         if len(list(self.__active_player_actions)) == 0:
             self.__state = dt.State.CHECKMATE
-        # if everything is ok we update the player actions
 
     def push_move(self, move : ch.Move) -> None :
         self.board.push(move)

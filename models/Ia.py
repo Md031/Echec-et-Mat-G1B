@@ -12,7 +12,7 @@ class Ai:   #Interface class
 		self.color = color
 		self.timer = timer
 
-	def move():
+	def move(self):
 		raise Exception("NotImplementedException")
 	
 	def set_game(self, game):
@@ -53,7 +53,7 @@ class Minimax(Ai):
 
 	def type_ia(self) -> str: return "Minimax"
 
-	def move(self, max_depth: int = 5) -> ch.Move:
+	def move(self, max_depth: int = 2) -> ch.Move:
 		self.__nodes_expanded = 0
 		start_time = time.time()
 		if self.game.active_player == ch.WHITE:
