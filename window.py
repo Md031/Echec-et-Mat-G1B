@@ -21,6 +21,7 @@ class Window():
         self.__threads_ai = [threading.Thread(target=self.handle_event_thread, args=[0]), threading.Thread(target=self.handle_event_thread, args=[1])]
         self.__mutex_move = threading.Lock()
         self.__mutex_event = threading.Lock()
+        self.__mutex_quit = threading.Lock()
         self.__threads_ai[0].start()
         self.__threads_ai[1].start()
         self.__winner = None
@@ -60,17 +61,25 @@ class Window():
     # OTHER FUNCTIONS #
     ###################
 
+    def check_quit(self, event) -> None:
+        if len(event) != 0:
+            for e in event:
+                if e.type == pg.QUIT:
+                    self.__game_controller.set_exited_progam()
+                    pg.quit()
+                    exit()
+
     def display(self) -> None:
         self.game_displayer.display(self)
         self.__clock.tick(60)
 
     def handle_event(self) -> None:
         event = pg.event.get()
-        if len(event) != 0:
-            for e in event:
-                if e.type == pg.QUIT:
-                    pg.quit()
-                    exit()
+        self.__mutex_quit.acquire()
+        try:
+            self.check_quit(event)
+        finally:
+            self.__mutex_quit.release()
         res = 0
         self.__mutex_event.acquire()
         try:
@@ -96,7 +105,7 @@ class Window():
             self.game_displayer.menu_displayer.moves_displayer.add_text(f'The {self.__winner} won the game.', dt.Colors.RED)
 
     def main_loop(self) -> None:
-        while not self.__game_controller.player_exited_program:
+        while self.__game_running or not self.__game_controller.player_exited_program:
             pg.display.update()
             self.display()
             pg.event.pump()
