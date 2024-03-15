@@ -47,19 +47,20 @@ class Random(Ai):
 		return f'by Random in {self.get_timer()} seconds.'
 	
 class Minimax(Ai):
-	def __init__(self, color, game = None, timer = 0.0):
+	def __init__(self, color, depth : int, game = None, timer = 0.0):
 		super().__init__(color, game, timer)
 		self.__nodes_expanded = 0
+		self.__depth : int = depth
 
 	def type_ia(self) -> str: return "Minimax"
 
-	def move(self, max_depth: int = 4) -> ch.Move:
+	def move(self) -> ch.Move:
 		self.__nodes_expanded = 0
 		start_time = time.time()
 		if self.game.active_player == ch.WHITE:
-			move = self.maximize(max_depth)[1]
+			move = self.maximize(self.__depth)[1]
 		else :
-			move = self.minimize(max_depth)[1]
+			move = self.minimize(self.__depth)[1]
 		end_time = time.time()
 		self.timer = end_time - start_time
 		return move
