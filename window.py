@@ -101,8 +101,8 @@ class Window():
             self.__cmpt += 1
         finally:
             self.__mutex_move.release()
-        if self.__cmpt == 1:  # to only show the message once
-            self.game_displayer.menu_displayer.moves_displayer.add_text(f'The {self.__winner} won the game.', dt.Colors.RED)
+        # if self.__cmpt == 1:  # to only show the message once
+        #     self.game_displayer.menu_displayer.moves_displayer.add_text(f'The {self.__winner} won the game.', dt.Colors.RED)
 
     def main_loop(self) -> None:
         while self.__game_running or not self.__game_controller.player_exited_program:

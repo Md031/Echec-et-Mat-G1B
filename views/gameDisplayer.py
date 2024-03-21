@@ -62,15 +62,15 @@ class GameDisplayer :
     def set_game(self, game : gm.Game) : self.__board_displayer = boardD.BoardDisplayer(game.board)
 
     def display(self, window) -> None : 
-        if window.game_running:
-            self.__board_displayer.display(window)
-            self.__menu_displayer.display(window)
-            if self.pawn_promotion_popup.is_active :
-                self.pawn_promotion_popup.display(window)
-        else:
-            self.__board_displayer.display(window)
-            self.__menu_displayer.display(window)
-            if not self.__popup_game_has_ended_updated:
-                self.__popup_game_has_ended.add_widget(txt.Text((self.__popup_game_has_ended.x + 87, self.__popup_game_has_ended.y + 85), f"Les gagnants sont les {window.winner}", self.__font, color=dt.Colors.BLACK if window.winner=="Blacks" else dt.Colors.BROWN))
-                self.__popup_game_has_ended_updated = True
-            self.__popup_game_has_ended.display(window)
+        # if window.game_running:
+        self.__board_displayer.display(window)
+        self.__menu_displayer.display(window)
+        if self.pawn_promotion_popup.is_active :
+            self.pawn_promotion_popup.display(window)
+        # else:
+        #     self.__board_displayer.display(window)
+        #     self.__menu_displayer.display(window)
+        #     if not self.__popup_game_has_ended_updated:
+        #         self.__popup_game_has_ended.add_widget(txt.Text((self.__popup_game_has_ended.x + 87, self.__popup_game_has_ended.y + 85), f"Les gagnants sont les {window.winner}", self.__font, color=dt.Colors.BLACK if window.winner=="Blacks" else dt.Colors.BROWN))
+        #         self.__popup_game_has_ended_updated = True
+        #     self.__popup_game_has_ended.display(window)
