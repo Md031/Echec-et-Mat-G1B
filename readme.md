@@ -1,4 +1,4 @@
-Here's the different way to run the code
+Here are the different ways to run the code
 # Human vs Human
 ```bash
 python main.py
