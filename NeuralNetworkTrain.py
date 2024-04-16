@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 from NeuralNetwork.chessNet import ChessNet
 from NeuralNetwork.chessDataSet import data_train_loader
-import random
+import time
 
-torch.manual_seed(random.randint(1, 100))
+torch.manual_seed(int(time.time()))
 
 model = ChessNet()
 
